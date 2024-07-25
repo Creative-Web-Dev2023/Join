@@ -10,6 +10,11 @@ body {
 
 /* GLOBAL */
 
+.centering {
+    display: flex;
+    justify-content: center;
+}
+
 .pointer {
     cursor: pointer;
 }
@@ -107,7 +112,6 @@ body {
     align-items: center;
     gap: 10px;
     font-size: 14px;
-    padding-top: 30px;
 }
 
 .checkbox-container input {
@@ -173,7 +177,6 @@ body {
 .error-message {
     color: red;
     font-size: 12px;
-    margin-top: 5px;
     display: none;
 }
 
@@ -185,13 +188,6 @@ input[type="checkbox"]:invalid + label + .error-message {
 input:valid + .error-message,
 input[type="checkbox"]:valid + label + .error-message {
     display: none;
-}
-
-.input-container {
-    display: flex;
-    align-items: center;
-    position: relative;
-    flex-direction: column;
 }
 
 .input-container i {
@@ -230,4 +226,20 @@ input[type="checkbox"]:valid + label + .error-message {
     color: #44b6e6;
 }
 
-
+#successPopup {
+    display: none;
+    position: fixed;
+    bottom: -50px; /* Start hidden below the screen */
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #2a3647;
+    color: white;
+    border: 2px solid #2a3647;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: bottom 1.5s ease; /* Change duration to 1.5 seconds */
+    font-family: Arial, sans-serif; /* Specify the font */
+    font-size: 14px; /* Adjust the font size */
+    z-index: 99;
+}
