@@ -1,0 +1,11 @@
+@media(max-width: 490px) {
+    .arrow-interface {
+        width: 385px;
+    }
+}
+
+@media(max-width: 460px) {
+    .arrow-interface {
+        width: 360px;
+    }
+}

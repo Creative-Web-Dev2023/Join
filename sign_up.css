@@ -6,7 +6,6 @@ body {
     align-items: center;
     height: 100vh; /* Ensure the body takes up the full height of the viewport */
     background-color: #f0f0f0;
-    flex-direction: column;
 }
 
 /* GLOBAL */
@@ -22,8 +21,8 @@ body {
 
 .arrow-interface {
     position: absolute;
-    height: 425px;
-    width: 483px;
+    height: 432px;
+    width: 420px;
     z-index: 99;
 }
 
@@ -51,6 +50,7 @@ body {
     height: 560px;
     display: flex;
     flex-direction: column;
+    margin: 20px;
 }
 
 .headline {
@@ -126,6 +126,7 @@ body {
     justify-content: center;
     align-items: center;
     gap: 40px;
+    margin: 10px;
 }
 
 .input-area-and-button {
