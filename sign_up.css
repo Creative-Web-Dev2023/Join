@@ -6,6 +6,7 @@ body {
     align-items: center;
     height: 100vh; /* Ensure the body takes up the full height of the viewport */
     background-color: #f0f0f0;
+    font-family: 'Inter', sans-serif;
 }
 
 /* GLOBAL */
