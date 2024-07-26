@@ -5,7 +5,8 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh; /* Ensure the body takes up the full height of the viewport */
-    background-color: #f0f0f0; 
+    background-color: #f0f0f0;
+    flex-direction: column;
 }
 
 /* GLOBAL */
@@ -111,12 +112,12 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 14px;
+    font-size: 17px;
 }
 
 .checkbox-container input {
     width: auto;
-    margin: 0;
+    margin: 10;
 }
 
 .interface {
@@ -133,11 +134,6 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 99;
-}
-
-.link-decoration {
-    text-decoration: none;
-    color: #44b6e6;
 }
 
 .link-decoration:hover {
@@ -202,7 +198,7 @@ input[type="checkbox"]:valid + label + .error-message {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 20px;
+    gap: 40px;
     flex-direction: column;
 }
 
@@ -242,4 +238,23 @@ input[type="checkbox"]:valid + label + .error-message {
     font-family: Arial, sans-serif; /* Specify the font */
     font-size: 14px; /* Adjust the font size */
     z-index: 99;
+}
+
+.bottom-policy-and-co {
+    display: flex;
+    gap: 40px;
+    position: absolute;
+    bottom: 67px;
+    margin: 20px;
+}
+
+.link-decoration-bottom {
+    text-decoration: none;
+    color: #a8a8a8;
+}
+
+.link-decoration-bottom:hover {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #44b6e6;
 }
