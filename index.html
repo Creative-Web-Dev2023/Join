@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="login.css">
+	<link rel="shortcut icon" href="./assets/img/favicon.svg" type="image/x-icon">
+	<title>Login</title>
+</head>
+<body>
+	<div class="start-screen"></div>
+	<img class="logo-start-screen" src="./assets/img/Capa_2.svg">
+	<div class="logo-start-screen-white"></div>
+	<div class="header">
+		<div class="register-section">
+			<span class="typ-register-span">Not a Join user?</span>
+			<button class="button-signup" onclick="openSignUpPage()">Sign up</button>
+		</div>
+	</div>
+	 <div class="login-section-div">
+		<div class="login-section">
+			<div class="header-section">
+				<div class="header-login">Login</div>
+				<div class="border-login"></div>
+			</div>
+			<form id="loginForm" onsubmit="login(); return false;">
+				<div class="input-fields">
+					<div class="input-container">
+						<input autocomplete="off" onfocus="resetOutline('email')" id="email" minlength="3" class="input"
+							type="email" placeholder="Email">
+						<img class="email-icon" src="./assets/img/mail.svg">
+					</div>
+					<div id="messageboxEmail" class="message-box"></div>
+					<div class="input-container">
+						<input autocomplete="off" onfocus="resetOutline('password')" id="password"
+							pattern="^[A-Za-z][A-Za-z ]*$" minlength="3" class="input" type="password"
+							placeholder="Password">
+						<img id="passwordImage" class="email-icon" src="./assets/img/lock.svg">
+					</div>
+					<div id="messageboxPassword" class="message-box"></div>
+					<div class="remember-me">
+						<input class="check-box" type="checkbox" id="checkbox">
+						<span>Remember me</span>
+					</div>
+					<div class="login-buttons">
+						<button type="submit" class="button-login">Log In</button>
+						<button onclick="guestLogin()" type="button" class="button-guest" id="loginButton">Guest Log
+							In</button>
+					</div>
+			</form>
+		</div>
+	</div>
+	<div class="responsive-header">
+		<div class="register-section">
+			<span class="typ-register">Not a Join user?</span>
+			<button onclick="openSignUpPage()" class="button-signup">Sign up</button>
+		</div>
+	</div>
+	<div class="policy">
+		<span onclick="openPrivacyPolicyPage()" class="privacy-policy">Privacy Policy</span>
+		<span onclick="openLegalNoticePage()" class="legal-notice">Legal notice</span>
+	</div>
+	<script src="login.js"></script>
+</body>
+
+</html>
