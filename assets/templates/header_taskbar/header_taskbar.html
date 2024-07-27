@@ -18,8 +18,16 @@
             <p>Kanban Project Management Tool</p>
         </div>
         <div class="header-img-right">
-            <img class="help" src="/assets/templates/header_taskbar/img/help.png" alt="">
-            <img class="user" src="/assets/templates/header_taskbar/img/guest.png" alt="">
+            <img class="help" src="/assets/templates/header_taskbar/img/image.png" alt="">
+            <div class="user" id="dropdownButton" onclick="showDropDown()">
+                <p>m</p>
+                <div id="dropdown" class="dropdown" style="display: none;">
+                    <a href="#">Help</a>
+                    <a href="#">Legal Notice</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Log out</a>
+                </div>
+            </div>
         </div>
     </header>
     <div class="bar-left">
@@ -45,8 +53,8 @@
             </div>
         </div>
         <div class="navigation-links">
-            <p>Privacy Policy</p>
-            <p>Legal notice</p>
+            <a href="">Privacy Policy</a>
+            <a href="">Legal notice</a>
         </div>
     </div>
 
