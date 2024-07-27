@@ -8,4 +8,43 @@
     .arrow-interface {
         width: 360px;
     }
+
+    .headline-h1 {
+        width: 285px;
+        height: 87px;
+    }
+}
+
+@media(max-width: 380px) {
+    .border {
+        width: 80%;
+    }
+
+    .arrow-interface {
+        width: 315px;
+    }
+}
+
+@media(max-width: 350px) {
+    .arrow-interface {
+        width: 283px;
+    }
+}
+
+@media(max-height: 1100px) {
+    .join-logo {
+        top: 54px;
+    }
+}
+
+@media(max-height: 1040px) {
+    .join-logo {
+        top: 20px;
+    }
+}
+
+@media(max-height: 1040px) {
+    .join-logo {
+        display: none;
+    }
 }

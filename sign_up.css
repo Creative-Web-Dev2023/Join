@@ -7,6 +7,7 @@ body {
     height: 100vh; /* Ensure the body takes up the full height of the viewport */
     background-color: #f0f0f0;
     font-family: 'Inter', sans-serif;
+    flex-direction: column;
 }
 
 /* GLOBAL */
@@ -59,6 +60,11 @@ body {
     align-items: center;
     gap: 10px;
     padding-top: 26px;
+}
+
+.headline-h1 {
+    width: 315px;
+    height: 89px;
 }
 
 .form-container {
@@ -218,9 +224,7 @@ input[type="checkbox"]:valid + label + .error-message {
 }
 
 .link-decoration:hover {
-    text-decoration: underline;
-    font-size: 1.1em;
-    font-weight: bold;
+    transform: scaleX(1.2) scaleY(1.2);
     color: #44b6e6;
 }
 
@@ -245,7 +249,6 @@ input[type="checkbox"]:valid + label + .error-message {
 .bottom-policy-and-co {
     display: flex;
     gap: 40px;
-    position: absolute;
     bottom: 67px;
     margin: 20px;
 }
@@ -256,7 +259,6 @@ input[type="checkbox"]:valid + label + .error-message {
 }
 
 .link-decoration-bottom:hover {
-    font-size: 1.1em;
-    font-weight: bold;
+    transform: scaleX(1.2) scaleY(1.2);
     color: #44b6e6;
 }
