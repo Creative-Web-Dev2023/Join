@@ -2,6 +2,7 @@ body {
     margin: 0px;
     height: 100vh;
     font-family: 'Inter', sans-serif;
+    background-color: #dddddd;
 }
 
 header {
@@ -187,4 +188,68 @@ header {
             color: #29ABE2;
         }
     }
+}
+
+/* SUMMARY CSS */
+
+.gap-30 {
+    gap: 30px;
+}
+
+.flex {
+    display: flex;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+}
+
+.align-center {
+    align-items: center;
+    display: flex;
+}
+
+.main-container {
+    padding-left: 328px;
+    margin-top: 120px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.h1-header {
+    font-size: 61px;
+}
+
+.parting-line {
+    height: 59px;
+    border: 3px;
+}
+
+.span-headline {
+    font-size: 27px;
+}
+
+.to-do-and-done {
+    display: flex;
+}
+
+.bordering {
+    width: 264px;
+    height: 168px;
+    border-radius: 30px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+}
+
+.img-size {
+    width: 69px;
+    height: 69px;
 }
