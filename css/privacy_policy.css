@@ -240,12 +240,41 @@ nav {
   align-items: center;
   max-width: 1014px;
 }
- main h1 {
-  font-size: 61px;
-  font-weight: 700;
-}
-.informationHeader img {
+
+.information-header img {
   padding: 1px;
+}
+.information-header img:hover{
+  background-color: #D1D1D1;
+  border-radius: 45px;
+  height: 26px;
+  width: 26px;
+  padding: 4px;
+}
+.information-text{
+  max-width: 1014px;
+ margin-bottom: 50px;
+}
+p {
+  line-height: 24px;
+}
+h3 {
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 32.4px;
+  padding-bottom: 8px;
+  padding-top: 16px;
+}
+h4{
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 19.2px;
+  padding-top: 16px;
+  padding-bottom: 8px;
+}
+li {
+  margin-left: 24px;
+  line-height: 24px;
 }
 .go-back {
   max-width: 1440px;
@@ -278,7 +307,7 @@ nav {
 }
 
 @media (max-width: 1000px) {
-  .nav-inks a {
+  .nav-links a {
     padding: 8px 32px;
   }
 }
