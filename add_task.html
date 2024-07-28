@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <title>Document</title>
+    <link rel="stylesheet" href="/assets/templates/header_taskbar/header_taskbar.css">
+    <link rel="stylesheet" href="/assets/templates/header_taskbar/header_taskbar_responsive.css">
+    <link rel="stylesheet" href="add_task.css">
+    <script src="/assets/templates/header_taskbar/header_taskbar.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="div-join-img3" style="display: none">
+            <img class="join-img3" src="/assets/templates/header_taskbar/img/join_small.png" alt=""
+                style="display: none;">
+        </div>
+        <div>
+            <p class="header-text">Kanban Project Management Tool</p>
+        </div>
+        <div class="header-img-right">
+            <img class="help" src="/assets/templates/header_taskbar/img/image.png" alt="">
+            <div class="user" id="dropdownButton" onclick="showDropDown()">
+                <p>m</p>
+                <div id="dropdown" class="dropdown" style="display: none;">
+                    <a href="#">Help</a>
+                    <a href="#">Legal Notice</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Log out</a>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="bar-left">
+        <div class="join-img">
+            <img class="join-img2" src="/assets/templates/header_taskbar/img/Join.png" alt="">
+        </div>
+        <div class="navigation">
+            <div class="nav-items">
+                <img src="/assets/templates/header_taskbar/img/Summary.png" alt="">
+                <p>Summary</p>
+            </div>
+            <div class="nav-items bg-dark">
+                <img src="/assets/templates/header_taskbar/img/Add_task.png" alt="">
+                <p>Add Task</p>
+            </div>
+            <div class="nav-items">
+                <img src="/assets/templates/header_taskbar/img/Board.png" alt="">
+                <p>Board</p>
+            </div>
+            <div class="nav-items">
+                <img src="/assets/templates/header_taskbar/img/contacts.png" alt="">
+                <p>Contacts</p>
+            </div>
+        </div>
+        <div class="navigation-links">
+            <a href="">Privacy Policy</a>
+            <a href="">Legal notice</a>
+        </div>
+    </div>
+    <div class="main-section">
+        <h1>Add Task</h1>
+        <div class="format-sections">
+            <form>
+                <div class="first-container">
+                    <div class="first-container-formatted part-1">
+                        <label for="title">Title*</label>
+                        <input class="input-style-1" type="text">
+                    </div>
+                    <div class="first-container-formatted part-2">
+                        <label for="description">Description</label>
+                        <input class="input-style-2" type="text">
+                    </div>
+                    <div class="first-container-formatted part-3">
+                        <label for="assigned to">Assigned To</label>
+                        <select name="Selects contacts to assign" id="">
+                            <option>Anton Mayer</option>
+                            <option>Max Thomas</option>
+                            <option>Super Duper</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+
+            <div class="line"></div>
+            <div class="second-section">
+                <form>
+                    <div class="first-container">
+                        <div class="first-container-formatted part-1">
+                            <label for="due-date">Due date*</label>
+                            <input class="input-style-1" type="text">
+                        </div>
+                        <div>
+                            <label for="prio">Prio</label>
+                            <div class="prio-buttons">
+                                <img src="/img_add_task/urgent_standart.png" alt="">
+                                <img src="/img_add_task/medium_standart.png" alt="">
+                                <img src="/img_add_task/low_standart.png" alt="">
+                            </div>
+                        </div>
+                        <div class="first-container-formatted part-2">
+                            <label for="category">Category*</label>
+                            <select name="Selects contacts to assign" id="">
+                                <option>Anton Mayer</option>
+                                <option>Max Thomas</option>
+                                <option>Super Duper</option>
+                            </select>
+                        </div>
+                        <div class="first-container-formatted part-3">
+                            <label for="assigned to">Assigned To</label>
+                            <input class="input-style-1" type="text">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>    
+</body>
+
+</html>

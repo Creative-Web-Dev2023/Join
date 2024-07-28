@@ -1,0 +1,259 @@
+.bg-dark {
+    background: #091931;
+}
+
+.bg-dark:hover {
+    background: #091931 !important;
+}
+
+.main-section {
+    padding-left: 15%;
+    padding-left: 300px;
+}
+
+.format-sections {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+h1 {
+    font-size: 61px;
+    font-weight: 700;
+    line-height: 73.2px;
+    text-align: left;
+}
+
+.first-container {
+    width: 30vw;
+    height: 376px;
+    top: 327px;
+    left: 328px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.first-container-formatted {
+    display: flex;
+    flex-direction: column;
+}
+
+.part-1 {
+    width: 100%;
+    height: 96px;
+    gap: 8px;
+}
+
+.input-style-1 {
+    width: 100%;
+    height: 48px;
+    gap: 10px;
+    border-radius: 10px 10px 10px 10px;
+    border: 1px solid #D1D1D1;
+}
+
+.input-style-2 {
+    width: 100%;
+    height: 120px;
+    gap: 10px;
+    border-radius: 10px 10px 10px 10px;
+    border: 1px solid #D1D1D1;
+}
+
+label {
+    font-size: 20px;
+    font-weight: 400;
+    color: #2A3647;
+}
+
+select {
+    width: 100%;
+    height: 48px;
+    gap: 10px;
+    border-radius: 10px 10px 10px 10px;
+    border: 1px solid #D1D1D1;
+}
+
+.line {
+    background-color: #D1D1D1;
+    width: 1px;
+    height: 424px;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.prio-buttons {
+    width: 30vw;
+    height: 56px;
+    gap: 16px;
+    display: flex;
+    justify-content: space-between;
+
+    img {
+        width: 30%;
+        height: 56px;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 1060px) {
+    .main-section {
+        padding-left: 0px;
+    }
+
+    .header-text,
+    .help {
+        display: none;
+    }
+
+    .join-img {
+        display: none;
+    }
+
+    .navigation-links {
+        display: none !important;
+    }
+
+    .bar-left {
+        width: 100%;
+        height: 80px;
+        top: auto !important;
+        bottom: 0;
+    }
+
+    .navigation {
+        flex-direction: row !important;
+        width: 100% !important;
+        height: 76px !important;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
+    .nav-items {
+        flex-direction: column !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0px !important;
+        height: auto !important;
+        width: auto !important;
+
+        .img {
+            height: 24px;
+            width: 24px;
+        }
+
+        p {
+            margin-top: 0px;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+        }
+    }
+
+    .nav-items:hover {
+        width: 76px;
+        height: 76px;
+        border-radius: 8px 8px 8px 8px;
+        opacity: 0px;
+
+    }
+
+    header {
+        height: 80px !important;
+        width: 100% !important;
+        padding: 0px;
+        position: sticky;
+    }
+
+    .div-join-img3 {
+        padding-left: 10px;
+        display: block !important;
+    }
+
+    .join-img3 {
+        display: block !important;
+        width: 32px;
+        height: 39.02px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-section {
+        padding-top: 50px;
+        padding-left: 0px;
+    }
+
+    .format-sections {
+        padding-top: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow-y: auto;
+        z-index: -1;
+        padding-bottom: 80px;
+    }
+
+    .input-style-2 {
+        height: 80px;
+    }
+
+    .line {
+        display: none;
+    }
+
+    .first-container {
+        width: 90vw;
+        height: auto;
+        gap: 8px;
+    }
+
+    h1 {
+        padding-left: 10vw;
+        margin-bottom: 0px;
+        margin-top: 30.5px;
+        font-size: 47px;
+        font-weight: 700;
+        position: fixed;
+        background-color: white;
+        width: 100%;
+    }
+
+    header {
+        position: fixed;
+        top: 0;
+        background-color: white;
+    }
+
+    .bar-left {
+        position: fixed;
+        bottom: 0px;
+    }
+
+    label {
+        font-size: 16px;
+    }
+
+    .input-style-1 {
+        height: 40px !important;
+    }
+
+    .first-container-formatted {
+        height: auto;
+    }
+
+    .part-2 {
+        margin-bottom: 16px;
+    }
+
+    .part-3 {
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .prio-buttons {
+        width: 90vw;
+    }
+}

@@ -5,12 +5,12 @@ function openSignUpPage() {
 
 // Funktion zum Öffnen der Datenschutzrichtlinienseite
 function openPrivacyPolicyPage() {
-    window.location.href = 'privacy-policy.html'; // URL der Datenschutzrichtlinie
+    window.location.href = 'privacy_policy.html'; // URL der Datenschutzrichtlinie
 }
 
 // Funktion zum Öffnen der rechtlichen Hinweise
 function openLegalNoticePage() {
-    window.location.href = 'legal-notice.html'; // URL der rechtlichen Hinweise
+    window.location.href = 'legal_notice.html'; // URL der rechtlichen Hinweise
 }
 
 // Funktion zum Zurücksetzen der Umrandung bei Fokus
