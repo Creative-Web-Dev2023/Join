@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="summary.css">
     <link rel="stylesheet" href="sign_up_responsive.css">
+    <link rel="stylesheet" href="./assets/templates/header_taskbar/header_taskbar.css">
+    <link rel="stylesheet" href="./assets/templates/header_taskbar/header_taskbar_responsive.css">
+    <script src="./assets/templates/header_taskbar/header_taskbar.js"></script>
     <script src="summary.js"></script>
 </head>
+
 <body>
     <header>
+        <div class="div-join-img3">
+            <img class="join-img3" src="/assets/templates/header_taskbar/img/join_small.png" alt=""
+                style="display: none;">
+        </div>
         <div>
-            <p>Kanban Project Management Tool</p>
+            <p class="header-text">Kanban Project Management Tool</p>
         </div>
         <div class="header-img-right">
             <img class="help" src="/assets/templates/header_taskbar/img/image.png" alt="">
@@ -31,19 +40,19 @@
             <img class="join-img2" src="/assets/templates/header_taskbar/img/Join.png" alt="">
         </div>
         <div class="navigation">
-            <div>
+            <div class="nav-items">
                 <img src="/assets/templates/header_taskbar/img/Summary.png" alt="">
                 <p>Summary</p>
             </div>
-            <div>
+            <div class="nav-items">
                 <img src="/assets/templates/header_taskbar/img/Add_task.png" alt="">
                 <p>Add Task</p>
             </div>
-            <div>
+            <div class="nav-items">
                 <img src="/assets/templates/header_taskbar/img/Board.png" alt="">
                 <p>Board</p>
             </div>
-            <div>
+            <div class="nav-items">
                 <img src="/assets/templates/header_taskbar/img/contacts.png" alt="">
                 <p>Contacts</p>
             </div>
@@ -61,32 +70,71 @@
             <span class="span-headline">Key Metrics at a Glance</span>
         </div>
 
-        <section>
-            <div class="to-do-and-done gap-30">
-                <div class="bordering">
-                    <img class="img-size" src="./assets/img/pencil_button.png">
+        <div class="flex align-center gap-100">
+            <section class="section">
+                <div class="to-do-and-done gap-30">
+                    <div class="bordering">
+                        <img class="img-size" src="./assets/img/pencil_button.png">
                         <div class="flex column align-center">
                             <span>1</span>
                             <span>To-do</span>
                         </div>
-                </div>
+                    </div>
 
-                <div class="bordering">
-                    <img class="img-size" src="./assets/img/check_button.png" alt="">
+                    <div class="bordering">
+                        <img class="img-size" src="./assets/img/check_button.png" alt="">
                         <div class="flex column align-center">
                             <span>1</span>
                             <span>Done</span>
                         </div>
+                    </div>
                 </div>
+
+                <div class="bordering-2">
+                    <div class="flex align-center gap-30">
+                        <img src="./assets/img/important_red.png">
+                        <div class="column align-center">
+                            <span>1</span>
+                            <span>Urgent</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <img src="./assets/img/partin_line_grey.png">
+                    </div>
+
+                    <div class="flex column gap-25">
+                        <span>October 16, 2024</span>
+                        <span>Upcoming Deadline</span>
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <div class="bordering column">
+                        <span>5</span>
+                        <span>Tasks in Board</span>
+                    </div>
+
+                    <div class="bordering column">
+                        <span>2</span>
+                        <span>Tasks In Progress</span>
+                    </div>
+
+                    <div class="bordering column">
+                        <span>2</span>
+                        <span>Awaiting feedback</span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="column align-center">
+                <p class="p-greeting">Good Morning</p>
+                <p class="p-greeting-name">Join Group</p>
             </div>
-
-            <div>
-
-            </div>
-        <section>
-
+        </div>
 
 
     </div>
 </body>
+
 </html>
