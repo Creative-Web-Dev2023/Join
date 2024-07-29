@@ -3,21 +3,36 @@ function addToBoard() {
     let category = document.getElementById('category');
     let date = document.getElementById('date');
 
-    let textError = documen
+    let isEmpty = false;
 
-    if (text.value == 0, category.value == 0, date.value == 0) {
+    if (text.value.trim() === '') {
         text.style.border = '1px solid #FF8190';
-        text.textContent = 'Fehler';
-        date.textContent = 'falsch';
-        category.style.border = '1px solid #FF8190';
-        date.style.border = '1px solid #FF8190';
+        isEmpty = true;
     } else {
-        console.log('siper')
-        text.value  = '';
         text.style.border = '1px solid #D1D1D1';
-        category.value = '';
+    }
+
+    if (category.value.trim() === '') {
+        category.style.border = '1px solid #FF8190';
+        isEmpty = true;
+    } else {
         category.style.border = '1px solid #D1D1D1';
-        date.value = '';
+    }
+
+    if (date.value.trim() === '') {
+        date.style.border = '1px solid #FF8190';
+
+        isEmpty = true;
+    } else {
         date.style.border = '1px solid #D1D1D1';
+    }
+
+    if (isEmpty) {
+        console.log('Please fill in all fields.');
+    } else {
+        console.log('All fields are filled. Proceeding...');
+        text.value = '';
+        category.value = '';
+        date.value = '';
     }
 }

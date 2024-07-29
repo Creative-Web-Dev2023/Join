@@ -47,7 +47,7 @@ h1 {
 
 .first-container {
     width: 30vw;
-    height: 376px;
+    height: 40vh;
     top: 327px;
     left: 328px;
     display: flex;
@@ -115,7 +115,7 @@ select {
 .line {
     background-color: #D1D1D1;
     width: 1px;
-    height: 424px;
+    height: 40vh;
     margin-left: 50px;
     margin-right: 50px;
 }
