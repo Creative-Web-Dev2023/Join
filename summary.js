@@ -4,7 +4,7 @@
     const hours = now.getHours();
 
     let greetingText;
-    if (hours < 12) {
+    if (hours < 18) {
         greetingText = 'Good Morning';
     } else if (hours < 18) {
         greetingText = 'Good Afternoon';

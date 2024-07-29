@@ -5,6 +5,15 @@ body {
     background-color: #dddddd;
 }
 
+.bg-dark {
+    background: #091931;
+    border-radius: 10px;
+}
+
+.bg-dark:hover {
+    background: #091931 !important;
+}
+
 .block {
     display: block;
 }
@@ -116,8 +125,6 @@ body {
 .bordering-top-1:hover span {
     color: white;
 }
-
-
 
 .bordering-top-2 {
     width: 100%;
