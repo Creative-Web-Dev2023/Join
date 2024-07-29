@@ -5,6 +5,10 @@ body {
     background-color: #dddddd;
 }
 
+.block {
+    display: block;
+}
+
 .gap-100 {
     gap: 100px;
 }
@@ -19,7 +23,27 @@ body {
 
 .flex {
     display: flex;
+    align-items: center;
 }
+
+.span-top {
+    font-size: 72px;
+    font-weight: 500;
+}
+
+.span-top-2 {
+    font-size: 20px;
+}
+
+.span-middle-right-top {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.span-middle-right-bottom {
+    font-size: 20px;
+}
+
 
 .column {
     display: flex;
@@ -92,6 +116,8 @@ body {
 .bordering-top-1:hover span {
     color: white;
 }
+
+
 
 .bordering-top-2 {
     width: 100%;
@@ -203,4 +229,10 @@ body {
     height: 77px;
     gap: 0px;
     opacity: 0px;
+}
+
+.greeting {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
 }

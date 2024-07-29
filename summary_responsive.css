@@ -1,0 +1,21 @@
+@media(max-width: 1170px) {
+    .greeting {
+        display: none;
+    }
+}
+
+@media(max-width: 1070px) {
+    .section {
+        padding-right: 20px;
+    }
+}
+
+@media(max-width: 770px) {
+    .main-container {
+        margin-top: 120px;
+        padding-left: 0px;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+}
