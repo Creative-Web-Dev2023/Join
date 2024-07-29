@@ -74,7 +74,7 @@
                     </div>
                     <div class="first-container-formatted part-2">
                         <label for="description">Description</label>
-                        <input class="input-style-2" placeholder="Enter a Description" type="text">
+                        <textarea class="input-style-2" placeholder="Enter a Description" type="text"></textarea>
                     </div>
                     <div class="first-container-formatted part-3">
                         <label for="assigned to">Assigned To</label>
@@ -98,11 +98,12 @@
                         <div>
                             <label for="prio">Prio</label>
                             <div class="prio-buttons">
-                                <img src="/img_add_task/urgent_standart.png" alt="">
-                                <img src="/img_add_task/medium_standart.png" alt="">
-                                <img src="/img_add_task/low_standart.png" alt="">
+                                <img class="prio-button" id="urgent" src="/img_add_task/urgent_standart.png" alt="Urgent">
+                                <img class="prio-button" id="medium" src="/img_add_task/medium_standart.png" alt="Medium">
+                                <img class="prio-button" id="low" src="/img_add_task/low_standart.png" alt="Low">
                             </div>
                         </div>
+                                                                 
                         <div class="first-container-formatted part-2">
                             <label for="category">Category <span class="red">*</span></label>
                             <select id="category" name="Selects contacts to assign" id="">
