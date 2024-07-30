@@ -1,0 +1,132 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <title>Contacts</title>
+    <link rel="stylesheet" href="../css/contacts.css">
+    <link rel="shortcut icon" href="../assets/img/favicon.svg" type="image/x-icon">
+</head>
+
+<body>
+    <header>
+        <div class="header-title">Kanban Project Management Tool</div>
+        <div class="header-logo">
+            <img src="../assets/img/favicon.svg">
+        </div>
+        <div class="header-icons">
+            <a href="../html/help.html" class="help-icon-container">
+                <img class="help-icon" src="../assets/img/help.svg" alt>
+            </a>
+            <div onclick="showSmallMenu()" id="activeUserButton" class="active-user">G</div>
+
+    </header>
+    <div id="smallMenu" class="small-menu no-display">
+        <a href="../html/legal_notice.html">Legal Notice</a>
+        <a href="../html/privacy_policy.html">Privacy Policy</a>
+        <a onclick="logout()" href="#">Log out</a>
+    </div>
+    <nav id="nav-bar">
+        <div class="nav-logo-div">
+            <img src="../assets//img/logo.png" alt class="logo">
+        </div>
+        <div class="nav-links">
+            <a id="summary" href="../html/summary.html">
+                <div class="icon-container">
+                    <img class="nav-icon" src="../assets/img/summary.png">
+                </div>Summary
+            </a>
+            <a id="addTask" href="../html/add_task.html">
+                <div class="icon-container">
+                    <img class="nav-icon" src="../assets/img/add_task.png">
+                </div>
+                Add Task
+            </a>
+            <a id="board" href="../html/board.html">
+                <div class="icon-container">
+                    <img class="nav-icon" src="../assets/img/board.png">
+                </div>
+                Board
+            </a>
+            <a id="contacts" href="../html/contacts.html">
+                <div class="icon-container">
+                    <img class="nav-icon" src="../assets/img/contacts.png">
+                </div>
+                Contacts
+            </a>
+        </div>
+        <div class="nav-legal-links">
+            <a href="privacy_policy.html">Privacy Policy</a>
+            <a href="legal_notice.html">Legal notice</a>
+        </div>
+    </nav>
+    <div id="smallNav" class="small-nav">
+        <a id="summarySmall" class="small-nav-element small-nav-link-active" href="../html/summary.html">
+            <img src="../assets//img/summary.png" class="small-nav-img" alt>
+            <div class="small-nav-text">Summary</div>
+        </a>
+        <a id="boardSmall" class="small-nav-element" href="../html/board.html">
+            <img src="../assets//img/board.png" class="small-nav-img" alt>
+            <div class="small-nav-text">Board</div>
+        </a>
+        <a id="addTaskSmall" class="small-nav-element" href="../html/add_task.html">
+            <img src="../assets/img/add_task.png" class="small-nav-img" alt>
+            <div class="small-nav-text">Board</div>
+        </a>
+        <a id="contactsSmall" class="small-nav-element" href="../html/contacts.html">
+            <img src="../assets/img/contacts.png" class="small-nav-img" alt>
+            <div class="small-nav-text">Board</div>
+        </a>
+    </div>
+    <main>
+        <div class="contacts-frame">
+            <button class="new-contact-button">
+                Add new contact
+                <img src="../assets/img/person_add.png">
+            </button>
+            <div class="contact-list">
+                <div id="containerA">
+                    <div class="contact-letter">A</div>
+                    <div class="separation-line"></div>
+                </div>
+            </div>
+            <div id="containerB">
+                <div class="contact-letter">B</div>
+                <div class="separation-line"></div>
+            </div>
+            <div id="containerC">
+                <div class="contact-letter">C</div>
+                <div class="separation-line"></div>
+            </div>
+            <div id="containerD">
+                <div class="contact-letter">D</div>
+                <div class="separation-line"></div>
+            </div>
+            <div id="containerE">
+                <div class="contact-letter">E</div>
+                <div class="separation-line"></div>
+            </div>
+            <div id="containerF">
+                <div class="contact-letter">F</div>
+                <div class="separation-line"></div>
+            </div>
+            <div id="containerG">
+                <div class="contact-letter">G</div>
+                <div class="separation-line"></div>
+            </div>
+            <div id="containerH">
+                <div class="contact-letter">H</div>
+                <div class="separation-line"></div>
+            </div>
+            <div id="container">
+                <div class="contact-letter">I</div>
+                <div class="separation-line"></div>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>
