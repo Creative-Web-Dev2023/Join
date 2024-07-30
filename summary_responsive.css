@@ -2,6 +2,14 @@
     .greeting {
         display: none;
     }
+
+    .bordering-middle {
+        width: 91%;
+    }
+
+    .section {
+        padding-right: 50px;
+    }
 }
 
 @media(max-width: 1070px) {}
@@ -27,6 +35,30 @@
 
     .main-container {
         margin-top: 170px;
+        width: 100%;
+        ;
+    }
+
+    .section {
+        padding-right: 0px;
+    }
+
+    body {
+        height: 87vh !important;
+        display: flex;
+        justify-content: center;
+    }
+
+    .header {
+        justify-content: center;
+    }
+
+    .h1-header {
+        font-size: 60px;
+    }
+
+    .span-headline {
+        font-size: 25px;
     }
 }
 
@@ -35,6 +67,7 @@
         flex-direction: column;
         align-items: flex-start;
         padding-left: 28px;
+        width: 68%;
     }
 
     .parting-line {
@@ -55,6 +88,11 @@
 
     .middle-section {
         padding-top: 50px;
+        width: 98%;
+    }
+
+    .to-do-and-done {
+        gap: 0px;
     }
 }
 
@@ -81,6 +119,10 @@
     }
 
     .bordering-middle {
+        margin: 10px;
+    }
+
+    .bordering-bottom {
         margin: 10px;
     }
 }
@@ -122,5 +164,80 @@
     body {
         justify-content: center;
         display: flex;
+    }
+}
+
+@media(max-width: 400px) {
+    .bordering-bottom {
+        padding: 10px;
+        margin: 5px;
+    }
+
+    .bordering-middle {
+        margin: 0px;
+    }
+
+    .section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin: 8px;
+    }
+}
+
+/* HEIGHT */
+
+@media(max-height: 1196px) {
+    .header {
+        margin: 0px;
+    }
+
+    .main-container {
+        margin-top: 80px;
+    }
+}
+
+@media(max-height: 1085px) {
+    .middle-section {
+        padding-top: 0px;
+    }
+}
+
+@media(max-height: 1035px) {
+    .header {
+        display: none;
+    }
+
+    .main-container {
+        display: flex;
+        justify-content: center;
+    }
+}
+
+@media(max-height: 815px) {
+    .section {
+        gap: 27px;
+    }
+
+    .bordering-middle {
+        height: 129px;
+    }
+
+    .bordering-top-1 {
+        height: 125px;
+    }
+
+    .bordering-top-2 {
+        height: 125px;
+    }
+
+    .bordering-bottom {
+        height: 125px;
+    }
+}
+
+@media(max-height: 700px) {
+    .section {
+        gap: 20px;
     }
 }
