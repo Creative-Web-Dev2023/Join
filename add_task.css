@@ -133,6 +133,27 @@ label {
     color: #2A3647;
 }
 
+select:hover {
+    cursor: pointer;
+}
+
+input:hover {
+    cursor: pointer;
+}
+
+textarea:hover {
+    cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    cursor: pointer;
+    background-color: #D1D1D1;
+}
+
 select {
     width: 100%;
     height: 48px;
