@@ -5,43 +5,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up</title>
-    <link rel="stylesheet" href="./css/sign_up.css">
-    <link rel="stylesheet" href="./css/sign_up_responsive.css">
-    <script src="./js/sign_up.js"></script>
+    <link rel="stylesheet" href="../css/sign_up.css">
+    <link rel="stylesheet" href="../css/sign_up_responsive.css">
+    <script src="../js/sign_up.js"></script>
 </head>
 
 <body>
-    <img class="join-logo" src="./assets/img/join_logo.png" width="100px" height="121px">
+    <img class="join-logo" src="../assets/img/join_logo.png" width="100px" height="121px">
 
     <div class="border">
         <div class="interface">
-            <div class="arrow-interface"><img class="pointer" src="./assets/img/arrow_left.png" width="32px" height="32px"></div>
+            <div class="arrow-interface"><img class="pointer" src="../assets/img/arrow_left.png" width="32px" height="32px"></div>
             <div class="headline">
-                <img class="headline-h1" src="./assets/img/sign_up_h1.png">
+                <img class="headline-h1" src="../assets/img/sign_up_h1.png">
             </div>
             <form class="input-area-and-button" action="" onsubmit="return validatePasswords()">
                 <div class="form-container">
                     <div class="input-container">
                         <input type="text" id="name" placeholder="Name" required>
-                        <i class="fa fa-user"><img src="./assets/img/person.png"></i>
+                        <i class="fa fa-user"><img src="../assets/img/person.png"></i>
                         <span class="error-message">Name is required</span>
                     </div>
             
                     <div class="input-container">
                         <input type="email" id="email" placeholder="Email" required>
-                        <i class="fa fa-envelope"><img src="./assets/img/mail.png"></i>
+                        <i class="fa fa-envelope"><img src="../assets/img/mail.png"></i>
                         <span class="error-message">Please enter a valid email</span>
                     </div>
             
                     <div class="input-container">
                         <input type="password" id="password" placeholder="Password" required>
-                        <i class="fa fa-eye" onclick="togglePasswordVisibility('password')"><img src="./assets/img/lock.png"></i>
+                        <i class="fa fa-eye" onclick="togglePasswordVisibility('password')"><img src="../assets/img/lock.png"></i>
                         <span class="error-message">Password is required</span>
                     </div>
             
                     <div class="input-container">
                         <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-                        <i class="fa fa-eye" onclick="togglePasswordVisibility('confirmPassword')"><img src="./assets/img/lock.png"></i>
+                        <i class="fa fa-eye" onclick="togglePasswordVisibility('confirmPassword')"><img src="../assets/img/lock.png"></i>
                     </div>
             
                     <div class="centering">
