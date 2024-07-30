@@ -48,7 +48,7 @@ function login() {
 
     if (isValid) {
         alert('Anmeldung erfolgreich!');
-         window.location.href = '.html'; 
+        window.location.href = '.html'; 
     }
 }
 
