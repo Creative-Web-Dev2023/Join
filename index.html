@@ -7,13 +7,13 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="login.css">
-	<link rel="shortcut icon" href="./assets/img/favicon.svg" type="image/x-icon">
+	<link rel="stylesheet" href="./css/login.css">
+	<link rel="shortcut icon" href="./assets/img/img_login/Capa_2.svg" type="image/x-icon">
 	<title>Login</title>
 </head>
 <body>
 	<div class="start-screen"></div>
-	<img class="logo-start-screen" src="./assets/img/Capa_2.svg">
+	<img class="logo-start-screen" src="./assets/img/img_login/Capa_2.svg">
 	<div class="logo-start-screen-white"></div>
 	<div class="header">
 		<div class="register-section">
@@ -32,14 +32,14 @@
 					<div class="input-container">
 						<input autocomplete="off" onfocus="resetOutline('email')" id="email" minlength="3" class="input"
 							type="email" placeholder="Email">
-						<img class="email-icon" src="./assets/img/mail.svg">
+						<img class="email-icon" src="./assets/img/img_login/mail.svg">
 					</div>
 					<div id="messageboxEmail" class="message-box"></div>
 					<div class="input-container">
 						<input autocomplete="off" onfocus="resetOutline('password')" id="password"
 							pattern="^[A-Za-z][A-Za-z ]*$" minlength="3" class="input" type="password"
 							placeholder="Password">
-						<img id="passwordImage" class="email-icon" src="./assets/img/lock.svg">
+						<img id="passwordImage" class="email-icon" src="./assets/img/img_login/lock.svg">
 					</div>
 					<div id="messageboxPassword" class="message-box"></div>
 					<div class="remember-me">
@@ -64,7 +64,7 @@
 		<span onclick="openPrivacyPolicyPage()" class="privacy-policy">Privacy Policy</span>
 		<span onclick="openLegalNoticePage()" class="legal-notice">Legal notice</span>
 	</div>
-	<script src="login.js"></script>
+	<script src="./js/login.js"></script>
 </body>
 
 </html>
