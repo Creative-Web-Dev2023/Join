@@ -2,7 +2,7 @@ body {
     margin: 0px;
     height: 100vh;
     font-family: 'Inter', sans-serif;
-    background-color: #F6F7F8;
+    background-color: #e6e6e6;
 }
 
 .bg-dark {
@@ -168,19 +168,18 @@ body {
 }
 
 .bordering-middle {
-    width: 97%;
+    width: 95%;
     height: 15vh;
     border-radius: 30px;
     background-color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 20px;
     padding: 10px;
     justify-content: space-evenly;
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s, background-color 0.3s;
-    margin: 5px;
+    margin: 19px;
 }
 
 .bordering-middle:hover {
