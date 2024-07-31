@@ -13,6 +13,13 @@ document.querySelectorAll('.prio-button').forEach(function(button) {
         }
     });
 
+    document.getElementById("title-input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            addToBoard();
+        }
+    });
+
     button.addEventListener('click', function() {
         document.querySelectorAll('.prio-button').forEach(function(btn) {
             if (btn !== button) {

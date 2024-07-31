@@ -1,6 +1,6 @@
 body {
     background: #F6F7F8;
-
+    overflow-y: hidden;
 }
 
 .bg-dark {
@@ -15,7 +15,7 @@ body {
 .main-section {
     padding-left: 15%;
     padding-left: 300px;
-
+    padding-top: 90px;
 }
 
 .format-sections {
@@ -281,6 +281,10 @@ select {
 }
 
 @media (max-width: 768px) {
+body {
+    overflow-y: auto;
+}
+
     .main-section {
         padding-top: 50px;
         padding-left: 0px;

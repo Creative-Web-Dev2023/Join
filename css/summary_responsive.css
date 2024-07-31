@@ -58,7 +58,7 @@
         justify-content: center;
         font-size: 60px;
         background-color: #F6F7F8;
-        width: 100%;
+        width: 40%;
         left: 0;
     }
 
@@ -75,14 +75,19 @@
         width: 68%;
     }
 
-    .parting-line,
-    .span-headline,
     .none {
+        display: block;
+    }
+
+    .parting-line,
+    .span-headline {
         display: none;
     }
 
     .h1-header {
         margin: 0;
+        height: 45px;
+        width: 100%;
     }
 
     .main-container {
