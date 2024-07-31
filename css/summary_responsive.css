@@ -1,4 +1,3 @@
-
 @media(max-width: 1300px) {
     .greeting {
         display: none;
@@ -76,7 +75,9 @@
         width: 68%;
     }
 
-    .parting-line, .span-headline, .none {
+    .parting-line,
+    .span-headline,
+    .none {
         display: none;
     }
 
@@ -99,6 +100,12 @@
 
     .span-top-2 {
         font-size: 17px;
+    }
+}
+
+@media(max-width: 1060px) {
+    .header {
+        margin-top: 80px !important;
     }
 }
 
