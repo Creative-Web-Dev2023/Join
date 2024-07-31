@@ -83,9 +83,9 @@ function addToBoard() {
     }
 
     if (isEmpty) {
-        console.log('Please fill in all fields.');
+        console.log('Please fill in all required fields.');
     } else {
-        console.log('All fields are filled. Proceeding...');
+        console.log('All required fields are filled. Proceeding...');
 
         text.value = '';
         category.value = '';
@@ -96,4 +96,9 @@ function addToBoard() {
             button.src = button.src.replace('_clicked', '_standart');
         });
     }
+}
+
+function resetInput() {
+    window.location.href = '/html/add_task.html';
+    console.log('cleared inputs');
 }
