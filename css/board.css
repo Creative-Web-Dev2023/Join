@@ -137,3 +137,24 @@ body {
     text-align: center;
     padding: 20px 0;
 }
+
+.headline-kanban {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.plus_button {
+    width: 24px;
+    height: 24px;
+}
+
+.plus_button:hover {
+    cursor: pointer;
+    content: url('/assets/img/plus_button_hover.png');
+}
+
+.h2-board-font {
+    color: #42526E;
+    ;
+}
