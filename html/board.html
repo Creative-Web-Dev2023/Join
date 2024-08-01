@@ -63,18 +63,45 @@
     </div>
 
     <div class="container">
-        <header>
+        <header class="header-board">
             <div>
-                <h1>Board</h1>
+                <img src="/assets/img/board_h1.png">
             </div>
-            <div>
-                <input type="text">
-                <button>Add task <span>+</span></button>
+
+            <div class="search-container_and_button">
+                <div class="search-container">
+                    <input type="text" placeholder="Find Task">
+                    <div class="divider"></div>
+                    <button>
+                        <img src="/assets/img/search_bar_glass.png" alt="">
+                    </button>
+                </div>
+
+                <button class="add-task-button">
+                    <p class="button-font">Add Task <span>+</span></p>
+                </button>
             </div>
         </header>
 
-        <section>
-
+        <section class="kanban-board">
+            <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2>To do</h2>
+                <div class="task" draggable="true" ondragstart="drag(event)" id="task-1">Task 1</div>
+                <div class="task" draggable="true" ondragstart="drag(event)" id="task-2">Task 2</div>
+                <div class="no-tasks">No tasks To do</div>
+            </div>
+            <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2>In progress</h2>
+                <div class="no-tasks">No tasks To do</div>
+            </div>
+            <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2>Await feedback</h2>
+                <div class="no-tasks">No tasks To do</div>
+            </div>
+            <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h2>Done</h2>
+                <div class="no-tasks">No tasks To do</div>
+            </div>
         </section>
     </div>
 </body>
