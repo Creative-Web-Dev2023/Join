@@ -19,7 +19,7 @@ document.addEventListener('click', hideDropdown);
 
 
 function getInitials(name) {
-    if (!name) return "G"; // Default to "G" if no name is provided
+    if (!name) return "G";
 
     const nameParts = name.split(' ');
     let initials = '';
@@ -43,18 +43,14 @@ function updateProfileIcon() {
     const fullName = localStorage.getItem('fullName');
     const profileIcon = document.getElementById('profile-icon');
 
-    // Determine initials based on guest status or stored name
     const initials = isGuest ? 'G' : getInitials(fullName);
 
-    // Update the profile icon with the appropriate initials
     profileIcon.textContent = initials;
 }
 
-// Example function for handling guest login
 function handleGuestLogin() {
     localStorage.setItem('isGuest', 'true');
-    localStorage.removeItem('fullName'); // Optionally remove full name if switching to guest
+    localStorage.removeItem('fullName');
     updateProfileIcon();
-    // Redirect to the relevant page
     window.location.href = '/path/to/guest/homepage.html';
 }
