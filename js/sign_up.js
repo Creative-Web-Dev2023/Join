@@ -1,49 +1,65 @@
+document.getElementById('signupForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent the form from submitting the traditional way
+
+    if (!validatePasswords()) {
+        return; // Stop if passwords don't match or privacy policy is not accepted
+    }
+
+    // Get the user's full name from the form input
+    const fullName = document.getElementById('fullName').value;
+
+    // Store the full name in localStorage
+    localStorage.setItem('fullName', fullName);
+    localStorage.setItem('isGuest', 'false'); // Since a full registration is occurring
+
+    // Show success message and redirect to summary page
+    showSuccessPopup();
+});
+
 function validatePasswords() {
-    let password = document.getElementById('password').value;
-    let confirmPassword = document.getElementById('confirmPassword').value;
-    let passwordError = document.getElementById('passwordError');
-    let successPopup = document.getElementById('successPopup');
-    let privacyPolicy = document.getElementById('privacyPolicy');
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const passwordError = document.getElementById('passwordError');
+    const privacyPolicy = document.getElementById('privacyPolicy');
 
-    // Verstecken Sie alle Fehler und das Erfolgspopup
+    // Hide all error messages
     passwordError.style.display = 'none';
-    successPopup.style.display = 'none';
 
-    // Überprüfen, ob die Passwörter übereinstimmen
+    // Check if passwords match
     if (password !== confirmPassword) {
         passwordError.textContent = 'Passwords do not match.';
         passwordError.style.display = 'block';
-        console.log("Passwörter stimmen nicht überein");
-        return false; // Verhindert das Absenden des Formulars
+        return false; // Prevents form submission
     }
 
-    // Überprüfen, ob das Häkchen gesetzt ist
+    // Check if privacy policy is accepted
     if (!privacyPolicy.checked) {
         passwordError.textContent = 'Please accept the privacy policy.';
         passwordError.style.display = 'block';
-        console.log("Datenschutzrichtlinie nicht akzeptiert");
-        return false; // Verhindert das Absenden des Formulars
+        return false; // Prevents form submission
     }
 
-    // Wenn Passwörter übereinstimmen und das Häkchen gesetzt ist
-    showSuccessPopup(); // Zeigt das Erfolgspopup an
-    console.log("Erfolgspopup wird angezeigt");
-    return false; // Verhindert das Absenden des Formulars für Demonstrationszwecke
+    return true; // Continue form submission
 }
 
 function showSuccessPopup() {
-    let successPopup = document.getElementById('successPopup');
+    const successPopup = document.getElementById('successPopup');
     successPopup.style.display = 'block';
-    setTimeout(function () {
+
+    setTimeout(() => {
         successPopup.style.bottom = '50%'; // Animate to the center of the screen
     }, 0); // Ensure the transition starts immediately
-    setTimeout(function () {
+
+    setTimeout(() => {
         successPopup.style.display = 'none'; // Hide completely after the sliding animation
+
+        // Redirect to the summary page after the popup is shown
+        window.location.href = '/html/summary.html'; // Adjust path as needed
     }, 1500); // Duration of the slide-up animation
 }
 
 function togglePasswordVisibility(id) {
-    let input = document.getElementById(id);
+    const input = document.getElementById(id);
     if (input.type === 'password') {
         input.type = 'text';
     } else {
