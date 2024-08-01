@@ -1,3 +1,7 @@
+// Array to store tasks
+const tasks = [];
+
+// Initialize event listeners for priority buttons and title input
 document.querySelectorAll('.prio-button').forEach(function(button) {
     button.addEventListener('mouseover', function() {
         if (!this.classList.contains('clicked')) {
@@ -32,10 +36,31 @@ document.querySelectorAll('.prio-button').forEach(function(button) {
     });
 });
 
+// Add event listener to handle pressing "Enter" in the title input
+document.getElementById("title-input").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        event.preventDefault();
+        addToBoard();
+    }
+});
+
 function addToBoard() {
+    // Get form input values
     let text = document.getElementById('title-input');
+    let description = document.querySelector('textarea').value.trim();
+    let assignedTo = document.querySelector('select[name="Selects contacts to assign"]').value;
     let category = document.getElementById('category');
     let date = document.getElementById('date');
+
+    // Get selected priority
+    let priority = '';
+    document.querySelectorAll('.prio-button').forEach(function(button) {
+        if (button.classList.contains('clicked')) {
+            if (button.id === 'urgent') priority = 'Urgent';
+            if (button.id === 'medium') priority = 'Medium';
+            if (button.id === 'low') priority = 'Low';
+        }
+    });
 
     function setError(field, message) {
         field.style.border = '1px solid #FF8190';
@@ -86,9 +111,29 @@ function addToBoard() {
         console.log('Please fill in all required fields.');
     } else {
         console.log('All required fields are filled. Proceeding...');
+        
+        // Create a task object
+        const task = {
+            title: text.value.trim(),
+            description: description,
+            assignedTo: assignedTo,
+            dueDate: date.value,
+            priority: priority,
+            category: category.value,
+        };
 
+        // Add the task object to the tasks array
+        tasks.push(task);
+
+        // Log tasks array to verify data
+        console.log('Task added:', task);
+        console.log('All tasks:', tasks);
+
+        // Clear form fields after submission
         text.value = '';
-        category.value = '';
+        document.querySelector('textarea').value = '';
+        document.querySelector('select[name="Selects contacts to assign"]').selectedIndex = 0;
+        category.selectedIndex = 0;
         date.value = '';
 
         document.querySelectorAll('.prio-button').forEach(function(button) {

@@ -2,7 +2,7 @@ body {
     margin: 0px;
     height: 100vh;
     font-family: 'Inter', sans-serif;
-    background-color: #e6e6e6;
+    background-color: #f6f7f8;
 }
 
 .bg-dark {
@@ -246,7 +246,7 @@ body {
 }
 
 .greeting {
-    align-items: center;
+    align-items: start;
     display: flex;
     flex-direction: column;
 }

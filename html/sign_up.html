@@ -7,7 +7,6 @@
     <title>Sign Up</title>
     <link rel="stylesheet" href="../css/sign_up.css">
     <link rel="stylesheet" href="../css/sign_up_responsive.css">
-    <script src="../js/sign_up.js"></script>
 </head>
 
 <body>
@@ -19,17 +18,17 @@
             <div class="headline">
                 <img class="headline-h1" src="../assets/img/sign_up_h1.png">
             </div>
-            <form class="input-area-and-button" action="" onsubmit="return validatePasswords()">
+            <form class="input-area-and-button" id="signupForm" onsubmit="return validatePasswords()">
                 <div class="form-container">
                     <div class="input-container">
-                        <input type="text" id="name" placeholder="Name" required>
+                        <input type="text" id="fullName" placeholder="Name" required>
                         <i class="fa fa-user"><img src="../assets/img/person.png"></i>
                         <span class="error-message">Name is required</span>
                     </div>
             
                     <div class="input-container">
                         <input type="email" id="email" placeholder="Email" required>
-                        <i class="fa fa-envelope"><img src="../assets/img/mail.png"></i>
+                        <i class="fa fa-envelope"><img src="../assets/img/img_login/mail.png"></i>
                         <span class="error-message">Please enter a valid email</span>
                     </div>
             
@@ -68,6 +67,8 @@
         <a class="link-decoration-bottom" href="/html/privacy_policy_noconto.html">Privacy policy</a>
         <a class="link-decoration-bottom" href="/html/legal_notice_noconto.html">Legal Notice</a>
     </div>
+
+    <script src="../js/sign_up.js"></script>
 </body>
 
 </html>

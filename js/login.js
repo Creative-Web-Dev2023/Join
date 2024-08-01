@@ -1,3 +1,10 @@
+document.getElementById('loginButton').addEventListener('click', () => {
+    // Speichert den Anmeldestatus als Gast
+    localStorage.setItem('isGuest', 'true');
+    // Weiterleitung zur Begrüßungsseite
+    window.location.href = '../html/summary.html';
+});
+
 // Funktion zum Öffnen der Anmeldeseite
 function openSignUpPage() {
     window.location.href = '../html/sign_up.html'; // URL der Registrierungsseite
@@ -17,12 +24,6 @@ function openLegalNoticePage() {
 function resetOutline(fieldId) {
     document.getElementById(fieldId).style.outline = '';
 }
-
-// Funktion für den Gast-Login
-function guestLogin() {
-    window.location.href = '../html/summary.html';
-}
-
 
 function login() {
     const email = document.getElementById('email').value.trim();
