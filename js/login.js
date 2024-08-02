@@ -7,11 +7,7 @@ document.getElementById('loginButton').addEventListener('click', () => {
 
 // Funktion zum Öffnen der Anmeldeseite
 function openSignUpPage() {
-<<<<<<< HEAD
     window.location.href = './html/sign_up.html'; // URL der Registrierungsseite
-=======
-    window.location.href = '../html/sign_up.html'; // URL der Registrierungsseite
->>>>>>> 506234dd579c3cea156d3e6536a49625d004b42b
 }
 
 // Funktion zum Öffnen der Datenschutzrichtlinienseite
@@ -57,6 +53,13 @@ function login() {
     }
 }
 
+function checkIcon(passwordId, imageID){
+    let inputPassword = document.getElementById(passwordId);
+    let inputImage = document.getElementById(imageID);
+    if(inputPassword.value.length > 0 && inputPassword.type === 'password'){
+        inputImage.src = '../assets/img/img_';
+    }
+}
 
 function displayErrorMessage(fieldId, message) {
     const messageBoxId = `messagebox${capitalizeFirstLetter(fieldId)}`;
