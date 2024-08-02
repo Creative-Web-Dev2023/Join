@@ -31,33 +31,36 @@ function login() {
     const rememberMe = document.getElementById('checkbox').checked;
     let isValid = true; 
     if (email === '') {
-        displayErrorMessage('email', 'Bitte geben Sie eine E-Mail-Adresse ein.');
+        displayErrorMessage('email', 'Please enter an email address.');
         isValid = false;
     } else if (!isValidEmail(email)) {
-        displayErrorMessage('email', 'Bitte geben Sie eine gültige E-Mail-Adresse ein.');
+        displayErrorMessage('email', 'Please enter a valid email address.');
         isValid = false;
     }
-
-    // Passwort Validierung
     if (password === '') {
-        displayErrorMessage('password', 'Bitte geben Sie ein Passwort ein.');
+        displayErrorMessage('password', 'Please enter your passwort.');
         isValid = false;
     } else if (password.length < 3) {
-        displayErrorMessage('password', 'Das Passwort muss mindestens 3 Zeichen lang sein.');
+        displayErrorMessage('password', 'The password must be at least 3 characters long');
         isValid = false;
     }
-
     if (isValid) {
-        alert('Anmeldung erfolgreich!');
+        alert('Login successful!');
         window.location.href = '.html'; 
     }
 }
 
-function checkIcon(passwordId, imageID){
-    let inputPassword = document.getElementById(passwordId);
-    let inputImage = document.getElementById(imageID);
-    if(inputPassword.value.length > 0 && inputPassword.type === 'password'){
-        inputImage.src = '../assets/img/img_';
+
+function checkIcon() {
+    const checkbox = document.getElementById('checkbox');
+    if (checkbox.classList.contains('unchecked')) {
+        checkbox.classList.remove('unchecked');
+        checkbox.classList.add('checked');
+        checkbox.src = '../assets/img/img_login/checkmark_checked_dark.png';
+    } else {
+        checkbox.classList.remove('checked');
+        checkbox.classList.add('unchecked');
+        checkbox.src = '../assets/img/img_login/checkmark-empty_dark.png';
     }
 }
 
