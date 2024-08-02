@@ -1,6 +1,6 @@
 // Funktion zum Öffnen der Anmeldeseite
 function openSignUpPage() {
-    window.location.href = 'sign_up.html'; // URL der Registrierungsseite
+    window.location.href = './html/sign_up.html'; // URL der Registrierungsseite
 }
 
 // Funktion zum Öffnen der Datenschutzrichtlinienseite
