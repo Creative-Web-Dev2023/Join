@@ -210,6 +210,19 @@ input[type=checkbox]:checked{
     border: none;
     cursor: pointer;
     z-index: 100;
+}
+.check-box {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+.check-box.unchecked {
+    content: url("../assets/img/img_login/checkmark-empty_dark.png");
+}
+
+.check-box.checked {
+    content: url("../assets/img/img_login/checkmark_checked_dark.png");
 }   	
 ::placeholder {
     color: #D1D1D1;
