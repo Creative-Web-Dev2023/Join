@@ -7,7 +7,6 @@
     <title>Sign Up</title>
     <link rel="stylesheet" href="../css/sign_up.css">
     <link rel="stylesheet" href="../css/sign_up_responsive.css">
-    <script src="../js/sign_up.js"></script>
 </head>
 
 <body>
@@ -15,21 +14,25 @@
 
     <div class="border">
         <div class="interface">
+<<<<<<< HEAD
             <div class="arrow-interface"><a href="../index.html"><img class="pointer" src="../assets/img/arrow_left.png" width="32px" height="32px"></a></div>
+=======
+            <div class="arrow-interface"><a href="/index.html"><img class="pointer" src="../assets/img/arrow_left.png" width="32px" height="32px"></a></div>
+>>>>>>> 506234dd579c3cea156d3e6536a49625d004b42b
             <div class="headline">
                 <img class="headline-h1" src="../assets/img/sign_up_h1.png">
             </div>
-            <form class="input-area-and-button" action="" onsubmit="return validatePasswords()">
+            <form class="input-area-and-button" id="signupForm" onsubmit="return validatePasswords()">
                 <div class="form-container">
                     <div class="input-container">
-                        <input type="text" id="name" placeholder="Name" required>
+                        <input type="text" id="fullName" placeholder="Name" required>
                         <i class="fa fa-user"><img src="../assets/img/person.png"></i>
                         <span class="error-message">Name is required</span>
                     </div>
             
                     <div class="input-container">
                         <input type="email" id="email" placeholder="Email" required>
-                        <i class="fa fa-envelope"><img src="../assets/img/mail.png"></i>
+                        <i class="fa fa-envelope"><img src="../assets/img/img_login/mail.png"></i>
                         <span class="error-message">Please enter a valid email</span>
                     </div>
             
@@ -51,7 +54,7 @@
                     <div class="checkbox-sign-up-button">
                         <div class="checkbox-container">
                             <input type="checkbox" id="privacyPolicy" required>
-                            <label class="font-size-18" for="privacyPolicy">I accept the <a class="link-decoration" href="#">Privacy policy</a></label>
+                            <label class="font-size-18" for="privacyPolicy">I accept the <a class="link-decoration" href="/html/privacy_policy_noconto.html">Privacy policy</a></label>
                         </div>
             
                         <div class="button-container">
@@ -65,9 +68,11 @@
         
     </div>
     <div class="bottom-policy-and-co">
-        <a class="link-decoration-bottom" href="">Privacy policy</a>
-        <a class="link-decoration-bottom" href="#">Legal Notice</a>
+        <a class="link-decoration-bottom" href="/html/privacy_policy_noconto.html">Privacy policy</a>
+        <a class="link-decoration-bottom" href="/html/legal_notice_noconto.html">Legal Notice</a>
     </div>
+
+    <script src="../js/sign_up.js"></script>
 </body>
 
 </html>

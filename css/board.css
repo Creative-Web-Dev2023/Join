@@ -1,0 +1,160 @@
+body {
+    height: 100vh;
+}
+
+.container {
+    padding-left: 23%;
+    padding-top: 200px;
+    max-width: 1300px;
+}
+
+.header-board {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-container_and_button {
+    display: flex;
+    gap: 40px;
+}   
+
+/* SEARCH BAR  */
+
+.search-container {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 5px 10px;
+    width: 300px;
+    background-color: #f8f8f8;
+}
+
+.search-container input {
+    border: none;
+    outline: none;
+    flex-grow: 1;
+    padding: 5px;
+    background-color: transparent;
+    font-size: 16px;
+}
+
+.search-container input::placeholder {
+    color: #bbb;
+}
+
+.search-container .divider {
+    height: 20px;
+    width: 1px;
+    background-color: #ccc;
+    margin: 0 10px;
+}
+
+.search-container button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.search-container button:hover {
+    background-color: #e0e0e0;
+    border-radius: 50%;
+}
+
+.search-container button img {
+    width: 17.58px;
+    height: 17.58px;
+}
+
+/* SEARCH-BAR BUTTON  */
+
+.add-task-button {
+    background-color: #2b3d52;
+    color: #fff;
+    border: 1px;
+    border-radius: 10px;
+    padding: 8px 16px 8px 16px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    height: 50px;
+    width: 160px;
+    gap: 4px;
+}
+
+.add-task-button:hover {
+    background-color: #29abe2;; /* Hintergrundfarbe beim Hover */
+}
+
+.add-task-button img {
+    margin-left: 10px; /* Abstand zwischen Text und Icon */
+    width: 16px; /* Breite des Icons */
+    height: 16px; /* Höhe des Icons */
+}
+
+.button-font {
+    font-size: 24px;
+}
+
+/* KANBAN BOARD */
+
+.kanban-board {
+    display: flex;
+    justify-content: space-between;
+}
+.kanban-column {
+    flex: 1;
+    margin: 0 10px;
+    background-color: #f4f4f4;
+    border-radius: 4px;
+    padding: 10px;
+}
+.kanban-column h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+.kanban-column .task {
+    background-color: white;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: grab;
+}
+
+.kanban-column .task:active {
+    cursor: grabbing;
+}
+.no-tasks {
+    color: #ccc;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.headline-kanban {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.plus_button {
+    width: 24px;
+    height: 24px;
+}
+
+.plus_button:hover {
+    cursor: pointer;
+    content: url('/assets/img/plus_button_hover.png');
+}
+
+.h2-board-font {
+    color: #42526E;
+    ;
+}

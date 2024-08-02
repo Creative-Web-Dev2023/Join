@@ -1,49 +1,58 @@
+document.getElementById('signupForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    if (!validatePasswords()) {
+        return;
+    }
+
+    const fullName = document.getElementById('fullName').value;
+
+    localStorage.setItem('fullName', fullName);
+    localStorage.setItem('isGuest', 'false');
+
+    showSuccessPopup();
+});
+
 function validatePasswords() {
-    let password = document.getElementById('password').value;
-    let confirmPassword = document.getElementById('confirmPassword').value;
-    let passwordError = document.getElementById('passwordError');
-    let successPopup = document.getElementById('successPopup');
-    let privacyPolicy = document.getElementById('privacyPolicy');
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const passwordError = document.getElementById('passwordError');
+    const privacyPolicy = document.getElementById('privacyPolicy');
 
-    // Verstecken Sie alle Fehler und das Erfolgspopup
     passwordError.style.display = 'none';
-    successPopup.style.display = 'none';
 
-    // Überprüfen, ob die Passwörter übereinstimmen
     if (password !== confirmPassword) {
         passwordError.textContent = 'Passwords do not match.';
         passwordError.style.display = 'block';
-        console.log("Passwörter stimmen nicht überein");
-        return false; // Verhindert das Absenden des Formulars
+        return false;
     }
 
-    // Überprüfen, ob das Häkchen gesetzt ist
     if (!privacyPolicy.checked) {
         passwordError.textContent = 'Please accept the privacy policy.';
         passwordError.style.display = 'block';
-        console.log("Datenschutzrichtlinie nicht akzeptiert");
-        return false; // Verhindert das Absenden des Formulars
+        return false;
     }
 
-    // Wenn Passwörter übereinstimmen und das Häkchen gesetzt ist
-    showSuccessPopup(); // Zeigt das Erfolgspopup an
-    console.log("Erfolgspopup wird angezeigt");
-    return false; // Verhindert das Absenden des Formulars für Demonstrationszwecke
+    return true;
 }
 
 function showSuccessPopup() {
-    let successPopup = document.getElementById('successPopup');
+    const successPopup = document.getElementById('successPopup');
     successPopup.style.display = 'block';
-    setTimeout(function () {
-        successPopup.style.bottom = '50%'; // Animate to the center of the screen
-    }, 0); // Ensure the transition starts immediately
-    setTimeout(function () {
-        successPopup.style.display = 'none'; // Hide completely after the sliding animation
-    }, 1500); // Duration of the slide-up animation
+
+    setTimeout(() => {
+        successPopup.style.bottom = '50%';
+    }, 0);
+
+    setTimeout(() => {
+        successPopup.style.display = 'none';
+
+        window.location.href = '/html/summary.html';
+    }, 1500);
 }
 
 function togglePasswordVisibility(id) {
-    let input = document.getElementById(id);
+    const input = document.getElementById(id);
     if (input.type === 'password') {
         input.type = 'text';
     } else {

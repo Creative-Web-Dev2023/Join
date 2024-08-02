@@ -1,10 +1,17 @@
+@media(max-width: 1300px) {
+    .greeting {
+        display: none;
+    }
+}
+
+
 @media(max-width: 1170px) {
     .greeting {
         display: none;
     }
 
     .bordering-middle {
-        width: 91%;
+        width: 90%;
     }
 
     .section {
@@ -12,11 +19,8 @@
     }
 }
 
-@media(max-width: 1070px) {}
-
 @media(max-width: 770px) {
     .main-container {
-        margin-top: 120px;
         padding-left: 0px;
         display: flex;
         align-items: center;
@@ -30,13 +34,11 @@
     }
 
     .bordering-middle {
-        width: 92%;
+        width: 90%;
     }
 
     .main-container {
-        margin-top: 170px;
         width: 100%;
-        ;
     }
 
     .section {
@@ -45,8 +47,6 @@
 
     body {
         height: 87vh !important;
-        display: flex;
-        justify-content: center;
     }
 
     .header {
@@ -54,11 +54,16 @@
     }
 
     .h1-header {
+        display: flex;
+        justify-content: center;
         font-size: 60px;
+        background-color: #F6F7F8;
+        width: 40%;
+        left: 0;
     }
 
     .span-headline {
-        font-size: 25px;
+        font-size: 20px;
     }
 }
 
@@ -70,16 +75,19 @@
         width: 68%;
     }
 
-    .parting-line {
-        display: none;
-    }
-
     .none {
         display: block;
     }
 
+    .parting-line,
+    .span-headline {
+        display: none;
+    }
+
     .h1-header {
         margin: 0;
+        height: 45px;
+        width: 100%;
     }
 
     .main-container {
@@ -93,6 +101,16 @@
 
     .to-do-and-done {
         gap: 0px;
+    }
+
+    .span-top-2 {
+        font-size: 17px;
+    }
+}
+
+@media(max-width: 1060px) {
+    .header {
+        margin-top: 80px !important;
     }
 }
 
@@ -160,11 +178,6 @@
     .bordering-middle-left-part {
         gap: 5px;
     }
-
-    body {
-        justify-content: center;
-        display: flex;
-    }
 }
 
 @media(max-width: 400px) {
@@ -193,7 +206,7 @@
     }
 
     .main-container {
-        margin-top: 80px;
+        margin-top: 0px;
     }
 }
 
@@ -204,10 +217,6 @@
 }
 
 @media(max-height: 1035px) {
-    .header {
-        display: none;
-    }
-
     .main-container {
         display: flex;
         justify-content: center;
@@ -220,19 +229,19 @@
     }
 
     .bordering-middle {
-        height: 129px;
+        height: 15vh;
     }
 
     .bordering-top-1 {
-        height: 125px;
+        height: 15vh;
     }
 
     .bordering-top-2 {
-        height: 125px;
+        height: 15vh;
     }
 
     .bordering-bottom {
-        height: 125px;
+        height: 15vh;
     }
 }
 
