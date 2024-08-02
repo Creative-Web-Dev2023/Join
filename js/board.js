@@ -39,3 +39,26 @@ function updateNoTasksMessage(column) {
         noTasksMessage.remove();
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    const closeButton = document.getElementById("closeButton");
+    const popup = document.getElementById("popup");
+    const overlay = document.getElementById("overlay");
+
+    document.querySelector(".add-task-button").addEventListener("click", showPopup);
+    closeButton.addEventListener("click", hidePopup);
+    overlay.addEventListener("click", hidePopup);
+
+    function showPopup() {
+        overlay.style.display = "block";
+        popup.classList.add("show");
+    }
+
+    function hidePopup() {
+        popup.classList.remove("show");
+        setTimeout(function() {
+            overlay.style.display = "none";
+        }, 500);
+    }
+});
+

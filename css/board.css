@@ -17,7 +17,7 @@ body {
 .search-container_and_button {
     display: flex;
     gap: 40px;
-}   
+}
 
 /* SEARCH BAR  */
 
@@ -90,13 +90,18 @@ body {
 }
 
 .add-task-button:hover {
-    background-color: #29abe2;; /* Hintergrundfarbe beim Hover */
+    background-color: #29abe2;
+    ;
+    /* Hintergrundfarbe beim Hover */
 }
 
 .add-task-button img {
-    margin-left: 10px; /* Abstand zwischen Text und Icon */
-    width: 16px; /* Breite des Icons */
-    height: 16px; /* Höhe des Icons */
+    margin-left: 10px;
+    /* Abstand zwischen Text und Icon */
+    width: 16px;
+    /* Breite des Icons */
+    height: 16px;
+    /* Höhe des Icons */
 }
 
 .button-font {
@@ -109,6 +114,7 @@ body {
     display: flex;
     justify-content: space-between;
 }
+
 .kanban-column {
     flex: 1;
     margin: 0 10px;
@@ -116,26 +122,30 @@ body {
     border-radius: 4px;
     padding: 10px;
 }
+
 .kanban-column h2 {
     text-align: center;
     margin-bottom: 10px;
 }
+
 .kanban-column .task {
     background-color: white;
     padding: 10px;
     margin-bottom: 10px;
     border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: grab;
 }
 
 .kanban-column .task:active {
     cursor: grabbing;
 }
+
 .no-tasks {
-    color: #ccc;
+    grid-column: span 2;
     text-align: center;
-    padding: 20px 0;
+    background-color: #e0e0e0;
+    color: #666;
 }
 
 .headline-kanban {
@@ -157,4 +167,75 @@ body {
 .h2-board-font {
     color: #42526E;
     ;
+}
+
+/* POP UP */
+
+#overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 900;
+    display: none;
+}
+
+#popup {
+    max-width: 1116px;
+    height: 791px;
+    background-color: #fff;
+    z-index: 902;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    padding: 64px 74px;
+    position: fixed;
+    top: 50%;
+    right: -100%;
+    transform: translateY(-50%);
+    transition: right 0.5s ease-in-out;
+}
+
+#popup.show {
+    right: 50%;
+    transform: translate(50%, -50%);
+}
+
+#closeButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.main-section-popup {
+    padding-left: 0;
+    padding-left: 0;
+    padding-top: 0;
+}
+
+.first-container-popup {
+    width: 20vw;
+    height: 40vh;
+    top: 327px;
+    left: 328px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.bottom-section-popup {
+    padding-left: 15%;
+    width: 84%;
+    right: 0;
+    display: flex;
+    justify-content: space-evenly;
+    bottom: 81px;
+    position: absolute;
+    background: #F6F7F8;
 }

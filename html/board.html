@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="/css/header_taskbar_responsive.css">
     <link rel="stylesheet" href="/css/board.css">
     <link rel="stylesheet" href="/css/board_responsive.css">
+    <link rel="stylesheet" href="/css/add_task.css">
+    <script src="/js/add_task.js"></script>
     <script src="/js/board.js"></script>
     <script src="../js/header_taskbar.js"></script>
 </head>
@@ -77,7 +79,7 @@
                     </button>
                 </div>
 
-                <button class="add-task-button">
+                <button class="add-task-button" onclick="showPopup()">
                     <p class="button-font">Add Task <span>+</span></p>
                 </button>
             </div>
@@ -105,7 +107,7 @@
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="no-tasks">
-                    No tasks To do
+                    No tasks In progress
                 </div>
             </div>
 
@@ -115,7 +117,7 @@
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="no-tasks">
-                    No tasks To do
+                    No tasks Await feedback
                 </div>
             </div>
 
@@ -125,11 +127,85 @@
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="no-tasks">
-                    No tasks To do
+                    No tasks Done
                 </div>
             </div>
         </section>
+
+        <div id="overlay"></div>
+        <div id="popup" class="main-section-popup">
+            <button id="closeButton">&times;</button>
+            <div >
+                <h1>Add Task</h1>
+                <div class="format-sections">
+                    <form>
+                        <div class="first-container-popup">
+                            <div class="first-container-formatted part-1">
+                                <label for="title">Title <span class="red">*</span></label>
+                                <input id="title-input" class="input-style-1" placeholder="Enter a title" type="text">
+                            </div>
+                            <div class="first-container-formatted part-2">
+                                <label for="description">Description</label>
+                                <textarea class="input-style-2" placeholder="Enter a Description" type="text"></textarea>
+                            </div>
+                            <div class="first-container-formatted part-3">
+                                <label for="assigned to">Assigned To</label>
+                                <select name="Selects contacts to assign" id="">
+                                    <option value="" disabled selected>Select contacts to assign</option>
+                                    <option>Anton Mayer</option>
+                                    <option>Max Thomas</option>
+                                    <option>Super Duper</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+        
+                    <div class="line"></div>
+                    <div class="second-section">
+                        <form>
+                            <div class="first-container-popup">
+                                <div class="first-container-formatted part-1">
+                                    <label for="due-date">Due date <span class="red">*</span></label>
+                                    <input id="date" class="input-style-1" placeholder="dd/mm/yyyy" type="date"  min="1997-01-01" max="2030-12-31">
+                                </div>
+                                <div>
+                                    <label for="prio">Prio</label>
+                                    <div class="prio-buttons">
+                                        <img class="prio-button" id="urgent" src="/assets/img/img_add_task/urgent_standart.png" alt="Urgent">
+                                        <img class="prio-button" id="medium" src="/assets/img/img_add_task/medium_standart.png" alt="Medium">
+                                        <img class="prio-button" id="low" src="/assets/img/img_add_task/low_standart.png" alt="Low">
+                                    </div>
+                                </div>
+                                
+                                <div class="first-container-formatted part-2">
+                                    <label for="category">Category <span class="red">*</span></label>
+                                    <select id="category" name="Selects contacts to assign" id="">
+                                        <option value="" disabled selected>Select Task Category</option>
+                                        <option>Technical Task</option>
+                                        <option>User Story</option>
+                                    </select>
+                                </div>
+                                <div class="first-container-formatted part-3 space">
+                                    <label for="subtask">Subtask</label>
+                                    <input class="input-style-1" placeholder="Add new subtask" type="text">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>    
+            <div class="bottom-section-popup">
+                <div>
+                    <p><span class="red">*</span>This field is required</p>
+                </div>
+                <div class="buttons">
+                    <button class="clear" onclick="resetInput()">Clear <img src="/assets/img/img_add_task/cross.png" alt=""></button>
+                    <button class="create" onclick="addToBoard()">Create Task <img src="/assets/img/img_add_task/check.png" alt=""></button>
+                </div>
+            </div>
+        </div>
     </div>
+
 </body>
 
 </html>
