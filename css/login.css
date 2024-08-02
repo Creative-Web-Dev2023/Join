@@ -347,11 +347,14 @@ input[type=checkbox]:checked{
 }
 @media (max-width: 1000px) {
     .login-section-div{
-		margin-top:266px;
+		margin-top: 10%;
 		margin-bottom: 150px;
 	}
     .header{
         display: none; 
+    }
+    .logo-start-screen {
+        height: 220px;
     }
     .responsive-header {
         display: flex;  
@@ -386,10 +389,11 @@ input[type=checkbox]:checked{
 
 @media (max-width: 620px) {
     .login-section-div {
-        margin-top: 68px;
         margin-bottom: 50px;
     }
-    
+    .logo-start-screen {
+        position: absolute;;
+    }
     .logo-start-screen-white {
         display: flex;
         width: 100.03px;

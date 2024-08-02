@@ -73,11 +73,11 @@
                     </div>
                     <div class="first-container-formatted part-2">
                         <label for="description">Description</label>
-                        <textarea class="input-style-2" placeholder="Enter a Description" type="text"></textarea>
+                        <textarea id="description-input" class="input-style-2" placeholder="Enter a Description" type="text"></textarea>
                     </div>
                     <div class="first-container-formatted part-3">
                         <label for="assigned to">Assigned To</label>
-                        <select name="Selects contacts to assign" id="">
+                        <select name="Selects contacts to assign" id="assigned-to">
                             <option value="" disabled selected>Select contacts to assign</option>
                             <option>Anton Mayer</option>
                             <option>Max Thomas</option>
@@ -127,12 +127,13 @@
         </div>
         <div class="buttons">
             <button class="clear" onclick="resetInput()">Clear <img src="/assets/img/img_add_task/cross.png" alt=""></button>
-            <button class="create" onclick="addToBoard()">Create Task <img src="/assets/img/img_add_task/check.png" alt=""></button>
+            <button class="create" onclick="init()">Create Task <img src="/assets/img/img_add_task/check.png" alt=""></button>
         </div>
     </div>
 
     <script src="/js/add_task.js"></script>
     <script src="/js/header_taskbar.js"></script>
+    <script src="/js/firebase_add_task.js"></script>
 </body>
 
 </html>
