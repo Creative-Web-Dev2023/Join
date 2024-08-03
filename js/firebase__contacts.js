@@ -1,77 +1,150 @@
-let BASE_URL = 'https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/' ;
-let contacts= [];
+let BASE_URL = 'https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/';
+let namesFirstLetters = [];
+let contacts = [];
 
-async function init(){
-    await loadContacts();
+// Hauptinitialisierungsfunktion
+async function init() {
+    await loadContacts(); // Kontakte laden
+    displayContacts(); // Kontakte anzeigen
 }
 
-async function getDataFromFirebase(){
-    let response = await fetch(BASE_URL + path +'.json');
-    return await response.json();
-}
-
-async function setDataToFirebase(path ='', data = {}){
-    let response = await fetch(BASE_URL + path +'.json', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    });
-    return await response.json();
-}
-
+// Kontakte von Firebase laden
 async function loadContacts() {
-    let contactsData = await getDataFromFirebase('contacts');
-    console.log('ContactsData:', contactsData);
-    contacts = [];
-    for (const key in contactsData) {
-        const SINGLE_CONTACT = contactsData[key];
-        let contact = {
-            "id": key,
-            "name": SINGLE_CONTACT.name,
-            "email": SINGLE_CONTACT.email,
-            "phone": SINGLE_CONTACT.phone,
-            "emblem": SINGLE_CONTACT.emblem,  
-            "color": SINGLE_CONTACT.color     
-        };
-        contacts.push(contact);
+    let contactsData = await getDataFromFirebase('contacts'); // Korrektur: 'contacts' Pfad hier hinzufügen
+    if (!contactsData) {
+        console.error('No data returned from Firebase.');
+        return;
     }
-    console.log('Contacts:', contacts);
+
+    contacts = [];
+    namesFirstLetters = [];
+
+    for (const key in contactsData) {
+        if (contactsData.hasOwnProperty(key)) {
+            const SINGLE_CONTACT = contactsData[key];
+            if (SINGLE_CONTACT && SINGLE_CONTACT.name) {
+                let contact = {
+                    "id": key,
+                    "name": SINGLE_CONTACT.name,
+                    "email": SINGLE_CONTACT.email,
+                    "phone": SINGLE_CONTACT.phone,
+                    "emblem": SINGLE_CONTACT.emblem,
+                    "color": SINGLE_CONTACT.color,
+                    "firstInitial": SINGLE_CONTACT.name.charAt(0).toUpperCase(),
+                    "secondInitial": SINGLE_CONTACT.name.split(' ')[1]?.charAt(0).toUpperCase() || ''
+                };
+                contacts.push(contact);
+
+                // Fügt den ersten Buchstaben des Namens zum Array hinzu, wenn er nicht vorhanden ist
+                if (!namesFirstLetters.includes(contact.firstInitial)) {
+                    namesFirstLetters.push(contact.firstInitial);
+                }
+            } else {
+                console.warn(`Skipping invalid contact data for key: ${key}`);
+            }
+        }
+    }
+
+    // Sortieren der Kontakte und Initialen
+    contacts.sort((a, b) => a.firstInitial.localeCompare(b.firstInitial));
+    namesFirstLetters.sort();
 }
 
+// Anzeigen der Kontakte
+function displayContacts() {
+    const contactListElement = document.getElementById("contact-list");
+    contactListElement.innerHTML = ''; // Lösche den bestehenden Inhalt
 
-async function addContact(){
+    namesFirstLetters.forEach(letter => {
+        contactListElement.innerHTML += `
+            <div class="contacts-alphabet">${letter}</div>
+            <div class="separator"></div>
+            <div id="${letter}-content"></div>
+        `;
+    });
+
+    contacts.forEach(contact => {
+        const initial = contact.firstInitial;
+        const contentElement = document.getElementById(`${initial}-content`);
+        if (contentElement) {
+            contentElement.innerHTML += renderContactsHtml(contact);
+        }
+    });
+}
+
+// HTML für einen einzelnen Kontakt generieren
+function renderContactsHtml(contact) {
+    return `
+    <div class="contact-field">
+        <div>
+            <div class="profile-content" style="background-color: ${contact.color}">
+                ${contact.firstInitial}${contact.secondInitial}
+            </div>
+        </div>
+        <div class="contact-data">
+            <div>${contact.name}</div>
+            <div><a href="mailto:${contact.email}">${contact.email}</a></div>
+        </div>
+    </div>
+    `;
+}
+
+// Daten von Firebase holen
+async function getDataFromFirebase(path = '') {
+    try {
+        let response = await fetch(BASE_URL + path + '.json');
+        if (!response.ok) {
+            console.error('Failed to fetch data from Firebase:', response.statusText);
+            return {};
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return {};
+    }
+}
+
+// Daten zu Firebase hinzufügen
+async function setDataToFirebase(path = '', data = {}) {
+    try {
+        let response = await fetch(BASE_URL + path + '.json', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            console.error('Failed to set data to Firebase:', response.statusText);
+            return {};
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error setting data:', error);
+        return {};
+    }
+}
+
+// Neuen Kontakt hinzufügen
+async function addContact() {
     let contactName = document.getElementById('name').value;
     let contactEmail = document.getElementById('email').value;
     let contactPhone = document.getElementById('phone').value;
-    let contactEmblem = document.getElementById('emblem').value; 
-    let contactColor = document.getElementById('color').value; 
+    let contactEmblem = document.getElementById('emblem').value;
+    let contactColor = document.getElementById('color').value;
 
     let contactData = {
         "name": contactName,
         "email": contactEmail,
         "phone": contactPhone,
-        "emblem": contactEmblem, 
-        "color": contactColor   
+        "emblem": contactEmblem,
+        "color": contactColor
     };
-    await setDataToFirebase('contacts', newContact);
+
+    await setDataToFirebase('contacts', contactData);
     await loadContacts();
     displayContacts();
 }
 
-function displayContacts() {
-    const contactListElement = document.getElementById('contact-list');
-    contactListElement.innerHTML = ''; 
-    contacts.forEach(contact => {
-        const contactElement = document.createElement('div');
-        contactElement.style.backgroundColor = contact.color; 
-        contactElement.innerHTML = `
-            <h3>${contact.name}</h3>
-            <p>Email: ${contact.email}</p>
-            <p>Phone: ${contact.phone}</p>
-            <p>Emblem: ${contact.emblem}</p> 
-        `;
-        contactListElement.appendChild(contactElement);
-    });
-}
+// Initialisiere beim Laden der Seite
+document.addEventListener('DOMContentLoaded', init);
