@@ -121,6 +121,11 @@ body {
     background-color: #f4f4f4;
     border-radius: 4px;
     padding: 10px;
+    transition: transform 0.3s;
+}
+
+.kanban-column.tilted {
+    transform: rotate(5deg);
 }
 
 .kanban-column h2 {
@@ -131,10 +136,24 @@ body {
 .kanban-column .task {
     background-color: white;
     padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 4px;
+    margin-bottom: 25px;
+    border-radius: 14px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: grab;
+}
+
+.task {
+    padding: 10px;
+    margin: 38px 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: move;
+    transition: transform 0.3s ease;
+}
+
+.task:hover {
+    transform: rotate(10deg);
 }
 
 .kanban-column .task:active {
@@ -144,8 +163,11 @@ body {
 .no-tasks {
     grid-column: span 2;
     text-align: center;
-    background-color: #e0e0e0;
-    color: #666;
+    background-color: #dadada; /* Adjusted to match the light gray background */
+    color: #999; /* Adjusted to match the text color */
+    border: 2px dotted #ccc; /* Added dotted border */
+    padding: 10px; /* Added padding for spacing inside the div */
+    border-radius: 5px; /* Added border-radius for rounded corners */
 }
 
 .headline-kanban {
@@ -239,3 +261,59 @@ body {
     position: absolute;
     background: #F6F7F8;
 }
+
+.task-header {
+    font-size: 0.9em;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.user-story {
+    background-color: #007bff;
+    color: white;
+}
+
+.task-content {
+    margin-top: 10px;
+}
+
+.task-content h3 {
+    margin: 10px 0;
+    font-size: 1.2em;
+}
+
+.task-progress {
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 10px 0;
+    height: 6px;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: #007bff;
+}
+
+.task-assignees {
+    display: flex;
+    align-items: center;
+}
+
+
+.assignee {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    border-radius: 50%;
+    text-align: center;
+    color: white;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-right: -8px; /* Adjust this value to control the amount of overlap */
+    border: 2px solid white; /* Optional: add a border to better differentiate the overlapping spans */
+}
+

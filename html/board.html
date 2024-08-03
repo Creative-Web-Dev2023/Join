@@ -88,12 +88,25 @@
         <section class="kanban-board">
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
-                    <h2 class="h2-board-font">To do</h2> 
+                    <h2 class="h2-board-font">To do</h2>
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
 
                 <div class="task" draggable="true" ondragstart="drag(event)" id="task-1">
-                    Task 1
+                    <div class="task-header user-story">User Story</div>
+                    <div class="task-content">
+                        <h3>Kochwelt Page & Recipe Recommender</h3>
+                        <p>Build start page with recipe recommendation...</p>
+                        <div class="task-progress">
+                            <div class="progress-bar" style="width: 50%;"></div>
+                        </div>
+                        <p>1/2 Subtasks</p>
+                        <div class="task-assignees">
+                            <span class="assignee" style="background-color: #FF8C00;">AM</span>
+                            <span class="assignee" style="background-color: #00CED1;">EM</span>
+                            <span class="assignee" style="background-color: #8A2BE2;">MB</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="no-tasks">
@@ -103,7 +116,7 @@
 
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
-                    <h2 class="h2-board-font">In Progress</h2> 
+                    <h2 class="h2-board-font">In Progress</h2>
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="no-tasks">
@@ -113,7 +126,7 @@
 
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
-                    <h2 class="h2-board-font">Await feedack</h2> 
+                    <h2 class="h2-board-font">Await feedack</h2>
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="no-tasks">
@@ -123,7 +136,7 @@
 
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
-                    <h2 class="h2-board-font">Done</h2> 
+                    <h2 class="h2-board-font">Done</h2>
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="no-tasks">
@@ -135,7 +148,7 @@
         <div id="overlay"></div>
         <div id="popup" class="main-section-popup">
             <button id="closeButton">&times;</button>
-            <div >
+            <div>
                 <h1>Add Task</h1>
                 <div class="format-sections">
                     <form>
@@ -146,7 +159,8 @@
                             </div>
                             <div class="first-container-formatted part-2">
                                 <label for="description">Description</label>
-                                <textarea class="input-style-2" placeholder="Enter a Description" type="text"></textarea>
+                                <textarea class="input-style-2" placeholder="Enter a Description"
+                                    type="text"></textarea>
                             </div>
                             <div class="first-container-formatted part-3">
                                 <label for="assigned to">Assigned To</label>
@@ -159,24 +173,28 @@
                             </div>
                         </div>
                     </form>
-        
+
                     <div class="line"></div>
                     <div class="second-section">
                         <form>
                             <div class="first-container-popup">
                                 <div class="first-container-formatted part-1">
                                     <label for="due-date">Due date <span class="red">*</span></label>
-                                    <input id="date" class="input-style-1" placeholder="dd/mm/yyyy" type="date"  min="1997-01-01" max="2030-12-31">
+                                    <input id="date" class="input-style-1" placeholder="dd/mm/yyyy" type="date"
+                                        min="1997-01-01" max="2030-12-31">
                                 </div>
                                 <div>
                                     <label for="prio">Prio</label>
                                     <div class="prio-buttons">
-                                        <img class="prio-button" id="urgent" src="/assets/img/img_add_task/urgent_standart.png" alt="Urgent">
-                                        <img class="prio-button" id="medium" src="/assets/img/img_add_task/medium_standart.png" alt="Medium">
-                                        <img class="prio-button" id="low" src="/assets/img/img_add_task/low_standart.png" alt="Low">
+                                        <img class="prio-button" id="urgent"
+                                            src="/assets/img/img_add_task/urgent_standart.png" alt="Urgent">
+                                        <img class="prio-button" id="medium"
+                                            src="/assets/img/img_add_task/medium_standart.png" alt="Medium">
+                                        <img class="prio-button" id="low"
+                                            src="/assets/img/img_add_task/low_standart.png" alt="Low">
                                     </div>
                                 </div>
-                                
+
                                 <div class="first-container-formatted part-2">
                                     <label for="category">Category <span class="red">*</span></label>
                                     <select id="category" name="Selects contacts to assign" id="">
@@ -199,8 +217,10 @@
                     <p><span class="red">*</span>This field is required</p>
                 </div>
                 <div class="buttons">
-                    <button class="clear" onclick="resetInput()">Clear <img src="/assets/img/img_add_task/cross.png" alt=""></button>
-                    <button class="create" onclick="addToBoard()">Create Task <img src="/assets/img/img_add_task/check.png" alt=""></button>
+                    <button class="clear" onclick="resetInput()">Clear <img src="/assets/img/img_add_task/cross.png"
+                            alt=""></button>
+                    <button class="create" onclick="addToBoard()">Create Task <img
+                            src="/assets/img/img_add_task/check.png" alt=""></button>
                 </div>
             </div>
         </div>
