@@ -262,3 +262,8 @@ input[type="checkbox"]:valid + label + .error-message {
     transform: scaleX(1.2) scaleY(1.2);
     color: #44b6e6;
 }
+
+.signup-button:disabled {
+    background-color: grey; /* Beispiel für ausgegrauten Button */
+    cursor: not-allowed;
+}

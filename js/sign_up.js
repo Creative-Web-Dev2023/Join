@@ -59,3 +59,20 @@ function togglePasswordVisibility(id) {
         input.type = 'password';
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const signUpButton = document.getElementById('signUpButton');
+    const inputs = document.querySelectorAll('#signupForm input[required]');
+    const privacyPolicy = document.getElementById('privacyPolicy');
+
+    function checkInputs() {
+        const allFilled = Array.from(inputs).every(input => input.value.trim() !== '');
+        signUpButton.disabled = !(allFilled && privacyPolicy.checked);
+    }
+
+    inputs.forEach(input => input.addEventListener('input', checkInputs));
+    privacyPolicy.addEventListener('change', checkInputs);
+
+    checkInputs(); // Initial check to set the button state on page load
+});
+
