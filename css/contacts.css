@@ -67,17 +67,80 @@ main h2 {
     display: flex;    
     flex-direction: column;
 }
-.contact-letter {
-    padding: 17px 36px;
-    font-size: 20px;
-    line-height: 24px;
-    margin-bottom: 8px;
+.contacts-alphabet {
+  font-weight: bold;
+  margin-top: 10px;
 }
-.separation-line {
-    border: 1px solid #D1D1D1;
+.separator {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+#contact-list {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
 }
 
 
+.contacts-alphabet {
+  font-weight: bold;
+  margin-top: 20px;
+  padding: 10px 0;
+  font-size: 1.2em;
+  color: #333;
+}
+
+.separator {
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+
+.contact-field {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+
+.profile-content {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  margin-right: 10px;
+  font-weight: bold;
+  font-size: 0.9em;
+  background-color: #999; 
+}
+.contact-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-data div {
+  font-size: 1em;
+  color: #333;
+}
+
+
+.contact-data a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.9em;
+}
+
+
+.contact-field:hover {
+  background-color: #f5f5f5;
+}
 @media (max-width: 1170px) {
   main {
     padding-left: 230px;

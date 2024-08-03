@@ -11,14 +11,11 @@
     <link rel="stylesheet" href="/css/header_taskbar.css">
     <link rel="stylesheet" href="/css/header_taskbar_responsive.css">
     <script src="/js/header_taskbar.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js"></script>
     <link rel="stylesheet" href="../css/contacts.css">
     <link rel="shortcut icon" href="../assets/img/favicon.svg" type="image/x-icon">
 </head>
 
-<body>
+<body onload="init()">
     <header class="eins">
         <div class="dreizehn">
             <img class="vierzehn" src="/assets/img/header_navbar_img/join_small.png" alt="" style="display: none;">
@@ -72,14 +69,11 @@
                 Add new contact
                 <img src="../assets/img/person_add.png">
             </button>
-            <div class="contact-list">
-                <ul id="contactList"></ul>
-            </div>
+            <div class="form-container"></div>
+            <div class="contact-list" id="contact_list"></div>
         </div>
     </main>
-    <script src="../js/firebase.js" defer></script>
+    <script src="/js/contact.js"></script>
 </body>
 
 </html>
-
-
