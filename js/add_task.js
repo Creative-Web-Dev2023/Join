@@ -40,15 +40,6 @@ function error() {
     let category = document.getElementById('category');
     let date = document.getElementById('date');
 
-    let priority = '';
-    document.querySelectorAll('.prio-button').forEach(function(button) {
-        if (button.classList.contains('clicked')) {
-            if (button.id === 'urgent') priority = 'Urgent';
-            if (button.id === 'medium') priority = 'Medium';
-            if (button.id === 'low') priority = 'Low';
-        }
-    });
-
     function setError(field, message) {
         field.style.border = '1px solid #FF8190';
         let errorElement = field.nextElementSibling;
@@ -96,27 +87,6 @@ function error() {
     } else {
         clearError(date);
     }
-
-    // If any required fields are empty, stop execution
-    if (isEmpty) {
-        console.log('Please fill in all required fields.');
-        return; // Halt function execution if any fields are empty
-    }
-
-    // Log that all required fields are filled
-    console.log('All required fields are filled. Proceeding...');
-
-    // Clear the form inputs as the last step
-    text.value = '';
-    document.querySelector('textarea').value = '';
-    document.querySelector('select[name="Selects contacts to assign"]').selectedIndex = 0;
-    category.selectedIndex = 0;
-    date.value = '';
-
-    document.querySelectorAll('.prio-button').forEach(function(button) {
-        button.classList.remove('clicked');
-        button.src = button.src.replace('_clicked', '_standart');
-    });
 }
 
 
