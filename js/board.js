@@ -60,3 +60,12 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
+function openPopup() {
+    document.getElementById('popup-tasks').style.display = 'flex';
+}
+
+function closePopup() {
+    document.getElementById('popup-tasks').style.display = 'none';
+}
+
+

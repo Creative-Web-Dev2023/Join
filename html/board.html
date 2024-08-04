@@ -91,7 +91,7 @@
                     <h2 class="h2-board-font">To do</h2>
                     <img class="plus_button" src="/assets/img/plus_button.png" />
                 </div>
-                <div class="task" draggable="true" ondragstart="drag(event)" id="task1">
+                <div class="task" draggable="true" ondragstart="drag(event)" id="task1" onclick="openPopup()">
                     <div class="task-header user-story">User Story</div>
                     <div class="task-content">
                         <h3>Kochwelt Page & Recipe Recommender</h3>
@@ -109,31 +109,65 @@
                 </div>
                 <div class="no-tasks">No tasks To do</div>
             </div>
-            
+
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">In Progress</h2>
-                    <img class="plus_button" src="/assets/img/plus_button.png">
+                    <img class="plus_button" src="/assets/img/plus_button.png" onclick="showPopup()">
                 </div>
                 <div class="no-tasks">No tasks In progress</div>
             </div>
-            
+
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">Await feedback</h2>
-                    <img class="plus_button" src="/assets/img/plus_button.png">
+                    <img onclick="showPopup()" class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="no-tasks">No tasks Await feedback</div>
             </div>
-            
+
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">Done</h2>
-                    <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="no-tasks">No tasks Done</div>
             </div>
         </section>
+
+        <div id="popup-tasks" class="popup-task">
+            <div class="popup-content-task">
+                <span class="close-button" onclick="closePopup()">&times;</span>
+                <div class="user-story-popup">
+                    <div class="task-header-pop-up user-story">User Story</div>
+                    <h1>Kochwelt Page & Recipe Recommender</h1>
+                    <p>Build start page with recipe recommendation.</p>
+                    <p>Due date: 10/05/2023</p>
+                    <p>Priority: Medium</p>
+                    <p>Assigned To:</p>
+                    <div class="assigned-popup-split">
+                        <div class="task-assignees-popup">
+                            <span class="assignee-popup" style="background-color: #FF8C00;">AM</span>
+                            <span class="assignee-popup" style="background-color: #00CED1;">EM</span>
+                            <span class="assignee-popup" style="background-color: #8A2BE2;">MB</span>
+                        </div>
+                        <ul>
+                            <li>Emmanuel Mauer</li>
+                            <li>Marcel Bauer</li>
+                            <li>Anton Mayer</li>
+                        </ul>
+                    </div>
+                    <p>Subtasks</p>
+                    <ul class="subtasks">
+                        <div>
+                            <input type="checkbox" checked><span>Implement Recipe Recommendation</span>
+                        </div>
+                        <div>
+                            <input type="checkbox"><span>Start Page Layout</span>
+                        </div>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
         <div id="overlay"></div>
         <div id="popup" class="main-section-popup">

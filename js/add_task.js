@@ -34,21 +34,15 @@ document.querySelectorAll('.prio-button').forEach(function(button) {
     });
 });
 
+<<<<<<< HEAD
 function addToBoard() {
+=======
+
+function error() {
+>>>>>>> af20214e4982ce12d45c3fc2763ddb4a669c5969
     let text = document.getElementById('title-input');
-    let description = document.querySelector('textarea').value.trim();
-    let assignedTo = document.querySelector('select[name="Selects contacts to assign"]').value;
     let category = document.getElementById('category');
     let date = document.getElementById('date');
-
-    let priority = '';
-    document.querySelectorAll('.prio-button').forEach(function(button) {
-        if (button.classList.contains('clicked')) {
-            if (button.id === 'urgent') priority = 'Urgent';
-            if (button.id === 'medium') priority = 'Medium';
-            if (button.id === 'low') priority = 'Low';
-        }
-    });
 
     function setError(field, message) {
         field.style.border = '1px solid #FF8190';
@@ -74,6 +68,7 @@ function addToBoard() {
 
     let isEmpty = false;
 
+    // Validate the title input
     if (text.value.trim() === '') {
         setError(text, 'Please fill out this field.');
         isEmpty = true;
@@ -81,6 +76,7 @@ function addToBoard() {
         clearError(text);
     }
 
+    // Validate the category input
     if (category.value.trim() === '') {
         setError(category, 'Please fill out this field.');
         isEmpty = true;
@@ -88,44 +84,15 @@ function addToBoard() {
         clearError(category);
     }
 
+    // Validate the date input
     if (date.value.trim() === '') {
         setError(date, 'Please fill out this field.');
         isEmpty = true;
     } else {
         clearError(date);
     }
-
-    if (isEmpty) {
-        console.log('Please fill in all required fields.');
-    } else {
-        console.log('All required fields are filled. Proceeding...');
-
-        const task = {
-            title: text.value.trim(),
-            description: description,
-            assignedTo: assignedTo,
-            dueDate: date.value,
-            priority: priority,
-            category: category.value,
-        };
-
-        tasks.push(task);
-
-        console.log('Task added:', task);
-        console.log('All tasks:', tasks);
-
-        text.value = '';
-        document.querySelector('textarea').value = '';
-        document.querySelector('select[name="Selects contacts to assign"]').selectedIndex = 0;
-        category.selectedIndex = 0;
-        date.value = '';
-
-        document.querySelectorAll('.prio-button').forEach(function(button) {
-            button.classList.remove('clicked');
-            button.src = button.src.replace('_clicked', '_standart');
-        });
-    }
 }
+
 
 function resetInput() {
     window.location.href = '/html/add_task.html';
