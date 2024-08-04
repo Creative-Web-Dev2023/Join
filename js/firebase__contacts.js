@@ -6,6 +6,7 @@ let contacts = [];
 async function init() {
     await loadContacts(); // Kontakte laden
     displayContacts(); // Kontakte anzeigen
+    
 }
 
 // Kontakte von Firebase laden
@@ -44,7 +45,6 @@ async function loadContacts() {
             }
         }
     }
-
     // Sortieren der Kontakte und Initialen
     contacts.sort((a, b) => a.firstInitial.localeCompare(b.firstInitial));
     namesFirstLetters.sort();
@@ -88,7 +88,6 @@ function renderContactsHtml(contact) {
     </div>
     `;
 }
-
 // Daten von Firebase holen
 async function getDataFromFirebase(path = '') {
     try {
@@ -132,7 +131,10 @@ async function addContact() {
     let contactPhone = document.getElementById('phone').value;
     let contactEmblem = document.getElementById('emblem').value;
     let contactColor = document.getElementById('color').value;
-
+    if (!contactName || !contactEmail) {
+        alert("Please fill out all required fields.");
+        return;
+    }
     let contactData = {
         "name": contactName,
         "email": contactEmail,
@@ -144,6 +146,12 @@ async function addContact() {
     await setDataToFirebase('contacts', contactData);
     await loadContacts();
     displayContacts();
+     // Clear form after adding contact
+    document.getElementById('name').value = '';
+    document.getElementById('email').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('emblem').value = '';
+    document.getElementById('color').value = '#ff0000';
 }
 
 // Initialisiere beim Laden der Seite
