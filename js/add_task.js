@@ -34,13 +34,6 @@ document.querySelectorAll('.prio-button').forEach(function(button) {
     });
 });
 
-document.getElementById("title-input").addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-        event.preventDefault();
-        addToBoard();
-    }
-});
-
 function addToBoard() {
     let text = document.getElementById('title-input');
     let description = document.querySelector('textarea').value.trim();

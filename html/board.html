@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/css/add_task.css">
     <script src="/js/add_task.js"></script>
     <script src="/js/board.js"></script>
-    <script src="../js/header_taskbar.js"></script>
+    <script src="/js/header_taskbar.js"></script>
 </head>
 
 <body>
@@ -89,10 +89,9 @@
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">To do</h2>
-                    <img class="plus_button" src="/assets/img/plus_button.png">
+                    <img class="plus_button" src="/assets/img/plus_button.png" />
                 </div>
-
-                <div class="task" draggable="true" ondragstart="drag(event)" id="task-1">
+                <div class="task" draggable="true" ondragstart="drag(event)" id="task1">
                     <div class="task-header user-story">User Story</div>
                     <div class="task-content">
                         <h3>Kochwelt Page & Recipe Recommender</h3>
@@ -108,40 +107,31 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="no-tasks">
-                    No tasks To do
-                </div>
+                <div class="no-tasks">No tasks To do</div>
             </div>
-
+            
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">In Progress</h2>
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
-                <div class="no-tasks">
-                    No tasks In progress
-                </div>
+                <div class="no-tasks">No tasks In progress</div>
             </div>
-
+            
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
-                    <h2 class="h2-board-font">Await feedack</h2>
+                    <h2 class="h2-board-font">Await feedback</h2>
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
-                <div class="no-tasks">
-                    No tasks Await feedback
-                </div>
+                <div class="no-tasks">No tasks Await feedback</div>
             </div>
-
+            
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">Done</h2>
                     <img class="plus_button" src="/assets/img/plus_button.png">
                 </div>
-                <div class="no-tasks">
-                    No tasks Done
-                </div>
+                <div class="no-tasks">No tasks Done</div>
             </div>
         </section>
 

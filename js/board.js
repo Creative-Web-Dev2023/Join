@@ -8,35 +8,33 @@ function drag(event) {
 
 function drop(event) {
     event.preventDefault();
-    let data = event.dataTransfer.getData("text");
-    let task = document.getElementById(data);
-    let targetColumn = event.target.closest('.kanban-column');
+    const data = event.dataTransfer.getData("text");
+    const task = document.getElementById(data);
 
+    let targetColumn;
     if (event.target.classList.contains('kanban-column')) {
         targetColumn = event.target;
     } else {
         targetColumn = event.target.closest('.kanban-column');
     }
 
+    const sourceColumn = task.closest('.kanban-column');
+
     if (targetColumn) {
         targetColumn.appendChild(task);
         updateNoTasksMessage(targetColumn);
+        updateNoTasksMessage(sourceColumn);
     }
-
-    let sourceColumn = document.getElementById(task.id).closest('.kanban-column');
-    updateNoTasksMessage(sourceColumn);
 }
 
 function updateNoTasksMessage(column) {
-    let tasks = column.querySelectorAll('.task');
-    let noTasksMessage = column.querySelector('.no-tasks');
-    if (tasks.length === 0 && !noTasksMessage) {
-        let noTasksDiv = document.createElement('div');
-        noTasksDiv.classList.add('no-tasks');
-        noTasksDiv.textContent = 'No tasks To do';
-        column.appendChild(noTasksDiv);
-    } else if (tasks.length > 0 && noTasksMessage) {
-        noTasksMessage.remove();
+    const tasks = column.querySelectorAll('.task');
+    const noTasksMessage = column.querySelector('.no-tasks');
+
+    if (tasks.length === 0) {
+        noTasksMessage.style.display = 'block';
+    } else {
+        noTasksMessage.style.display = 'none';
     }
 }
 

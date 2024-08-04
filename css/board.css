@@ -118,7 +118,6 @@ body {
 .kanban-column {
     flex: 1;
     margin: 0 10px;
-    background-color: #f4f4f4;
     border-radius: 4px;
     padding: 10px;
     transition: transform 0.3s;
@@ -140,6 +139,11 @@ body {
     border-radius: 14px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: grab;
+    display: block;
+}
+
+.kanban-column .task ~ .no-tasks {
+    display: none; /* Verstecken, wenn Aufgaben vorhanden sind */
 }
 
 .task {
@@ -163,11 +167,12 @@ body {
 .no-tasks {
     grid-column: span 2;
     text-align: center;
-    background-color: #dadada; /* Adjusted to match the light gray background */
-    color: #999; /* Adjusted to match the text color */
-    border: 2px dotted #ccc; /* Added dotted border */
-    padding: 10px; /* Added padding for spacing inside the div */
-    border-radius: 5px; /* Added border-radius for rounded corners */
+    background-color: #dadada; 
+    color: #999; 
+    border: 2px dotted #ccc; 
+    padding: 10px;
+    border-radius: 5px; 
+    display: block;
 }
 
 .headline-kanban {
@@ -313,7 +318,7 @@ body {
     color: white;
     font-size: 0.8em;
     font-weight: bold;
-    margin-right: -8px; /* Adjust this value to control the amount of overlap */
-    border: 2px solid white; /* Optional: add a border to better differentiate the overlapping spans */
+    margin-right: -8px; 
+    border: 2px solid white;
 }
 
