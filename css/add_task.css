@@ -442,6 +442,7 @@ span {
     display: none;
     position: absolute;
     background-color: #fff;
+    height: 200px;
     width: 30%;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1;

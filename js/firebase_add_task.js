@@ -123,11 +123,27 @@ function clearInputs() {
 }
 
 async function getInfo(path = "contacts") {
-  let eins = await fetch(BASE_URL + path + ".json");
-  let contacts = await eins.json();
+  try {
+    // Fetch contacts data from Firebase
+    let response = await fetch(BASE_URL + path + ".json");
+    let contacts = await response.json();
 
-  for (let i = 1; i < contacts.length; i++) {
-    getNameAndColor(`contacts/${i}`);
+    if (!contacts) {
+      console.log("No contacts found.");
+      return;
+    }
+
+    // Get all keys of the contacts object
+    const contactKeys = Object.keys(contacts);
+    console.log(`Number of contacts: ${contactKeys.length}`); // Debugging output
+
+    // Iterate over each contact key
+    for (let key of contactKeys) {
+      await getNameAndColor(`contacts/${key}`);
+      console.log('Processed contact with key:', key); // Debugging output
+    }
+  } catch (error) {
+    console.error("Error fetching contacts:", error);
   }
 }
 
@@ -143,7 +159,7 @@ async function getNameAndColor(path = "") {
 
     let emblemResponse = await fetch(BASE_URL + path + "/emblem.json");
     let emblemData = await emblemResponse.json();
-
+    
     const nameElement = document.getElementById('dropdown-content');
     nameElement.innerHTML += `
       <div class="dropdown-item" onclick="toggleSelection(this)" data-selected="false">
