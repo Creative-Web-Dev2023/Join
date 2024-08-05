@@ -1,51 +1,71 @@
 let BASE_URL = 'https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/';
 let namesFirstLetters = [];
 let contacts = [];
-
 // Hauptinitialisierungsfunktion
 async function init() {
     await loadContacts(); // Kontakte laden
-    displayContacts(); // Kontakte anzeigen
-    
+    displayContacts(); // Kontakte anzeigen   
 }
-
 // Kontakte von Firebase laden
 async function loadContacts() {
-    let contactsData = await getDataFromFirebase('contacts'); // Korrektur: 'contacts' Pfad hier hinzufügen
+    // Kontakte von Firebase laden
+    let contactsData = await getDataFromFirebase('contacts');
+    // Prüfen, ob Daten vorhanden sind
     if (!contactsData) {
         console.error('No data returned from Firebase.');
         return;
     }
 
+    // Initialisiere Arrays
     contacts = [];
     namesFirstLetters = [];
+    processContactsData(contactsData);
+    sortContactsAndInitials();
+}
 
+// Funktion zum Verarbeiten der Kontakte
+function processContactsData(contactsData) {
     for (const key in contactsData) {
         if (contactsData.hasOwnProperty(key)) {
-            const SINGLE_CONTACT = contactsData[key];
-            if (SINGLE_CONTACT && SINGLE_CONTACT.name) {
-                let contact = {
-                    "id": key,
-                    "name": SINGLE_CONTACT.name,
-                    "email": SINGLE_CONTACT.email,
-                    "phone": SINGLE_CONTACT.phone,
-                    "emblem": SINGLE_CONTACT.emblem,
-                    "color": SINGLE_CONTACT.color,
-                    "firstInitial": SINGLE_CONTACT.name.charAt(0).toUpperCase(),
-                    "secondInitial": SINGLE_CONTACT.name.split(' ')[1]?.charAt(0).toUpperCase() || ''
-                };
-                contacts.push(contact);
-
-                // Fügt den ersten Buchstaben des Namens zum Array hinzu, wenn er nicht vorhanden ist
-                if (!namesFirstLetters.includes(contact.firstInitial)) {
-                    namesFirstLetters.push(contact.firstInitial);
-                }
+            const singleContact = contactsData[key];
+            if (singleContact && singleContact.name) {
+                addContactToList(key, singleContact);
             } else {
                 console.warn(`Skipping invalid contact data for key: ${key}`);
             }
         }
     }
-    // Sortieren der Kontakte und Initialen
+}
+// Funktion zum Hinzufügen eines einzelnen Kontakts zur Liste
+function addContactToList(key, singleContact) {
+    let contact = createContactObject(key, singleContact);
+    contacts.push(contact);
+    updateInitials(contact.firstInitial);
+}
+
+// Funktion zum Erstellen eines Kontaktobjekts
+function createContactObject(key, singleContact) {
+    return {
+        id: key,
+        name: singleContact.name,
+        email: singleContact.email,
+        phone: singleContact.phone,
+        emblem: singleContact.emblem,
+        color: singleContact.color,
+        firstInitial: singleContact.name.charAt(0).toUpperCase(),
+        secondInitial: singleContact.name.split(' ')[1]?.charAt(0).toUpperCase() || ''
+    };
+}
+
+// Funktion zum Aktualisieren der Initialen
+function updateInitials(firstInitial) {
+    if (!namesFirstLetters.includes(firstInitial)) {
+        namesFirstLetters.push(firstInitial);
+    }
+}
+
+// Funktion zum Sortieren von Kontakten und Initialen
+function sortContactsAndInitials() {
     contacts.sort((a, b) => a.firstInitial.localeCompare(b.firstInitial));
     namesFirstLetters.sort();
 }
@@ -54,7 +74,6 @@ async function loadContacts() {
 function displayContacts() {
     const contactListElement = document.getElementById("contact-list");
     contactListElement.innerHTML = ''; // Lösche den bestehenden Inhalt
-
     namesFirstLetters.forEach(letter => {
         contactListElement.innerHTML += `
             <div class="contacts-alphabet">${letter}</div>
@@ -62,7 +81,6 @@ function displayContacts() {
             <div id="${letter}-content"></div>
         `;
     });
-
     contacts.forEach(contact => {
         const initial = contact.firstInitial;
         const contentElement = document.getElementById(`${initial}-content`);
@@ -71,7 +89,6 @@ function displayContacts() {
         }
     });
 }
-
 // HTML für einen einzelnen Kontakt generieren
 function renderContactsHtml(contact) {
     return `
@@ -102,7 +119,6 @@ async function getDataFromFirebase(path = '') {
         return {};
     }
 }
-
 // Daten zu Firebase hinzufügen
 async function setDataToFirebase(path = '', data = {}) {
     try {
@@ -123,7 +139,6 @@ async function setDataToFirebase(path = '', data = {}) {
         return {};
     }
 }
-
 // Neuen Kontakt hinzufügen
 async function addContact() {
     let contactName = document.getElementById('name').value;
@@ -142,7 +157,6 @@ async function addContact() {
         "emblem": contactEmblem,
         "color": contactColor
     };
-
     await setDataToFirebase('contacts', contactData);
     await loadContacts();
     displayContacts();
@@ -153,6 +167,5 @@ async function addContact() {
     document.getElementById('emblem').value = '';
     document.getElementById('color').value = '#ff0000';
 }
-
 // Initialisiere beim Laden der Seite
 document.addEventListener('DOMContentLoaded', init);
