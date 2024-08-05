@@ -11,10 +11,10 @@
     <link rel="stylesheet" href="/css/header_taskbar.css">
     <link rel="stylesheet" href="/css/header_taskbar_responsive.css">
     <link rel="stylesheet" href="/css/add_task.css">
-    
+
 </head>
 
-<body>
+<body onload="getLength()">
     <header class="eins">
         <div class="dreizehn">
             <img class="vierzehn" src="/assets/img/header_navbar_img/join_small.png" alt="" style="display: none;">
@@ -73,16 +73,19 @@
                     </div>
                     <div class="first-container-formatted part-2">
                         <label for="description">Description</label>
-                        <textarea id="description-input" class="input-style-2" placeholder="Enter a Description" type="text"></textarea>
+                        <textarea id="description-input" class="input-style-2" placeholder="Enter a Description"
+                            type="text"></textarea>
                     </div>
                     <div class="first-container-formatted part-3">
                         <label for="assigned to">Assigned To</label>
-                        <select name="Selects contacts to assign" id="assigned-to">
-                            <option value="" disabled selected>Select contacts to assign</option>
-                            <option>Anton Mayer</option>
-                            <option>Max Thomas</option>
-                            <option>Super Duper</option>
-                        </select>
+                        <div class="dropdown-format">
+                            <div class="dropdown-toggle dropdown-start" onclick="toggleDropdown()">
+                                <span class="dropdown-start">Select contacts to assign</span>
+                                <span class="dropdown-start">▼</span>
+                            </div>
+                            <div class="dropdown-content" id="dropdown-content">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -93,17 +96,21 @@
                     <div class="first-container">
                         <div class="first-container-formatted part-1">
                             <label for="due-date">Due date <span class="red">*</span></label>
-                            <input id="date" class="input-style-1" placeholder="dd/mm/yyyy" type="date"  min="1997-01-01" max="2030-12-31">
+                            <input id="date" class="input-style-1" placeholder="dd/mm/yyyy" type="date" min="1997-01-01"
+                                max="2030-12-31">
                         </div>
                         <div>
                             <label for="prio">Prio</label>
                             <div class="prio-buttons">
-                                <img class="prio-button" id="urgent" src="/assets/img/img_add_task/urgent_standart.png" alt="Urgent">
-                                <img class="prio-button" id="medium" src="/assets/img/img_add_task/medium_standart.png" alt="Medium">
-                                <img class="prio-button" id="low" src="/assets/img/img_add_task/low_standart.png" alt="Low">
+                                <img class="prio-button" id="urgent" src="/assets/img/img_add_task/urgent_standart.png"
+                                    alt="Urgent">
+                                <img class="prio-button" id="medium" src="/assets/img/img_add_task/medium_standart.png"
+                                    alt="Medium">
+                                <img class="prio-button" id="low" src="/assets/img/img_add_task/low_standart.png"
+                                    alt="Low">
                             </div>
                         </div>
-                                                                 
+
                         <div class="first-container-formatted part-2">
                             <label for="category">Category <span class="red">*</span></label>
                             <select id="category" name="Selects contacts to assign" id="">
@@ -120,14 +127,16 @@
                 </form>
             </div>
         </div>
-    </div>    
+    </div>
     <div class="bottom-section">
         <div>
             <p><span class="red">*</span>This field is required</p>
         </div>
         <div class="buttons">
-            <button class="clear" onclick="resetInput()">Clear <img src="/assets/img/img_add_task/cross.png" alt=""></button>
-            <button class="create" onclick="count(); error()">Create Task <img src="/assets/img/img_add_task/check.png" alt=""></button>
+            <button class="clear" onclick="resetInput()">Clear <img src="/assets/img/img_add_task/cross.png"
+                    alt=""></button>
+            <button class="create" onclick="count(); error()">Create Task <img src="/assets/img/img_add_task/check.png"
+                    alt=""></button>
         </div>
     </div>
 
