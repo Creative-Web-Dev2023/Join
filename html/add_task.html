@@ -14,7 +14,7 @@
 
 </head>
 
-<body onload="getLength()">
+<body onload="getInfo()">
     <header class="eins">
         <div class="dreizehn">
             <img class="vierzehn" src="/assets/img/header_navbar_img/join_small.png" alt="" style="display: none;">
@@ -119,9 +119,14 @@
                                 <option>User Story</option>
                             </select>
                         </div>
-                        <div class="first-container-formatted part-3 space">
-                            <label for="subtask">Subtask</label>
-                            <input class="input-style-1" placeholder="Add new subtask" type="text">
+                        <div class="first-container-formatted part-3 space subtask-container">
+                            <label for="subtask">Subtasks</label>
+                            <div class="input-wrapper">
+                                <input class="input-style-1 img-for-subtask" placeholder="Add new subtask" type="text"
+                                    id="subtask-input">
+                                <div id="add-subtask-btn" onclick="addSubtask()"></div>
+                            </div>
+                            <ul id="subtask-list" class="subtask-list"></ul>
                         </div>
                     </div>
                 </form>

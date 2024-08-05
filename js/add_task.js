@@ -1,5 +1,3 @@
-const tasks = [];
-
 document.querySelectorAll('.prio-button').forEach(function(button) {
     button.addEventListener('mouseover', function() {
         if (!this.classList.contains('clicked')) {
@@ -87,7 +85,6 @@ function error() {
         clearError(date);
     }
 }
-
 
 function resetInput() {
     window.location.href = '/html/add_task.html';
