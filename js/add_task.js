@@ -34,12 +34,7 @@ document.querySelectorAll('.prio-button').forEach(function(button) {
     });
 });
 
-<<<<<<< HEAD
-function addToBoard() {
-=======
-
 function error() {
->>>>>>> af20214e4982ce12d45c3fc2763ddb4a669c5969
     let text = document.getElementById('title-input');
     let category = document.getElementById('category');
     let date = document.getElementById('date');
