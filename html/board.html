@@ -89,7 +89,7 @@
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">To do</h2>
-                    <img class="plus_button" src="/assets/img/plus_button.png" />
+                    <img onclick="showPopup()" class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="task" draggable="true" ondragstart="drag(event)" id="task1" onclick="openPopup()">
                     <div class="task-header user-story">User Story</div>
@@ -113,7 +113,7 @@
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">In Progress</h2>
-                    <img class="plus_button" src="/assets/img/plus_button.png" onclick="showPopup()">
+                    <img onclick="showPopup()" class="plus_button" src="/assets/img/plus_button.png">
                 </div>
                 <div class="no-tasks">No tasks In progress</div>
             </div>
@@ -165,13 +165,23 @@
                             <input type="checkbox"><span>Start Page Layout</span>
                         </div>
                     </ul>
+                    <div class="trash-edit-popup-container">
+                        <div class="popup-bottom-delete">
+                            <img class="" src="/assets/img/delete_normal.png">
+                        </div>
+                        <div class="divider-popup"></div>
+                        <div class="popup-bottom-edit">
+                            <img src="/assets/img/edit_normal.png">
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
 
         <div id="overlay"></div>
         <div id="popup" class="main-section-popup">
-            <button id="closeButton">&times;</button>
+            <button id="closeButton" onclick="hidePopup()">&times;</button>
             <div>
                 <h1>Add Task</h1>
                 <div class="format-sections">

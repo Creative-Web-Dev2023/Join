@@ -38,27 +38,31 @@ function updateNoTasksMessage(column) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    const closeButton = document.getElementById("closeButton");
+function showPopup() {
     const popup = document.getElementById("popup");
     const overlay = document.getElementById("overlay");
+    overlay.style.display = "block";
+    popup.classList.add("show");
+}
 
-    document.querySelector(".add-task-button").addEventListener("click", showPopup);
+function hidePopup() {
+    const popup = document.getElementById("popup");
+    const overlay = document.getElementById("overlay");
+    popup.classList.remove("show");
+    setTimeout(function() {
+        overlay.style.display = "none";
+    }, 500);
+}
+
+// Initialisiere die Event-Handler
+/* function initializePopupHandlers() {
+    const closeButton = document.getElementById("closeButton");
+    const overlay = document.getElementById("overlay");
+
     closeButton.addEventListener("click", hidePopup);
     overlay.addEventListener("click", hidePopup);
+} */
 
-    function showPopup() {
-        overlay.style.display = "block";
-        popup.classList.add("show");
-    }
-
-    function hidePopup() {
-        popup.classList.remove("show");
-        setTimeout(function() {
-            overlay.style.display = "none";
-        }, 500);
-    }
-});
 
 function openPopup() {
     document.getElementById('popup-tasks').style.display = 'flex';

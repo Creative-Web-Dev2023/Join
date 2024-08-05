@@ -91,7 +91,6 @@ body {
 
 .add-task-button:hover {
     background-color: #29abe2;
-    ;
     /* Hintergrundfarbe beim Hover */
 }
 
@@ -347,10 +346,17 @@ body {
 
 .close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 20px;
+    top: 54px;
+    right: 78px;
+    font-size: 30px;
     cursor: pointer;
+    border-radius: 50%;
+    padding: 8px;
+}
+
+.close-button:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.1);
 }
 
 .user-story-popup h1 {
@@ -430,5 +436,43 @@ body {
     margin-right: -8px;
     border: 2px solid white;
 }
+
+.trash-edit-popup-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 3px;
+}
+
+.popup-bottom-delete {
+    align-items: center;
+    display: flex;
+    gap: 7px
+}
+
+.popup-bottom-delete:hover {
+    color: #29abe2;
+    cursor: pointer;
+    content: url('/assets/img/delete_hover.png');    
+}
+
+.popup-bottom-edit {
+    align-items: center;
+    display: flex;
+    gap: 7px
+}
+
+.popup-bottom-edit:hover {
+    color: #29abe2;
+    cursor: pointer;
+    content: url('/assets/img/edit_hover.png');
+}
+
+.divider-popup {
+    height: 20px;
+    width: 1px;
+    background-color: #ccc;
+    margin: 0 10px;
+}
+
 
 
