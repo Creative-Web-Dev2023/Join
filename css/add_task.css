@@ -340,7 +340,7 @@ select {
         top: 45px;
     }
 
-    header {
+    .header-add-task {
         position: fixed;
         top: 0;
         background-color: white;

@@ -1,0 +1,45 @@
+@media(max-width: 1260px) {
+    .kanban-board {
+        display: flex;
+        flex-direction: column;
+        width: 85%;
+        gap: 50px;
+    }
+}
+
+@media(max-width: 1030px) {
+    .container {
+        padding-left: 10%;
+        padding-top: 145px;
+        max-width: 1300px;
+    }
+}
+
+@media(max-width: 850px) {
+    .add-task-button {
+        display: none;
+    }
+
+    .search-container {
+        display: none;
+    }
+
+    .search-container-responsive {
+        display: flex;
+        width: 80%;
+        margin-top: 20px;
+    }
+
+    .header-board {
+        width: 82%;
+    }
+
+    .add-task-responsive {
+        display: block;
+    }
+
+    .add-task-responsive:hover {
+        content: url('/assets/img/add_task_responsive_hover.png');
+        cursor: pointer;
+    }
+}

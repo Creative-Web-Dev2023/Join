@@ -79,17 +79,29 @@
                     </button>
                 </div>
 
+                <div onclick="showPopup()" class="add-task-responsive">
+                    <img  src="/assets/img/add_task_responsive.png">
+                </div>
+
                 <button class="add-task-button" onclick="showPopup()">
                     <p class="button-font">Add Task <span>+</span></p>
                 </button>
             </div>
         </header>
 
+        <div class="search-container-responsive">
+            <input type="text" placeholder="Find Task">
+            <div class="divider"></div>
+            <button>
+                <img src="/assets/img/search_bar_glass.png" alt="">
+            </button>
+        </div>
+
         <section class="kanban-board">
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">To do</h2>
-                    <img onclick="showPopup()" class="plus_button" src="/assets/img/plus_button.png">
+                    <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
                 <div class="task" draggable="true" ondragstart="drag(event)" id="task1" onclick="openPopup()">
                     <div class="task-header user-story">User Story</div>
@@ -113,7 +125,7 @@
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">In Progress</h2>
-                    <img onclick="showPopup()" class="plus_button" src="/assets/img/plus_button.png">
+                    <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
                 <div class="no-tasks">No tasks In progress</div>
             </div>
@@ -121,7 +133,7 @@
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">Await feedback</h2>
-                    <img onclick="showPopup()" class="plus_button" src="/assets/img/plus_button.png">
+                    <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
                 <div class="no-tasks">No tasks Await feedback</div>
             </div>
@@ -139,7 +151,7 @@
                 <span class="close-button" onclick="closePopup()">&times;</span>
                 <div class="user-story-popup">
                     <div class="task-header-pop-up user-story">User Story</div>
-                    <h1>Kochwelt Page & Recipe Recommender</h1>
+                    <h1 class="h1-popup">Kochwelt Page & Recipe Recommender</h1>
                     <p>Build start page with recipe recommendation.</p>
                     <p>Due date: 10/05/2023</p>
                     <p>Priority: Medium</p>
@@ -186,7 +198,7 @@
                 <h1>Add Task</h1>
                 <div class="format-sections">
                     <form>
-                        <div class="first-container">
+                        <div class="first-container-popup">
                             <div class="first-container-formatted part-1">
                                 <label for="title">Title <span class="red">*</span></label>
                                 <input id="title-input" class="input-style-1" placeholder="Enter a title" type="text">
@@ -213,7 +225,7 @@
                     <div class="line"></div>
                     <div class="second-section">
                         <form>
-                            <div class="first-container">
+                            <div class="first-container-popup">
                                 <div class="first-container-formatted part-1">
                                     <label for="due-date">Due date <span class="red">*</span></label>
                                     <input id="date" class="input-style-1" placeholder="dd/mm/yyyy" type="date" min="1997-01-01"
@@ -253,14 +265,14 @@
                     </div>
                 </div>
             </div>
-            <div class="bottom-section">
+            <div class="bottom-section-popup">
                 <div>
                     <p><span class="red">*</span>This field is required</p>
                 </div>
                 <div class="buttons">
-                    <button class="clear" onclick="resetInput()">Clear <img src="/assets/img/img_add_task/cross.png"
+                    <button class="clear-popup" onclick="resetInput()">Cancel <img src="/assets/img/img_add_task/cross.png"
                             alt=""></button>
-                    <button class="create" onclick="count(); error()">Create Task <img src="/assets/img/img_add_task/check.png"
+                    <button class="create-popup" onclick="count(); error()">Create Task <img src="/assets/img/img_add_task/check.png"
                             alt=""></button>
                 </div>
             </div>
