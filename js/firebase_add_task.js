@@ -84,12 +84,56 @@ function getSelectedContacts() {
   document.querySelectorAll('.dropdown-item').forEach(item => {
     if (item.getAttribute('data-selected') === 'true') {
       const contactName = item.querySelector('.chosenName').textContent.trim();
-      selectedContacts.push(contactName);
+      const contactColor = item.querySelector('.circle').style.backgroundColor; // Get color from the circle
+      selectedContacts.push({ name: contactName, color: contactColor });
     }
   });
   console.log("Ausgewählte Kontakte:", selectedContacts); // Debug-Ausgabe
+
+  // Update the display of selected contacts
+  updateSelectedContactsDisplay(selectedContacts);
   return selectedContacts;
 }
+
+function updateSelectedContactsDisplay(selectedContacts) {
+  const container = document.getElementById('selected-contacts-container');
+  container.innerHTML = ''; // Clear previous circles
+
+  selectedContacts.forEach(contact => {
+    const circle = document.createElement('div');
+    circle.className = 'contact-circle';
+    circle.style.backgroundColor = contact.color; // Apply contact color
+    circle.textContent = contact.name.split(' ').map(word => word[0]).join('').toUpperCase(); // Use initials
+    circle.title = contact.name; // Optional: show the full name on hover
+    container.appendChild(circle);
+  });
+}
+
+// Add CSS for contact circles
+const style = document.createElement('style');
+style.textContent = `
+  .selected-contacts {
+    display: flex;
+    gap: 10px; /* Space between circles */
+    margin-top: 10px; /* Space above the circles */
+  }
+  .contact-circle {
+    width: 30px;
+    height: 30px;
+    background-color: #2A3647; /* Default circle color, will be overridden */
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+  }
+`;
+document.head.appendChild(style);
+
+
 function clearInputs() {
   // Clear input fields
   text.value = '';
@@ -119,8 +163,13 @@ function clearInputs() {
     button.src = button.src.replace('_clicked', '_standart');
   });
 
+  // Clear selected contacts display
+  const selectedContactsContainer = document.getElementById('selected-contacts-container');
+  selectedContactsContainer = ''; // Clear all contact circles
+
   console.log('Inputs cleared');
 }
+
 
 async function getInfo(path = "contacts") {
   try {
@@ -192,30 +241,32 @@ window.onclick = function (event) {
 }
 
 function toggleSelection(item) {
-  // Aktuellen Zustand ermitteln
+  // Toggle the selected state
   const isSelected = item.getAttribute('data-selected') === 'true';
-
-  // Zustand umschalten
   item.setAttribute('data-selected', !isSelected);
 
-  // Bild je nach Zustand ändern
+  // Change the image based on the selected state
   const img = item.querySelector('.toggle-image');
   if (!isSelected) {
-    img.src = '/assets/img/img_add_task/checkedbox.png';  // Bild für ausgewählten Zustand
+    img.src = '/assets/img/img_add_task/checkedbox.png';  // Image for selected state
     img.alt = 'Selected';
 
-    // Hintergrund und Schriftfarbe für ausgewählten Zustand ändern
+    // Change background and text color for the selected state
     item.style.backgroundColor = '#2A3647';
     item.style.color = 'white';
   } else {
-    img.src = '/assets/img/img_add_task/checkbox.png';    // Bild für nicht ausgewählten Zustand
+    img.src = '/assets/img/img_add_task/checkbox.png';    // Image for unselected state
     img.alt = 'Unselected';
 
-    // Hintergrund und Schriftfarbe zurücksetzen
-    item.style.backgroundColor = ''; // oder initial
-    item.style.color = ''; // oder initial
+    // Reset background and text color
+    item.style.backgroundColor = '';
+    item.style.color = '';
   }
+
+  // Update selected contacts display immediately
+  getSelectedContacts();
 }
+
 
 
 
