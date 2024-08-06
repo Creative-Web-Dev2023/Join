@@ -332,16 +332,18 @@ body {
     background-color: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
+    z-index: 99;
 }
 
 .popup-content-task {
     background-color: #fff;
     border-radius: 20px;
     position: relative;
-    height: 920px;
+    height: 81%;
     width: 525px;
     padding: 48px 40px 48px 40px;
     z-index: 99;
+    margin-top: 76px;
 }
 
 .close-button {
@@ -361,7 +363,7 @@ body {
 
 .user-story-popup h1 {
     margin: 0;
-    font-size: 61px;
+    font-size: 41px;
 }
 
 .user-story-popup p, .user-story-popup ul {
@@ -397,6 +399,12 @@ body {
     margin-right: 8px;
 }
 
+.user-story-popup {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
 .subtasks li input[type="checkbox"] {
     margin-right: 10px;
 }
@@ -421,6 +429,7 @@ body {
     border-radius: 12px;
     display: inline-block;
     margin-bottom: 30px;
+    width: 30%;
 }
 
 .assignee-popup {

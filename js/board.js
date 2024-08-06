@@ -55,13 +55,13 @@ function hidePopup() {
 }
 
 // Initialisiere die Event-Handler
-/* function initializePopupHandlers() {
+function initializePopupHandlers() {
     const closeButton = document.getElementById("closeButton");
     const overlay = document.getElementById("overlay");
 
     closeButton.addEventListener("click", hidePopup);
     overlay.addEventListener("click", hidePopup);
-} */
+}
 
 
 function openPopup() {
@@ -70,6 +70,15 @@ function openPopup() {
 
 function closePopup() {
     document.getElementById('popup-tasks').style.display = 'none';
+}
+
+function deleteTask(event) {
+    let taskElement = event.target.closest('.popup-task');
+    if (taskElement) {
+        taskElement.parentNode.removeChild(taskElement);
+    } else {
+        console.log('Task element not found');
+    }
 }
 
 
