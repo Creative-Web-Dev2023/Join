@@ -12,6 +12,18 @@
         padding-left: 10%;
         padding-top: 145px;
         max-width: 1300px;
+        padding-bottom: 25%;
+    }
+    .popup-content-task {
+        width: 80%;
+        padding: 8px;
+    }
+    .task-header-pop-up {
+        width: 40%;
+        font-size: 1.5em;
+    }
+    h2 {
+        font-size: 34px !important;
     }
 }
 

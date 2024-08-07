@@ -1,5 +1,6 @@
 body {
     height: 100vh;
+    overflow-y: auto !important;
 }
 
 .container {
@@ -148,7 +149,7 @@ body {
 
 .task {
     padding: 10px;
-    margin: 70px 0;
+    margin: 10px 0;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -306,7 +307,9 @@ body {
     align-items: center;
 }
 
-
+::-webkit-scrollbar {
+    height: 90%;
+  }
 .assignee {
     display: inline-block;
     width: 24px;
@@ -341,15 +344,14 @@ body {
     border-radius: 20px;
     position: relative;
     height: 81%;
-    width: 525px;
+    width: 40%;
     padding: 48px 40px 48px 40px;
     z-index: 99;
-    margin-top: 76px;
+    overflow-y: auto;
 }
 
 .close-button {
     position: absolute;
-    top: 54px;
     right: 78px;
     font-size: 30px;
     cursor: pointer;
@@ -367,9 +369,7 @@ body {
     font-size: 41px;
 }
 
-.user-story-popup p, .user-story-popup ul {
-    margin: 30px 0;
-}
+
 
 .user-story-popup p {
     font-size: 18px;
@@ -416,7 +416,20 @@ body {
     gap: 18px;
 
 }
+.assigned-popup-split2 {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-evenly;
+    gap: 42px;
 
+    div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 30px;
+    }
+}
 .assigned-popup-split {
     display: flex;
     align-items: center;
@@ -429,8 +442,8 @@ body {
     padding: 5px 10px;
     border-radius: 12px;
     display: inline-block;
-    margin-bottom: 30px;
-    width: 30%;
+    margin-bottom: 1%;
+    width: 70%;
 }
 
 .assignee-popup {
@@ -463,6 +476,11 @@ body {
     color: #29abe2;
     cursor: pointer;
     content: url('/assets/img/delete_hover.png');    
+}
+
+.d-flex {
+    display: flex;
+    justify-content: space-between;
 }
 
 .popup-bottom-edit {

@@ -15,7 +15,7 @@
     <script src="/js/header_taskbar.js"></script>
 </head>
 
-<body onload="loadTask()">
+<body onload="getInfo(), loadBoard()">
     <header class="eins">
         <div class="dreizehn">
             <img class="vierzehn" src="/assets/img/header_navbar_img/join_small.png" alt="" style="display: none;">
@@ -41,7 +41,7 @@
             <img class="acht" src="/assets/img/header_navbar_img/Join.png" alt="">
         </div>
         <div class="neun">
-            <a href="/html/summary.html" class="elf bg-dark">
+            <a href="/html/summary.html" class="elf">
                 <img src="/assets/img/header_navbar_img/Summary.png" alt="">
                 <p>Summary</p>
             </a>
@@ -49,7 +49,7 @@
                 <img src="/assets/img/header_navbar_img/Add_task.png" alt="">
                 <p>Add Task</p>
             </a>
-            <a href="/html/board.html" class="elf">
+            <a href="/html/board.html" class="elf bg-dark">
                 <img src="/assets/img/header_navbar_img/Board.png" alt="">
                 <p>Board</p>
             </a>
@@ -80,7 +80,7 @@
                 </div>
 
                 <div onclick="showPopup()" class="add-task-responsive">
-                    <img  src="/assets/img/add_task_responsive.png">
+                    <img src="/assets/img/add_task_responsive.png">
                 </div>
 
                 <button class="add-task-button" onclick="showPopup()">
@@ -103,23 +103,8 @@
                     <h2 class="h2-board-font">To do</h2>
                     <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
-                <div class="task" draggable="true" ondragstart="drag(event)" id="task1" onclick="openPopup()">
-                    <div class="task-header user-story">User Story</div>
-                    <div class="task-content">
-                        <h3>Kochwelt Page & Recipe Recommender</h3>
-                        <p>Build start page with recipe recommendation...</p>
-                        <div class="task-progress">
-                            <div class="progress-bar" style="width: 50%;"></div>
-                        </div>
-                        <p>1/2 Subtasks</p>
-                        <div class="task-assignees">
-                            <span class="assignee" style="background-color: #FF8C00;">AM</span>
-                            <span class="assignee" style="background-color: #00CED1;">EM</span>
-                            <span class="assignee" style="background-color: #8A2BE2;">MB</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="no-tasks">No tasks To do</div>
+                <div id="content"></div>
+                <div class="no-tasks" style="display: none;">No tasks To do</div>
             </div>
 
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
@@ -127,6 +112,7 @@
                     <h2 class="h2-board-font">In Progress</h2>
                     <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
+                <div id="content"></div>
                 <div class="no-tasks">No tasks In progress</div>
             </div>
 
@@ -135,6 +121,7 @@
                     <h2 class="h2-board-font">Await feedback</h2>
                     <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
+                <div id="content"></div>
                 <div class="no-tasks">No tasks Await feedback</div>
             </div>
 
@@ -142,52 +129,12 @@
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">Done</h2>
                 </div>
+                <div id="content"></div>
                 <div class="no-tasks">No tasks Done</div>
             </div>
         </section>
 
         <div id="popup-tasks" class="popup-task">
-            <div class="popup-content-task">
-                <span class="close-button" onclick="closePopup()">&times;</span>
-                <div class="user-story-popup">
-                    <div class="task-header-pop-up user-story">User Story</div>
-                    <h1 class="h1-popup">Kochwelt Page & Recipe Recommender</h1>
-                    <p>Build start page with recipe recommendation.</p>
-                    <p>Due date: 10/05/2023</p>
-                    <p>Priority: Medium</p>
-                    <p>Assigned To:</p>
-                    <div class="assigned-popup-split">
-                        <div class="task-assignees-popup">
-                            <span class="assignee-popup" style="background-color: #FF8C00;">AM</span>
-                            <span class="assignee-popup" style="background-color: #00CED1;">EM</span>
-                            <span class="assignee-popup" style="background-color: #8A2BE2;">MB</span>
-                        </div>
-                        <ul>
-                            <li>Emmanuel Mauer</li>
-                            <li>Marcel Bauer</li>
-                            <li>Anton Mayer</li>
-                        </ul>
-                    </div>
-                    <p>Subtasks</p>
-                    <ul class="subtasks">
-                        <div>
-                            <input type="checkbox" checked><span>Implement Recipe Recommendation</span>
-                        </div>
-                        <div>
-                            <input type="checkbox"><span>Start Page Layout</span>
-                        </div>
-                    </ul>
-                    <div class="trash-edit-popup-container">
-                        <div class="popup-bottom-delete">
-                            <img class="" src="/assets/img/delete_normal.png" onclick="deleteTask()">
-                        </div>
-                        <div class="divider-popup"></div>
-                        <div class="popup-bottom-edit">
-                            <img src="/assets/img/edit_normal.png">
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
 
@@ -218,6 +165,7 @@
                                     <div class="dropdown-content" id="dropdown-content">
                                     </div>
                                 </div>
+                                <div id="selected-contacts-container" class="selected-contacts"></div>
                             </div>
                         </div>
                     </form>
@@ -270,16 +218,16 @@
                     <p><span class="red">*</span>This field is required</p>
                 </div>
                 <div class="buttons">
-                    <button class="clear-popup" onclick="resetInput()">Cancel <img src="/assets/img/img_add_task/cross.png"
-                            alt=""></button>
-                    <button class="create-popup" onclick="count(); error()">Create Task <img src="/assets/img/img_add_task/check.png"
-                            alt=""></button>
+                    <button class="clear-popup" onclick="resetInput()">Clear <img
+                            src="/assets/img/img_add_task/cross.png" alt=""></button>
+                    <button class="create-popup" onclick="count(); error()">Create Task <img
+                            src="/assets/img/img_add_task/check.png" alt=""></button>
                 </div>
             </div>
-    </div>
+        </div>
 
-    <script src="/js/firebase_board.js"></script>
-    <script src="/js/firebase_add_task.js"></script>
+        <script src="/js/firebase_board.js"></script>
+        <script src="/js/firebase_add_task.js"></script>
 </body>
 
 </html>

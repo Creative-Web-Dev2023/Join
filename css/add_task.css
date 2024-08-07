@@ -464,6 +464,7 @@ span {
     display: flex;
     gap: 10px; /* Space between circles */
     margin-top: 10px; /* Space above the circles */
+    height: 0px;
   }
   
   .contact-circle {
@@ -552,4 +553,5 @@ span {
     padding-left: 0px; 
     padding-top: 5px;
     margin: 0;
+    height: 0px;
 }
