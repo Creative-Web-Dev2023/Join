@@ -92,7 +92,6 @@ function showContactDetails(contact) {
 }
 
 function openEditContactModal(contact) {
-  // Vorausfüllen der Formularelemente
   document.getElementById("name-input").value = contact.name;
   document.getElementById("email-input").value = contact.email;
   document.getElementById("phone-input").value = contact.phone;
