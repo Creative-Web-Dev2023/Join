@@ -68,7 +68,12 @@
                 Add new contact
                 <img src="../assets/img/person_add.png">
             </button>
-            <div class="contact-list" id="contact-list"></div>
+            <div class="contact-list" id="contact-list">
+                 <!-- Hier werden Kontakte dynamisch hinzugefügt -->
+            </div>
+            <div class="contact-card" id="contact-detail-card">
+                <!-- Details eines ausgewählten Kontakts werden hier angezeigt -->
+            </div>
         </div>
         <!-- Das Modal -->
         <div id="contact-modal" class="modal" style="display: none;">
@@ -118,7 +123,19 @@
                     </div>
                 </div>
             </div>
-    
+            <div id="contactPage" class="contact-page">
+                <div class="contacts-header">
+                    <h1>Contacts</h1>
+                    <div class="contacts-border"></div>
+                    <h2>Better with a team</h2>
+                </div>
+                <div class="contact-card" id="contact-detail-card">
+                    <!-- Details eines ausgewählten Kontakts werden hier angezeigt -->
+                </div>
+            </div>
+        </div>
+      
+        </div>
     </main>
     
     <script src="/js/firebase__contacts.js" defer></script>

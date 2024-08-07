@@ -1,29 +1,24 @@
 let BASE_URL = 'https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/';
 let namesFirstLetters = [];
 let contacts = [];
-// Hauptinitialisierungsfunktion
+
 async function init() {
-    await loadContacts(); // Kontakte laden
+    await loadContacts(); 
     displayContacts(); // Kontakte anzeigen   
 }
-// Kontakte von Firebase laden
+
 async function loadContacts() {
-    // Kontakte von Firebase laden
     let contactsData = await getDataFromFirebase('contacts');
-    // Prüfen, ob Daten vorhanden sind
     if (!contactsData) {
         console.error('No data returned from Firebase.');
         return;
     }
-
-    // Initialisiere Arrays
     contacts = [];
     namesFirstLetters = [];
     processContactsData(contactsData);
     sortContactsAndInitials();
 }
 
-// Funktion zum Verarbeiten der Kontakte
 function processContactsData(contactsData) {
     for (const key in contactsData) {
         if (contactsData.hasOwnProperty(key)) {
@@ -36,14 +31,14 @@ function processContactsData(contactsData) {
         }
     }
 }
-// Funktion zum Hinzufügen eines einzelnen Kontakts zur Liste
+
 function addContactToList(key, singleContact) {
     let contact = createContactObject(key, singleContact);
     contacts.push(contact);
     updateInitials(contact.firstInitial);
 }
 
-// Funktion zum Erstellen eines Kontaktobjekts
+
 function createContactObject(key, singleContact) {
     return {
         id: key,
@@ -57,23 +52,21 @@ function createContactObject(key, singleContact) {
     };
 }
 
-// Funktion zum Aktualisieren der Initialen
 function updateInitials(firstInitial) {
     if (!namesFirstLetters.includes(firstInitial)) {
         namesFirstLetters.push(firstInitial);
     }
 }
 
-// Funktion zum Sortieren von Kontakten und Initialen
+
 function sortContactsAndInitials() {
     contacts.sort((a, b) => a.firstInitial.localeCompare(b.firstInitial));
     namesFirstLetters.sort();
 }
 
-// Anzeigen der Kontakte
 function displayContacts() {
     const contactListElement = document.getElementById("contact-list");
-    contactListElement.innerHTML = ''; // Lösche den bestehenden Inhalt
+    contactListElement.innerHTML = ''; 
     namesFirstLetters.forEach(letter => {
         contactListElement.innerHTML += `
             <div class="contacts-alphabet">${letter}</div>
@@ -88,11 +81,12 @@ function displayContacts() {
             contentElement.innerHTML += renderContactsHtml(contact);
         }
     });
+    makeContactsClickable(); // Event-Listener hinzufügen
 }
-// HTML für einen einzelnen Kontakt generieren
+
 function renderContactsHtml(contact) {
     return `
-    <div class="contact-field">
+    <div class="contact-field" id="contact-${contact.id}">
         <div>
             <div class="profile-content" style="background-color: ${contact.color}">
                 ${contact.firstInitial}${contact.secondInitial}
@@ -100,12 +94,12 @@ function renderContactsHtml(contact) {
         </div>
         <div class="contact-data">
             <div>${contact.name}</div>
-            <div><a href="mailto:${contact.email}">${contact.email}</a></div>
+            <div><a href="${contact.email}">${contact.email}</a></div>
         </div>
     </div>
     `;
 }
-// Daten von Firebase holen
+
 async function getDataFromFirebase(path = '') {
     try {
         let response = await fetch(BASE_URL + path + '.json');
@@ -119,7 +113,7 @@ async function getDataFromFirebase(path = '') {
         return {};
     }
 }
-// Daten zu Firebase hinzufügen
+
 async function setDataToFirebase(path = '', data = {}) {
     try {
         let response = await fetch(BASE_URL + path + '.json', {
@@ -139,7 +133,7 @@ async function setDataToFirebase(path = '', data = {}) {
         return {};
     }
 }
-// Neuen Kontakt hinzufügen
+
 async function addContact() {
     let contactName = document.getElementById('name').value;
     let contactEmail = document.getElementById('email').value;
@@ -160,12 +154,46 @@ async function addContact() {
     await setDataToFirebase('contacts', contactData);
     await loadContacts();
     displayContacts();
-     // Clear form after adding contact
     document.getElementById('name').value = '';
     document.getElementById('email').value = '';
     document.getElementById('phone').value = '';
     document.getElementById('emblem').value = '';
     document.getElementById('color').value = '#ff0000';
 }
-// Initialisiere beim Laden der Seite
+
+async function updateContactInFirebase(contactId, updateData){
+try{
+    let response = await fetch(BASE_URL + 'contacts/' + contactId + '.json', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+    });
+    if (!response.ok) {
+        console.error('Failed to update data in Firebase:', response.statusText);
+        return {};
+    }
+    return await response.json();
+} catch (error) {
+    console.error('Error updating data:', error);
+    return {};
+}
+}
+
+async function deleteContact(contactId){
+    try{
+        let response = await fetch(BASE_URL + 'contacts/' + contactId + '.json', {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            console.error('Failed to delete data in Firebase:', response.statusText);
+            return {};
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error deleting data:', error);
+        return {};
+    }
+}
 document.addEventListener('DOMContentLoaded', init);
