@@ -29,7 +29,8 @@ async function submitContact() {
 }
 
 async function addContactToFirebase(contactData) {
-  let BASE_URL ="https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
+  let BASE_URL =
+    "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
   try {
     let response = await fetch(BASE_URL + "contacts.json", {
       method: "POST",
@@ -50,42 +51,45 @@ async function addContactToFirebase(contactData) {
 }
 
 function makeContactsClickable() {
-    contacts.forEach(contact => {
-        const contactElement = document.getElementById(`contact-${contact.id}`);
-      
-        if (contactElement) {
-            contactElement.addEventListener('click', (event) => {
-                event.preventDefault();
-                showContactDetails(contact);
-            });
-        } else {
-            console.warn(`No element found for contact with ID: ${contact.id}`);
-        }
-    });
+  contacts.forEach((contact) => {
+    const contactElement = document.getElementById(`contact-${contact.id}`);
+
+    if (contactElement) {
+      contactElement.addEventListener("click", (event) => {
+        event.preventDefault();
+        showContactDetails(contact);
+      });
+    } else {
+      console.warn(`No element found for contact with ID: ${contact.id}`);
+    }
+  });
 }
 
-
 function showContactDetails(contact) {
-  console.log('test');
-  
   const contactDetailElement = document.getElementById("contact-detail-card");
   contactDetailElement.innerHTML = `
         <div class="contact-detail-header">
-            <div class="profile-content" style="background-color: ${contact.color}">
+            <div class="profile-content-big" style="background-color: ${contact.color}">
                 ${contact.firstInitial}${contact.secondInitial}
             </div>
             <div class="contact-name">
                 <h2>${contact.name}</h2>
             </div>
+             <div class="contact-actions">
+           <div class="contact-functions" onclick="openEditContactModal(${contact})">
+              <img class="contactFunctionsIcons" src="../assets/img/img_contacts/delete.png" alt="">Edit
+           </div>
+      <div class="contactFunctions" onclick="deleteContact(${contact})">
+        <img class="contactFunctionsIcons" src="../assets/img/img_contacts/edit.png" alt="">Delete
+      </div>
+ </div>
+ </div>
         </div>
         <div class="contact-info">
     <p>Email: <span>${contact.email}</span></p>
     <p>Telefon: ${contact.phone}</p>
 </div>
-        <div class="contact-actions">
-            <button id="edit-contact-button">Edit</button>
-            <button id="delete-contact-button">Delete</button>
-        </div>
+     
     `;
   document.getElementById("edit-contact-button").onclick = () =>
     openEditContactModal(contact);
@@ -108,7 +112,6 @@ function openEditContactModal(contact) {
       phone: document.getElementById("phone-input").value,
     };
 
-    
     await updateContactInFirebase(contact.id, updatedContactData);
     closeModal();
     await loadContacts();
@@ -116,7 +119,6 @@ function openEditContactModal(contact) {
   };
   openModal();
 }
-
 
 async function deleteContact(contactId) {
   if (confirm("Do you really want to delete this contact?")) {
