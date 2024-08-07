@@ -15,7 +15,7 @@
     <script src="/js/header_taskbar.js"></script>
 </head>
 
-<body onload="getInfo(), loadBoard()">
+<body onload="init()">
     <header class="eins">
         <div class="dreizehn">
             <img class="vierzehn" src="/assets/img/header_navbar_img/join_small.png" alt="" style="display: none;">
@@ -104,9 +104,6 @@
                     <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
                 <div class="content" id="content-todo">
-                    <!-- Example tasks -->
-                    <div id="task1" class="task" draggable="true" ondragstart="drag(event)">Task 1</div>
-                    <div id="task2" class="task" draggable="true" ondragstart="drag(event)">Task 2</div>
                 </div>
                 <div class="no-tasks" style="display: none;">No tasks To do</div>
             </div>

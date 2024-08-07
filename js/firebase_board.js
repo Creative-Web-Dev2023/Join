@@ -1,5 +1,10 @@
+function init() {
+    getInfo();
+    loadBoard();
+}
+
 async function loadBoard() {
-    const content = document.getElementById('content');
+    const content = document.getElementById('content-todo');
     const tasks = await fetchTasks();
 
     if (!Array.isArray(tasks)) {
