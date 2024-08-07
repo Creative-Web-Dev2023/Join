@@ -1,10 +1,81 @@
-function init() {
-    getInfo();
-    loadBoard();
+function init12() {
+    getInfo(); // Load any necessary initial configurations
+    loadBoard(); // Load tasks and initially render them
 }
 
+document.addEventListener('DOMContentLoaded', init12);
+
+
+function createTaskElement(task, index) {
+    const userStoryText = task.userStory || 'User Story';
+    const titleText = task.title || 'Title';
+    const descriptionText = task.description || 'Description';
+    const subtasks = task.subtasks || [];
+    const assignedPeople = task.assignedPeople || [];
+    const priorityText = task.priority || 'low';
+
+    const assignedHtml = assignedPeople.map(person => {
+        const initials = person.name.split(' ').map(name => name[0]).join('');
+        return `
+            <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
+                ${initials}
+            </span>
+        `;
+    }).join('');
+
+    let priorityImage;
+    switch (priorityText.toLowerCase()) {
+        case 'urgent':
+            priorityImage = '/assets/img/img_board/urgent.png';
+            break;
+        case 'medium':
+            priorityImage = '/assets/img/img_board/medium.png';
+            break;
+        case 'low':
+            priorityImage = '/assets/img/img_board/low.png';
+            break;
+        default:
+            priorityImage = 'default.png';
+    }
+
+    const taskElement = document.createElement('div');
+    taskElement.className = 'task';
+    taskElement.draggable = true;
+    taskElement.id = `task${index + 1}`;
+
+    taskElement.innerHTML = `
+        <div class="task-header user-story">${userStoryText}</div>
+        <div class="task-content">
+            <h3>${titleText}</h3>
+            <p>${descriptionText}</p>
+            <div class="task-progress">
+                <div class="progress-bar" id="progress-bar-${index + 1}" style="width: 0%;"></div>
+            </div>
+            <p id="subtask-count-${index + 1}">0/${subtasks.length} Subtasks</p>
+            <div class="d-flex">
+                <div class="task-assignees">
+                    ${assignedHtml}    
+                </div>
+                <div class="task-priority">
+                    <img src="${priorityImage}" style="width: 30px; height: 30px;">
+                </div>
+            </div>
+        </div>
+    `;
+
+    taskElement.addEventListener('click', () => openPopup(index + 1));
+    taskElement.addEventListener('dragstart', drag);
+
+    return taskElement;
+}
+
+
+
+
 async function loadBoard() {
-    const content = document.getElementById('content-todo');
+    const contentTodo = document.getElementById('content-todo');
+    contentTodo.innerHTML = ''; // Clear existing tasks to avoid duplication
+
     const tasks = await fetchTasks();
 
     if (!Array.isArray(tasks)) {
@@ -12,66 +83,14 @@ async function loadBoard() {
         return;
     }
 
-    tasks.forEach(async (task, index) => {
-        const userStoryText = await userStory(`tasks/task${index + 1}/category`);
-        const titleText = await title(`tasks/task${index + 1}/title`);
-        const descriptionText = await descriptionFB(`tasks/task${index + 1}/description`);
-        const subtaskText = await subtaskFB(`tasks/task${index + 1}/subtask`);
-        const assignedPeople = await assignedFB(`tasks/task${index + 1}/assigned`);
-        const priorityText = await priorityFB(`tasks/task${index + 1}/priority`);
-
-        // Split the subtasks into an array
-        const subtasks = subtaskText.split(',');
-
-        // Create the assigned people HTML with initials
-        const assignedHtml = assignedPeople.map(person => {
-            const initials = person.name.split(' ').map(name => name[0]).join('');
-            return `
-                <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
-                    ${initials}
-                </span>
-            `;
-        }).join('');
-
-        // Determine the image based on priority
-        let priorityImage;
-        switch (priorityText.toLowerCase()) {
-            case 'urgent':
-                priorityImage = '/assets/img/img_board/urgent.png';
-                break;
-            case 'medium':
-                priorityImage = '/assets/img/img_board/medium.png';
-                break;
-            case 'low':
-                priorityImage = '/assets/img/img_board/low.png';
-                break;
-            default:
-                priorityImage = 'default.png';
-        }
-
-        content.innerHTML += `
-        <div class="task" draggable="true" ondragstart="drag(event)" id="task${index + 1}" onclick="openPopup(${index + 1})">
-            <div class="task-header user-story">${userStoryText}</div>
-            <div class="task-content">
-                <h3>${titleText}</h3>
-                <p>${descriptionText}</p>
-                <div class="task-progress">
-                    <div class="progress-bar" id="progress-bar-${index + 1}" style="width: 0%;"></div>
-                </div>
-                <p id="subtask-count-${index + 1}">0/${subtasks.length} Subtasks</p>
-                <div class="d-flex">
-                    <div class="task-assignees">
-                        ${assignedHtml}    
-                    </div>
-                    <div class="task-priority">
-                        <img src="${priorityImage}" style="width: 30px; height: 30px;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
+    tasks.forEach((task, index) => {
+        const taskElement = createTaskElement(task, index);
+        contentTodo.appendChild(taskElement);
     });
+
+    loadTasks(); // Call this to restore the positions
 }
+
 
 // Function to update progress based on checked subtasks
 function updateProgress(taskId, checkboxStatus) {

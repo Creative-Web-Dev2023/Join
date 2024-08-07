@@ -24,53 +24,40 @@ function drop(event) {
 }
 
 function loadTasks() {
-    const tasksData = JSON.parse(localStorage.getItem('kanbanTasks'));
-    if (!tasksData) return;
+    const tasksData = JSON.parse(localStorage.getItem('tasksPositions'));
 
-    const columns = document.querySelectorAll('.kanban-column');
+    if (tasksData) {
+        Object.keys(tasksData).forEach(columnKey => {
+            const columnIndex = columnKey.replace('column', '');
+            const column = document.querySelectorAll('.kanban-column')[columnIndex];
+            const taskIds = tasksData[columnKey];
 
-    columns.forEach(column => {
-        const columnId = column.querySelector('h2').textContent.trim();
-        const contentDiv = column.querySelector('.content');
-        contentDiv.innerHTML = '';  // Clear existing tasks
-
-        if (tasksData[columnId]) {
-            tasksData[columnId].forEach(taskData => {
-                if (!document.getElementById(taskData.id)) {
-                    const task = document.createElement('div');
-                    task.classList.add('task');
-                    task.id = taskData.id;
-                    task.draggable = true;
-                    task.innerHTML = taskData.content;
-                    task.setAttribute('ondragstart', 'drag(event)');
-
-                    contentDiv.appendChild(task);
+            taskIds.forEach(taskId => {
+                const task = document.getElementById(taskId);
+                if (task) {
+                    column.querySelector('.content').appendChild(task);
                 }
             });
-        }
-        updateNoTasksMessage(column); // Update the no-tasks message
-    });
+
+            updateNoTasksMessage(column); // Ensure correct message display
+        });
+    }
 }
+
+
 
 function saveTasks() {
     const columns = document.querySelectorAll('.kanban-column');
     const tasksData = {};
 
-    columns.forEach(column => {
-        const columnId = column.querySelector('h2').textContent.trim();
-        tasksData[columnId] = [];
+    columns.forEach((column, index) => {
         const tasks = column.querySelectorAll('.task');
-
-        tasks.forEach(task => {
-            tasksData[columnId].push({
-                id: task.id,
-                content: task.innerHTML
-            });
-        });
+        tasksData[`column${index}`] = Array.from(tasks).map(task => task.id);
     });
 
-    localStorage.setItem('kanbanTasks', JSON.stringify(tasksData));
+    localStorage.setItem('tasksPositions', JSON.stringify(tasksData));
 }
+
 
 function updateNoTasksMessage(column) {
     const tasks = column.querySelectorAll('.task');
