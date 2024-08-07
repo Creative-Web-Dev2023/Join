@@ -86,7 +86,7 @@ function displayContacts() {
 
 function renderContactsHtml(contact) {
     return `
-    <div class="contact-field" id="contact-${contact.id}">
+    <div class="contact-field" id="contact-${contact.id}" onclick="makeContactsClickable()">
         <div>
             <div class="profile-content" style="background-color: ${contact.color}">
                 ${contact.firstInitial}${contact.secondInitial}
