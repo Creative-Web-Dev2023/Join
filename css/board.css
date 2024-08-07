@@ -215,15 +215,16 @@ body {
     height: 791px;
     background-color: #fff;
     z-index: 902;
-    border-radius: 30px;
+    border-radius: 31px;
     display: flex;
     flex-direction: column;
-    padding: 64px 74px;
+    padding: 65px 114px;
     position: fixed;
     top: 50%;
     right: -100%;
     transform: translateY(-50%);
     transition: right 0.5s ease-in-out;
+    width: 69%;
 }
 
 #popup.show {

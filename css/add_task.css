@@ -36,7 +36,7 @@ body {
     z-index: 20;
 }
 
-h1 {
+.h1 {
     font-size: 61px;
     font-weight: 700;
     line-height: 73.2px;
@@ -328,7 +328,7 @@ select {
         gap: 8px;
     }
 
-    h1 {
+    .h1 {
         padding-left: 10vw;
         margin-bottom: 0px;
         margin-top: 30.5px;

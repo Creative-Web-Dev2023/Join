@@ -1,3 +1,5 @@
+document.addEventListener('DOMContentLoaded', loadTasks);
+
 function allowDrop(event) {
     event.preventDefault();
 }
@@ -11,20 +13,63 @@ function drop(event) {
     const data = event.dataTransfer.getData("text");
     const task = document.getElementById(data);
 
-    let targetColumn;
-    if (event.target.classList.contains('kanban-column')) {
-        targetColumn = event.target;
-    } else {
-        targetColumn = event.target.closest('.kanban-column');
-    }
-
-    const sourceColumn = task.closest('.kanban-column');
-
+    let targetColumn = event.target.closest('.kanban-column');
     if (targetColumn) {
-        targetColumn.appendChild(task);
-        updateNoTasksMessage(targetColumn);
-        updateNoTasksMessage(sourceColumn);
+        const sourceColumn = task.closest('.kanban-column');
+        targetColumn.querySelector('.content').appendChild(task);
+        updateNoTasksMessage(sourceColumn); // Update source column
+        updateNoTasksMessage(targetColumn); // Update target column
+        saveTasks();
     }
+}
+
+function loadTasks() {
+    const tasksData = JSON.parse(localStorage.getItem('kanbanTasks'));
+    if (!tasksData) return;
+
+    const columns = document.querySelectorAll('.kanban-column');
+
+    columns.forEach(column => {
+        const columnId = column.querySelector('h2').textContent.trim();
+        const contentDiv = column.querySelector('.content');
+        contentDiv.innerHTML = '';  // Clear existing tasks
+
+        if (tasksData[columnId]) {
+            tasksData[columnId].forEach(taskData => {
+                if (!document.getElementById(taskData.id)) {
+                    const task = document.createElement('div');
+                    task.classList.add('task');
+                    task.id = taskData.id;
+                    task.draggable = true;
+                    task.innerHTML = taskData.content;
+                    task.setAttribute('ondragstart', 'drag(event)');
+
+                    contentDiv.appendChild(task);
+                }
+            });
+        }
+        updateNoTasksMessage(column); // Update the no-tasks message
+    });
+}
+
+function saveTasks() {
+    const columns = document.querySelectorAll('.kanban-column');
+    const tasksData = {};
+
+    columns.forEach(column => {
+        const columnId = column.querySelector('h2').textContent.trim();
+        tasksData[columnId] = [];
+        const tasks = column.querySelectorAll('.task');
+
+        tasks.forEach(task => {
+            tasksData[columnId].push({
+                id: task.id,
+                content: task.innerHTML
+            });
+        });
+    });
+
+    localStorage.setItem('kanbanTasks', JSON.stringify(tasksData));
 }
 
 function updateNoTasksMessage(column) {
@@ -49,7 +94,7 @@ function hidePopup() {
     const popup = document.getElementById("popup");
     const overlay = document.getElementById("overlay");
     popup.classList.remove("show");
-    setTimeout(function() {
+    setTimeout(function () {
         overlay.style.display = "none";
     }, 500);
 }
@@ -62,9 +107,6 @@ function initializePopupHandlers() {
     closeButton.addEventListener("click", hidePopup);
     overlay.addEventListener("click", hidePopup);
 }
-
-
-
 
 function deleteTask(event) {
     let taskElement = event.target.closest('.popup-task');
