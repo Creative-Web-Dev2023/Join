@@ -55,7 +55,7 @@
     }
 
     .add-task-responsive:hover {
-        content: url('/assets/img/add_task_responsive_hover.png');
+        content: url('/assets/img/add_task_mobile_hover.png');
         cursor: pointer;
     }
 }
