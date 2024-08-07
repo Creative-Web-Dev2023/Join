@@ -66,10 +66,12 @@ function makeContactsClickable() {
 
 
 function showContactDetails(contact) {
-  const contactDetailElement = document.querySelector(".contact-card");
+  console.log('test');
+  
+  const contactDetailElement = document.getElementById("contact-detail-card");
   contactDetailElement.innerHTML = `
-        <div class="contact-detail-header" style="background-color: ${contact.color}">
-            <div class="profile-content">
+        <div class="contact-detail-header">
+            <div class="profile-content" style="background-color: ${contact.color}">
                 ${contact.firstInitial}${contact.secondInitial}
             </div>
             <div class="contact-name">
