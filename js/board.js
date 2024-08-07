@@ -23,6 +23,18 @@ function drop(event) {
     }
 }
 
+function saveTasks() {
+    const columns = document.querySelectorAll('.kanban-column');
+    const tasksData = {};
+
+    columns.forEach((column, index) => {
+        const tasks = column.querySelectorAll('.task');
+        tasksData[`column${index}`] = Array.from(tasks).map(task => task.id);
+    });
+
+    localStorage.setItem('tasksPositions', JSON.stringify(tasksData));
+}
+
 function loadTasks() {
     const tasksData = JSON.parse(localStorage.getItem('tasksPositions'));
 
@@ -44,19 +56,6 @@ function loadTasks() {
     }
 }
 
-
-
-function saveTasks() {
-    const columns = document.querySelectorAll('.kanban-column');
-    const tasksData = {};
-
-    columns.forEach((column, index) => {
-        const tasks = column.querySelectorAll('.task');
-        tasksData[`column${index}`] = Array.from(tasks).map(task => task.id);
-    });
-
-    localStorage.setItem('tasksPositions', JSON.stringify(tasksData));
-}
 
 
 function updateNoTasksMessage(column) {

@@ -187,8 +187,8 @@ async function openPopup(taskId) {
                 ${subtasksHtml}
             </div>
             <div class="trash-edit-popup-container">
-                <div class="popup-bottom-delete">
-                    <img class="" src="/assets/img/delete_normal.png" onclick="deleteTask()">
+                <div class="popup-bottom-delete" onclick="deleteTask(${taskId})">
+                    <img class="" src="/assets/img/delete_normal.png">
                 </div>
                 <div class="divider-popup"></div>
                 <div class="popup-bottom-edit">
@@ -292,5 +292,41 @@ function move() {
                 elem.innerHTML = width + "%";
             }
         }
+    }
+}
+async function deleteTask(taskId) {
+    try {
+        // Call deleteData function to delete the task from Firebase
+        await deleteData(`tasks/task${taskId}`);
+
+        // Remove task from the DOM
+        const taskElement = document.getElementById(`task${taskId}`);
+        if (taskElement) {
+            taskElement.remove();
+        }
+
+        // Update local storage
+        saveTasks();
+
+        // Close the popup after deletion
+        closePopup();
+    } catch (error) {
+        console.error('Error deleting task:', error);
+    }
+}
+async function deleteData(path = "") {
+    try {
+        let response = await fetch(BASE_URL + path + ".json", {
+            method: "DELETE",
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        return response.json();
+    } catch (error) {
+        console.error('Error deleting data:', error);
+        return null;
     }
 }
