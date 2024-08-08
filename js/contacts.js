@@ -68,28 +68,37 @@ function makeContactsClickable() {
 function showContactDetails(contact) {
   const contactDetailElement = document.getElementById("contact-detail-card");
   contactDetailElement.innerHTML = `
+  <div class="contact-card-main-infos">
         <div class="contact-detail-header">
             <div class="profile-content-big" style="background-color: ${contact.color}">
                 ${contact.firstInitial}${contact.secondInitial}
             </div>
-            <div class="contact-name">
+            <div class="contact-name-big">
                 <h2>${contact.name}</h2>
             </div>
              <div class="contact-actions">
-           <div class="contact-functions" onclick="openEditContactModal(${contact})">
-              <img class="contactFunctionsIcons" src="../assets/img/img_contacts/delete.png" alt="">Edit
-           </div>
-      <div class="contactFunctions" onclick="deleteContact(${contact})">
-        <img class="contactFunctionsIcons" src="../assets/img/img_contacts/edit.png" alt="">Delete
-      </div>
- </div>
- </div>
+                   <div class="contact-functions" onclick="openEditContactModal(${contact})">
+                   <img class="contact-functions-icons" src="../assets/img/img_contacts/delete.png" alt="">Edit
+             </div>
+                <div class="contact-functions" onclick="deleteContact(${contact})">
+                <img class="contact-functions-icons" src="../assets/img/img_contacts/edit.png" alt="">Delete
         </div>
-        <div class="contact-info">
-    <p>Email: <span>${contact.email}</span></p>
-    <p>Telefon: ${contact.phone}</p>
-</div>
-     
+              </div>
+         <div class="contact-card-subtitle">Contact Information</div>
+             <div class="contact-card-details">
+                <div class="contact-card-info">
+                 <div class="contact-method">Email</div>
+                <div class=" contact-email">
+                     <a href="mailto:${contact.email}">${contact.email}</a>
+                </div>
+                <div class="contact-card-info">
+                 <div class="contact-method">Phone</div>
+               <div class="contact-phone">
+               <p>${contact.phone}</p>
+              </div>
+           </div>
+         </div>
+       </div>
     `;
   document.getElementById("edit-contact-button").onclick = () =>
     openEditContactModal(contact);
@@ -126,6 +135,7 @@ async function deleteContact(contactId) {
     if (success) {
       await loadContacts();
       displayContacts();
+      hideContact();
     }
   }
 }
@@ -138,3 +148,10 @@ document.getElementById("add-contact-button").onclick = openModal;
 document.getElementById("cancel-button").onclick = closeModal;
 document.getElementById("submit-button").onclick = submitContact;
 document.getElementById("close-modal-button").onclick = closeModal;
+
+// function showContact() {
+//   contactCard.classList.add('contact-card-active');
+// }
+// function hideContact() {
+//   contactCard.classList.remove('contact-card-active');
+// }
