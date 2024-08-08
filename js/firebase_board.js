@@ -9,8 +9,9 @@ function createTaskElement(task, index) {
     const userStoryText = task.userStory || 'User Story';
     const titleText = task.title || 'Title';
     const descriptionText = task.description || 'Description';
-    const subtasks = task.subtasks || [];
-    const assignedPeople = task.assignedPeople || [];
+    const subtasks = task.subtask ? task.subtask.split(',') : [];
+    const subtaskCount = subtasks.length;
+    const assignedPeople = task.assigned || [];
     const priorityText = task.priority || 'low';
 
     const assignedHtml = assignedPeople.map(person => {
@@ -50,7 +51,7 @@ function createTaskElement(task, index) {
             <div class="task-progress">
                 <div class="progress-bar" id="progress-bar-${index + 1}" style="width: 0%;"></div>
             </div>
-            <p id="subtask-count-${index + 1}">0/${subtasks.length} Subtasks</p>
+            <p id="subtask-count-${index + 1}">0/${subtaskCount} Subtasks</p>
             <div class="d-flex">
                 <div class="task-assignees">
                     ${assignedHtml}    

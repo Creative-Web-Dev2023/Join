@@ -58,6 +58,10 @@ function allCount() {
     console.log('Total number of tasks:', totalTasks);
 }
 
+function openTaskBoard() {
+    window.location.href = './board.html';
+}
+
 function todoCount() {
     const tasksPositionsString = localStorage.getItem('tasksPositions');
     const tasksPositions = JSON.parse(tasksPositionsString);
