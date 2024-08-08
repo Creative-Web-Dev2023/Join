@@ -10,8 +10,8 @@ function createTaskElement(task, index) {
     const userStoryText = task.userStory || 'User Story';
     const titleText = task.title || 'Title';
     const descriptionText = task.description || 'Description';
-    const subtasks = task.subtasks || [];
-    const assignedPeople = task.assignedPeople || [];
+    const subtasks = task.subtask || [];
+    const assignedPeople = task.assigned || [];
     const priorityText = task.priority || 'low';
 
     const assignedHtml = assignedPeople.map(person => {

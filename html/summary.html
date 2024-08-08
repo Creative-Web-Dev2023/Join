@@ -13,7 +13,7 @@
     <script src="../js/summary.js"></script>
 </head>
 
-<body>
+<body onload="summaryCounts()">
     <header class="eins">
         <div class="dreizehn">
             <img class="vierzehn" src="/assets/img/header_navbar_img/join_small.png" alt="" style="display: none;">
@@ -76,7 +76,7 @@
                     <div class="bordering-top-1">
                         <img class="img-size" src="../assets/img/pencil_button.png">
                         <div class="flex column align-center">
-                            <span class="span-top">1</span>
+                            <span class="span-top" id="todoCounter"></span>
                             <span class="span-top-2">To-do</span>
                         </div>
                     </div>
@@ -84,7 +84,7 @@
                     <div class="bordering-top-2">
                         <img class="img-size" src="../assets/img/check_button.png" alt="">
                         <div class="flex column align-center">
-                            <span class="span-top">1</span>
+                            <span class="span-top" id="doneCounter"></span>
                             <span class="span-top-2">Done</span>
                         </div>
                     </div>
@@ -111,17 +111,17 @@
 
                 <div class="flex">
                     <div class="bordering-bottom column">
-                        <span class="span-top">5</span>
+                        <span class="span-top" id="allCounter"></span>
                         <span class="span-top-2">Tasks in <br> Board</span>
                     </div>
 
                     <div class="bordering-bottom column">
-                        <span class="span-top">2</span>
+                        <span class="span-top" id="progressCounter"></span>
                         <span class="span-top-2">Tasks In <br> Progress</span>
                     </div>
 
                     <div class="bordering-bottom column">
-                        <span class="span-top">2</span>
+                        <span class="span-top" id="feedbackCounter"></span>
                         <span class="span-top-2">Awaiting <br> feedback</span>
                     </div>
                 </div>

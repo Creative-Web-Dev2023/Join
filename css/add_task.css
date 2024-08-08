@@ -136,6 +136,24 @@ input::placeholder {
     border: 1px solid #D1D1D1;
 }
 
+#successPopup {
+    display: none;
+    position: fixed;
+    bottom: -50px; /* Start hidden below the screen */
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #2a3647;
+    color: white;
+    border: 2px solid #2a3647;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: bottom 0.5s ease; /* Change duration to 1.5 seconds */
+    font-family: Arial, sans-serif; /* Specify the font */
+    font-size: 14px; /* Adjust the font size */
+    z-index: 99;
+}
+
 label {
     font-size: 20px;
     font-weight: 400;

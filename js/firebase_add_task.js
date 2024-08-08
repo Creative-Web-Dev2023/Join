@@ -40,8 +40,27 @@ function init(taskId) {
   putData(`tasks/task${taskId}/subtask`, `${listtask}`);
 
   clearInputs();
+  showAddedPopup()
 }
 
+function showAddedPopup() {
+  const successPopup = document.getElementById('successPopup');
+  successPopup.style.display = 'block';
+
+  setTimeout(() => {
+    successPopup.style.bottom = '50%';
+  }, 0);
+
+  setTimeout(() => {
+    successPopup.style.display = 'none';
+
+  }, 1500);
+
+  setTimeout(() => {
+
+    window.location.href = '/html/board.html';
+  }, 1500);
+}
 
 async function getData(path = "") {
   let eins = await fetch(BASE_URL + path + ".json");
@@ -64,10 +83,6 @@ async function putData(path = "", data = {}) {
   });
 
 }
-async function editData(id = 44, user = { name: 'kevin' }) {
-  putData(`namen/${id}`, user);
-}
-
 
 function getButtonData() {
   document.querySelectorAll('.prio-button').forEach(function (button) {
@@ -165,7 +180,7 @@ function clearInputs() {
 
   // Clear selected contacts display
   const selectedContactsContainer = document.getElementById('selected-contacts-container');
-  selectedContactsContainer = ''; // Clear all contact circles
+  selectedContactsContainer.innerHTML = ''; // Clear all contact circles
 
   console.log('Inputs cleared');
 }
@@ -208,7 +223,7 @@ async function getNameAndColor(path = "") {
 
     let emblemResponse = await fetch(BASE_URL + path + "/emblem.json");
     let emblemData = await emblemResponse.json();
-    
+
     const nameElement = document.getElementById('dropdown-content');
     nameElement.innerHTML += `
       <div class="dropdown-item" onclick="toggleSelection(this)" data-selected="false">
