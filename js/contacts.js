@@ -77,11 +77,11 @@ function showContactDetails(contact) {
                 <h2>${contact.name}</h2>
             </div>
              <div class="contact-actions">
-                   <div class="contact-functions" onclick="openEditContactModal(${contact})">
-                   <img class="contact-functions-icons" src="../assets/img/img_contacts/delete.png" alt="">Edit
+                   <div class="contact-functions" onclick="openEditContactModal(${JSON.stringify(contact)})">
+                   <img class="contact-functions-icons" src="../assets/img/img_contacts/edit.png" alt="">Edit
              </div>
-                <div class="contact-functions" onclick="deleteContact(${contact})">
-                <img class="contact-functions-icons" src="../assets/img/img_contacts/edit.png" alt="">Delete
+                <div class="contact-functions" onclick="deleteContact('${contact.id}')">
+                <img class="contact-functions-icons" src="../assets/img/img_contacts/delete.png" alt="">Delete
         </div>
               </div>
          <div class="contact-card-subtitle">Contact Information</div>
@@ -100,10 +100,6 @@ function showContactDetails(contact) {
          </div>
        </div>
     `;
-  document.getElementById("edit-contact-button").onclick = () =>
-    openEditContactModal(contact);
-  document.getElementById("delete-contact-button").onclick = () =>
-    deleteContact(contact.id);
 }
 
 function openEditContactModal(contact) {
@@ -129,13 +125,31 @@ function openEditContactModal(contact) {
   openModal();
 }
 
+async function updateContactInFirebase(contactId, updatedContactData) {
+  try {
+    let response = await fetch(`${BASE_URL}contacts/${contactId}.json`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedContactData),
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error updating contact:', error);
+    return null;
+  }
+}
+
 async function deleteContact(contactId) {
   if (confirm("Do you really want to delete this contact?")) {
     let success = await deleteContactFromFirebase(contactId);
+    location.reload();
     if (success) {
-      await loadContacts();
-      displayContacts();
-      hideContact();
+      await location.reload();
     }
   }
 }
@@ -148,6 +162,21 @@ document.getElementById("add-contact-button").onclick = openModal;
 document.getElementById("cancel-button").onclick = closeModal;
 document.getElementById("submit-button").onclick = submitContact;
 document.getElementById("close-modal-button").onclick = closeModal;
+
+async function deleteContactFromFirebase(contactId) {
+  try {
+    let response = await fetch(`${BASE_URL}contacts/${contactId}.json`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  } catch (error) {
+    console.error('Error deleting contact:', error);
+    return null;
+  }
+}
 
 // function showContact() {
 //   contactCard.classList.add('contact-card-active');
