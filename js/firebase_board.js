@@ -1,10 +1,9 @@
+document.addEventListener('DOMContentLoaded', init12);
+
 function init12() {
     getInfo(); // Load any necessary initial configurations
     loadBoard(); // Load tasks and initially render them
 }
-
-document.addEventListener('DOMContentLoaded', init12);
-
 
 function createTaskElement(task, index) {
     const userStoryText = task.userStory || 'User Story';

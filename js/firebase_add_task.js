@@ -86,7 +86,7 @@ function clearInputs() {
 
 function clearInputFields() {
   const text = document.getElementById('title-input');
-  const description = document.getElementById('description');
+  const description = document.getElementById('description-input');
   const category = document.getElementById('category');
   const date = document.getElementById('date');
 
