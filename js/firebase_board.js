@@ -125,15 +125,32 @@ async function fetchTasks() {
     }
 }
 
+let currentTaskData = {};
 async function openPopup(taskId) {
     const popup = document.getElementById('popup-tasks');
     const userStoryText = await userStory(`tasks/task${taskId}/category`);
     const titleText = await title(`tasks/task${taskId}/title`);
+    const dueDate = await dateFB(`tasks/task${taskId}/date`);
     const descriptionText = await descriptionFB(`tasks/task${taskId}/description`);
     const subtaskText = await subtaskFB(`tasks/task${taskId}/subtask`);
     const priorityText = await priorityFB(`tasks/task${taskId}/priority`);
-    const assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
-    const assignedHtml = assignedPeople.map(person => {
+    let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
+
+    // Handle the case where assignedPeople is undefined or empty
+    assignedPeople = assignedPeople || [];
+
+    currentTaskData = {
+        taskId,
+        userStoryText,
+        titleText,
+        dueDate,
+        descriptionText,
+        subtaskText,
+        priorityText,
+        assignedPeople
+    };
+
+    const assignedHtml = assignedPeople.length > 0 ? assignedPeople.map(person => {
         const initials = person.name.split(' ').map(name => name[0]).join('');
         return `
         <div>
@@ -143,9 +160,9 @@ async function openPopup(taskId) {
             <p>${person.name}<p>
         </div>
         `;
-    }).join('');
+    }).join('') : '<p>No one assigned</p>';
     
-    const subtasks = subtaskText.split(',');
+    const subtasks = Array.isArray(subtaskText) ? subtaskText : subtaskText.split(',');
     let priorityImage;
     switch (priorityText.toLowerCase()) {
         case 'urgent':
@@ -176,7 +193,7 @@ async function openPopup(taskId) {
             <div class="task-header-pop-up user-story">${userStoryText}</div>
             <h2 class="h1-popup">${titleText}</h2>
             <p>${descriptionText}</p>
-            <p>Due date: 10/05/2023</p>
+            <p>Due date: ${dueDate}</p>
             <p>Priority: ${priorityText} <img src="${priorityImage}" style="width: 15px; height: 15px;"></p>
             <p>Assigned To:</p>
             <div class="assigned-popup-split2">
@@ -191,7 +208,7 @@ async function openPopup(taskId) {
                     <img class="" src="/assets/img/delete_normal.png">
                 </div>
                 <div class="divider-popup"></div>
-                <div class="popup-bottom-edit">
+                <div class="popup-bottom-edit" onclick="openEdit(${taskId}), getInfo()">
                     <img src="/assets/img/edit_normal.png">
                 </div>
             </div>
@@ -200,8 +217,113 @@ async function openPopup(taskId) {
     `;
 }
 
+
+async function openEdit(taskId) {
+    const userStoryText = await userStory(`tasks/task${taskId}/category`);
+    const titleText = await title(`tasks/task${taskId}/title`);
+    const dueDate = await dateFB(`tasks/task${taskId}/date`);
+    const descriptionText = await descriptionFB(`tasks/task${taskId}/description`);
+    const subtaskText = await subtaskFB(`tasks/task${taskId}/subtask`);
+    const priorityText = await priorityFB(`tasks/task${taskId}/priority`);
+    let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
+
+    let edit = document.getElementById(`popup-task${taskId}`);
+    edit.innerHTML = `
+    <div class="popup-content-task2">
+    <form>
+        <div class="first-container">
+            <div class="first-container-formatted part-1">
+                <label for="title">Title <span class="red">*</span></label>
+                <input id="title-input" class="input-style-1" placeholder="Enter a title" type="text" value="${titleText}">
+                <span class="close-button" onclick="closePopup()">&times;</span>
+            </div>
+            <div class="first-container-formatted part-2">
+                <label for="description">Description</label>
+                <textarea id="description-input" class="input-style-2" placeholder="Enter a Description"
+                    type="text">${descriptionText}</textarea>
+            </div>
+            <div class="first-container-formatted part-3">
+                <label for="assigned to">Assigned To</label>
+                <div class="dropdown-format">
+                    <div class="dropdown-toggle dropdown-start" onclick="toggleDropdown()">
+                        <span class="dropdown-start">Select contacts to assign</span>
+                        <span class="dropdown-start">▼</span>
+                    </div>
+                    <div class="dropdown-content" id="dropdown-content" style="width: 65%">
+                    </div>
+                </div>
+                <div id="selected-contacts-container" class="selected-contacts">${assignedPeople}</div>
+            </div>
+            <div class="first-container-formatted part-1">
+                <label for="due-date">Due date <span class="red">*</span></label>
+                <input id="date" class="input-style-1" placeholder="dd/mm/yyyy" type="date" value="${dueDate}">
+            </div>
+            <div>
+                <label for="prio">Prio</label>
+                <div class="prio-buttons">
+                    <img class="prio-button" id="urgent" src="/assets/img/img_add_task/urgent_standart.png" alt="Urgent" ${priorityText === 'Urgent' ? 'class="clicked"' : ''}>
+                    <img class="prio-button" id="medium" src="/assets/img/img_add_task/medium_standart.png" alt="Medium" ${priorityText === 'Medium' ? 'class="clicked"' : ''}>
+                    <img class="prio-button" id="low" src="/assets/img/img_add_task/low_standart.png" alt="Low" ${priorityText === 'Low' ? 'class="clicked"' : ''}>
+                </div>
+            </div>
+            <div class="first-container-formatted part-2">
+                <label for="category">Category <span class="red">*</span></label>
+                <select id="category" name="Selects contacts to assign">
+                    <option value="" disabled>Select Task Category</option>
+                    <option value="Technical Task" ${userStoryText === 'Technical Task' ? 'selected' : ''}>Technical Task</option>
+                    <option value="User Story" ${userStoryText === 'User Story' ? 'selected' : ''}>User Story</option>
+                </select>
+            </div>
+            <div class="first-container-formatted part-3 space subtask-container">
+                <label for="subtask">Subtasks</label>
+                <div class="input-wrapper">
+                    <input class="input-style-1 img-for-subtask" placeholder="Add new subtask" type="text" id="subtask-input">
+                    <div id="add-subtask-btn" onclick="addSubtask()"></div>
+                </div>
+                <ul id="subtask-list" class="subtask-list"></ul>
+            </div>
+            <button type="button" onclick="putOnFb(${taskId}), error()">Save</button>
+        </div>
+    </form>
+    </div>
+    `;
+
+    // Populate the subtask list
+    const subtasks = subtask.split(',');
+    const subtaskList = document.getElementById('subtask-list');
+    subtaskList.innerHTML = subtasks.map((subtask, index) => `
+        <li>
+            <input type="checkbox" id="subtask-${index}" ${subtask.trim() ? 'checked' : ''}>
+            <label for="subtask-${index}">${subtask.trim()}</label>
+        </li>
+    `).join('');
+}
+
+function putOnFb(taskId) {
+    const selectedContacts = getSelectedContacts();
+    putData(`tasks/task${taskId}/title`, `${text.value}`);
+    putData(`tasks/task${taskId}/description`, `${description.value}`);
+    putData(`tasks/task${taskId}/assigned`, selectedContacts);
+    putData(`tasks/task${taskId}/date`, `${date.value}`);
+    putData(`tasks/task${taskId}/category`, `${category.value}`);
+    putData(`tasks/task${taskId}/priority`, `${priority}`);
+    putData(`tasks/task${taskId}/subtask`, `${listtask}`);
+  }
+
 function closePopup() {
     document.getElementById('popup-tasks').style.display = 'none';
+}
+
+async function dateFB(path = "") {
+    try {
+        let response = await fetch(BASE_URL + path + ".json");
+        let dueDate = await response.json();
+        console.log(dueDate);
+        return dueDate; // Assuming duedate is a string
+    } catch (error) {
+        console.error('Error fetching duedate:', error);
+        return 'Error loading duedate';
+    }
 }
 
 async function subtaskFB(path = "") {
@@ -314,6 +436,7 @@ async function deleteTask(taskId) {
         console.error('Error deleting task:', error);
     }
 }
+
 async function deleteData(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json", {

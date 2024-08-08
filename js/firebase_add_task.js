@@ -28,8 +28,15 @@ async function count() {
 
 function init(taskId) {
   getButtonData();
-  const selectedContacts = getSelectedContacts();
 
+  putOnFB(taskId);
+
+  clearInputs();
+  showAddedPopup()
+}
+
+function putOnFB(taskId) {
+  const selectedContacts = getSelectedContacts();
   putData(`tasks/task${taskId}/title`, `${text.value}`);
   putData(`tasks/task${taskId}/description`, `${description.value}`);
   putData(`tasks/task${taskId}/assigned`, selectedContacts);
@@ -37,9 +44,6 @@ function init(taskId) {
   putData(`tasks/task${taskId}/category`, `${category.value}`);
   putData(`tasks/task${taskId}/priority`, `${priority}`);
   putData(`tasks/task${taskId}/subtask`, `${listtask}`);
-
-  clearInputs();
-  showAddedPopup()
 }
 
 function getButtonData() {
