@@ -136,6 +136,7 @@ async function openPopup(taskId) {
     const priorityText = await priorityFB(`tasks/task${taskId}/priority`);
     let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
 
+    updateProgress(taskId);
     // Handle the case where assignedPeople is undefined or empty
     assignedPeople = assignedPeople || [];
 
@@ -186,7 +187,7 @@ async function openPopup(taskId) {
     `).join('');
 
     popup.style.display = 'flex';
-    popup.innerHTML = /* html */ `
+    popup.innerHTML =  `
     <div class="popup-content-task" id="popup-task${taskId}">
         <span class="close-button" onclick="closePopup()">&times;</span>
         <div class="user-story-popup">
@@ -225,11 +226,13 @@ async function openEdit(taskId) {
     const descriptionText = await descriptionFB(`tasks/task${taskId}/description`);
     const subtaskText = await subtaskFB(`tasks/task${taskId}/subtask`);
     const priorityText = await priorityFB(`tasks/task${taskId}/priority`);
-    let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
+    let assignedPeople = getSelectedContacts();
+
+    document.getElementById(`popup-task${taskId}`).style.height = '80%';
 
     let edit = document.getElementById(`popup-task${taskId}`);
     edit.innerHTML = `
-    <div class="popup-content-task2">
+    <div>
     <form>
         <div class="first-container">
             <div class="first-container-formatted part-1">
@@ -288,31 +291,55 @@ async function openEdit(taskId) {
     </div>
     `;
 
-    // Populate the subtask list
-    const subtasks = subtask.split(',');
-    const subtaskList = document.getElementById('subtask-list');
-    subtaskList.innerHTML = subtasks.map((subtask, index) => `
-        <li>
-            <input type="checkbox" id="subtask-${index}" ${subtask.trim() ? 'checked' : ''}>
-            <label for="subtask-${index}">${subtask.trim()}</label>
-        </li>
-    `).join('');
+    // Populate the subtask list using the correct variable subtaskText
+    if (typeof subtaskText === 'string') {
+        const subtasks = subtaskText.split(',');
+        
+        const subtaskList = document.getElementById('subtask-list');
+        subtaskList.innerHTML = subtasks.map((subtask, index) => `
+            <li>
+                <input type="checkbox" id="subtask-${index}" ${subtask.trim() ? 'checked' : ''}>
+                <label for="subtask-${index}">${subtask.trim()}</label>
+            </li>
+        `).join('');
+    } else {
+        console.error('subtaskText is not a string:', subtaskText);
+    }
+
+    // Fetch and display contacts in the dropdown
+    await getInfo(); // This will populate the dropdown with contacts
 }
+
 
 function putOnFb(taskId) {
-    const selectedContacts = getSelectedContacts();
-    putData(`tasks/task${taskId}/title`, `${text.value}`);
-    putData(`tasks/task${taskId}/description`, `${description.value}`);
-    putData(`tasks/task${taskId}/assigned`, selectedContacts);
-    putData(`tasks/task${taskId}/date`, `${date.value}`);
-    putData(`tasks/task${taskId}/category`, `${category.value}`);
-    putData(`tasks/task${taskId}/priority`, `${priority}`);
-    putData(`tasks/task${taskId}/subtask`, `${listtask}`);
-  }
+    const title = document.getElementById('title-input').value;
+    const description = document.getElementById('description-input').value;
+    const date = document.getElementById('date').value;
+    const category = document.getElementById('category').value;
+    const priority = document.querySelector('.prio-button.clicked')?.alt || 'low';
+    const subtasks = Array.from(document.querySelectorAll('#subtask-list li')).map(li => li.textContent.trim());
 
-function closePopup() {
-    document.getElementById('popup-tasks').style.display = 'none';
+    const updatedTask = {
+        title,
+        description,
+        date,
+        category,
+        priority,
+        subtask: subtasks.join(','),
+        assigned: getSelectedContacts()
+    };
+
+    putData(`tasks/task${taskId}`, updatedTask)
+        .then(() => {
+            loadBoard(); // Board nach dem Speichern neu laden
+            closePopup();
+        })
+        .catch(error => {
+            console.error('Error updating task:', error);
+            alert('Error updating task. Please try again later.');
+        });
 }
+
 
 async function dateFB(path = "") {
     try {
@@ -452,4 +479,25 @@ async function deleteData(path = "") {
         console.error('Error deleting data:', error);
         return null;
     }
+}
+
+function closePopup() {
+    const popup = document.getElementById('popup-tasks');
+    const overlay = document.getElementById('overlay-task');
+
+    if (popup) {
+        // Hide the popup
+        popup.style.display = 'none';
+        
+        // Optionally clear the popup content if needed
+        popup.innerHTML = '';
+    }
+
+    if (overlay) {
+        // Hide the overlay if used
+        overlay.style.display = 'none';
+    }
+    
+    // Reset any global state or variables if needed
+    currentTaskData = {}; // Reset any task-specific data
 }
