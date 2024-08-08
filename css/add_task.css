@@ -482,7 +482,7 @@ span {
     display: flex;
     gap: 10px; /* Space between circles */
     margin-top: 10px; /* Space above the circles */
-    height: 0px;
+    height: auto;
   }
   
   .contact-circle {
@@ -571,5 +571,23 @@ span {
     padding-left: 0px; 
     padding-top: 5px;
     margin: 0;
-    height: 0px;
+    height: auto;
 }
+.selected-contacts {
+    display: flex;
+    gap: 10px; /* Space between circles */
+    margin-top: 10px; /* Space above the circles */
+  }
+  .contact-circle {
+    width: 30px;
+    height: 30px;
+    background-color: #2A3647; /* Default circle color, will be overridden */
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+  }
