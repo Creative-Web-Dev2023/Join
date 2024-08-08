@@ -3,7 +3,10 @@ document.addEventListener('DOMContentLoaded', init12);
 function init12() {
     getInfo(); // Load any necessary initial configurations
     loadBoard(); // Load tasks and initially render them
+
 }
+
+
 
 function createTaskElement(task, index) {
     const userStoryText = task.userStory || 'User Story';
@@ -69,9 +72,6 @@ function createTaskElement(task, index) {
     return taskElement;
 }
 
-
-
-
 async function loadBoard() {
     const contentTodo = document.getElementById('content-todo');
     contentTodo.innerHTML = ''; // Clear existing tasks to avoid duplication
@@ -86,26 +86,87 @@ async function loadBoard() {
     tasks.forEach((task, index) => {
         const taskElement = createTaskElement(task, index);
         contentTodo.appendChild(taskElement);
+
+        // Load saved subtask progress for each task
+        loadSubtaskProgress(index + 1); // Ensure task has a unique id
+
+        // Load and update progress bar directly from local storage
+        updateProgressBarFromLocalStorage(index + 1);
     });
 
     loadTasks(); // Call this to restore the positions
 }
 
+function updateProgressBarFromLocalStorage(taskId) {
+    const savedStatuses = JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
+    const completedCount = savedStatuses.filter(status => status).length;
+    const totalSubtasks = savedStatuses.length;
+
+    // Update progress bar
+    const progressBar = document.getElementById(`progress-bar-${taskId}`);
+    if (progressBar) {
+        const progressPercentage = totalSubtasks > 0 ? (completedCount / totalSubtasks) * 100 : 0;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
+
+    // Update completed subtask count
+    const subtaskCountElement = document.getElementById(`subtask-count-${taskId}`);
+    if (subtaskCountElement) {
+        subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
+    }
+}
 
 // Function to update progress based on checked subtasks
-function updateProgress(taskId, checkboxStatus) {
+function updateProgress(taskId) {
     const checkboxes = document.querySelectorAll(`#popup-task${taskId} input[type="checkbox"]`);
     const completedCount = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
     const totalSubtasks = checkboxes.length;
 
     // Update progress bar
     const progressBar = document.getElementById(`progress-bar-${taskId}`);
-    const progressPercentage = (completedCount / totalSubtasks) * 100;
-    progressBar.style.width = `${progressPercentage}%`;
+    if (progressBar) {
+        const progressPercentage = (completedCount / totalSubtasks) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
+    }
 
     // Update completed subtask count
     const subtaskCountElement = document.getElementById(`subtask-count-${taskId}`);
-    subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
+    if (subtaskCountElement) {
+        subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
+    }
+
+    // Save the updated checkbox states to local storage
+    saveSubtaskProgress(taskId, checkboxes);
+}
+
+function saveSubtaskProgress(taskId, checkboxes) {
+    const subtaskStatuses = Array.from(checkboxes).map(checkbox => checkbox.checked);
+    localStorage.setItem(`task-${taskId}-subtasks`, JSON.stringify(subtaskStatuses));
+}
+
+function loadSubtaskProgress(taskId) {
+    const savedStatuses = JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
+    const checkboxes = document.querySelectorAll(`#popup-task${taskId} input[type="checkbox"]`);
+
+    if (checkboxes.length > 0) {
+        checkboxes.forEach((checkbox, index) => {
+            checkbox.checked = savedStatuses[index] || false;
+        });
+
+        // After loading, update the progress bar based on saved states
+        updateProgress(taskId);
+    } else {
+        // If checkboxes are not found, load when the popup is opened
+        document.addEventListener('DOMContentLoaded', () => {
+            const checkboxes = document.querySelectorAll(`#popup-task${taskId} input[type="checkbox"]`);
+            if (checkboxes.length > 0) {
+                checkboxes.forEach((checkbox, index) => {
+                    checkbox.checked = savedStatuses[index] || false;
+                });
+                updateProgress(taskId);
+            }
+        });
+    }
 }
 
 async function fetchTasks() {
@@ -125,7 +186,6 @@ async function fetchTasks() {
     }
 }
 
-let currentTaskData = {};
 async function openPopup(taskId) {
     const popup = document.getElementById('popup-tasks');
     const userStoryText = await userStory(`tasks/task${taskId}/category`);
@@ -136,8 +196,6 @@ async function openPopup(taskId) {
     const priorityText = await priorityFB(`tasks/task${taskId}/priority`);
     let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
 
-    updateProgress(taskId);
-    // Handle the case where assignedPeople is undefined or empty
     assignedPeople = assignedPeople || [];
 
     currentTaskData = {
@@ -216,7 +274,14 @@ async function openPopup(taskId) {
         </div>
     </div>
     `;
+
+    // After populating the popup, load the saved subtask states
+    loadSubtaskProgress(taskId);
 }
+
+
+
+
 
 
 async function openEdit(taskId) {
