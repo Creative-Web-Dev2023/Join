@@ -143,7 +143,7 @@ async function openPopup(taskId) {
         </div>
         `;
     }).join('');
-    
+
     const subtasks = subtaskText.split(',');
     let priorityImage;
     switch (priorityText.toLowerCase()) {
@@ -168,7 +168,7 @@ async function openPopup(taskId) {
     `).join('');
 
     popup.style.display = 'flex';
-    popup.innerHTML = `
+    popup.innerHTML = /* html */ `
     <div class="popup-content-task" id="popup-task${taskId}">
         <span class="close-button" onclick="closePopup()">&times;</span>
         <div class="user-story-popup">
@@ -191,7 +191,7 @@ async function openPopup(taskId) {
                 </div>
                 <div class="divider-popup"></div>
                 <div class="popup-bottom-edit">
-                    <img src="/assets/img/edit_normal.png">
+                    <img onclick="editTask()" src="/assets/img/edit_normal.png">
                 </div>
             </div>
         </div>
