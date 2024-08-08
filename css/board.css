@@ -345,7 +345,7 @@ body {
     background-color: #fff;
     border-radius: 20px;
     position: relative;
-    height: 81%;
+    height: AUTO;
     width: 40%;
     padding: 48px 40px 48px 40px;
     z-index: 99;
