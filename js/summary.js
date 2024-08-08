@@ -30,3 +30,78 @@ document.addEventListener('DOMContentLoaded', () => {
         greetedNameElement.textContent = "";
     }
 });
+document.addEventListener('DOMContentLoaded', summaryCounts);
+function summaryCounts() {
+    todoCount();
+    doneCount();
+    progressCount();
+    feedbackCount();
+    allCount();
+}
+
+function allCount() {
+    const tasksPositionsString = localStorage.getItem('tasksPositions');
+    const tasksPositions = JSON.parse(tasksPositionsString);
+    let all = document.getElementById('allCounter')
+
+    let totalTasks = 0;
+    for (const column in tasksPositions) {
+        if (tasksPositions.hasOwnProperty(column)) {
+            totalTasks += tasksPositions[column].length;
+        }
+    }
+
+    all.innerHTML = `
+    ${totalTasks}
+    `;
+
+    console.log('Total number of tasks:', totalTasks);
+}
+
+function todoCount() {
+    const tasksPositionsString = localStorage.getItem('tasksPositions');
+    const tasksPositions = JSON.parse(tasksPositionsString);
+    const column0Tasks = tasksPositions.column0;
+    let todo = document.getElementById('todoCounter')
+
+    console.log(column0Tasks.length);
+    todo.innerHTML = `
+    ${column0Tasks.length}
+    `;
+}
+
+function progressCount() {
+    const tasksPositionsString = localStorage.getItem('tasksPositions');
+    const tasksPositions = JSON.parse(tasksPositionsString);
+    const column1Tasks = tasksPositions.column1;
+    let todo = document.getElementById('progressCounter')
+
+    console.log(column1Tasks.length);
+    todo.innerHTML = `
+    ${column1Tasks.length}
+    `;
+}
+
+function feedbackCount() {
+    const tasksPositionsString = localStorage.getItem('tasksPositions');
+    const tasksPositions = JSON.parse(tasksPositionsString);
+    const column2Tasks = tasksPositions.column2;
+    let todo = document.getElementById('feedbackCounter')
+
+    console.log(column2Tasks.length);
+    todo.innerHTML = `
+    ${column2Tasks.length}
+    `;
+}
+
+function doneCount() {
+    const tasksPositionsString = localStorage.getItem('tasksPositions');
+    const tasksPositions = JSON.parse(tasksPositionsString);
+    const column3Tasks = tasksPositions.column3;
+    let todo = document.getElementById('doneCounter')
+
+    console.log(column3Tasks.length);
+    todo.innerHTML = `
+    ${column3Tasks.length}
+    `;
+}

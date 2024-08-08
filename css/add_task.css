@@ -136,6 +136,24 @@ input::placeholder {
     border: 1px solid #D1D1D1;
 }
 
+#successPopup {
+    display: none;
+    position: fixed;
+    bottom: -50px; /* Start hidden below the screen */
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #2a3647;
+    color: white;
+    border: 2px solid #2a3647;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: bottom 0.5s ease; /* Change duration to 1.5 seconds */
+    font-family: Arial, sans-serif; /* Specify the font */
+    font-size: 14px; /* Adjust the font size */
+    z-index: 99;
+}
+
 label {
     font-size: 20px;
     font-weight: 400;
@@ -464,7 +482,7 @@ span {
     display: flex;
     gap: 10px; /* Space between circles */
     margin-top: 10px; /* Space above the circles */
-    height: 0px;
+    height: auto;
   }
   
   .contact-circle {
@@ -553,5 +571,23 @@ span {
     padding-left: 0px; 
     padding-top: 5px;
     margin: 0;
-    height: 0px;
+    height: auto;
 }
+.selected-contacts {
+    display: flex;
+    gap: 10px; /* Space between circles */
+    margin-top: 10px; /* Space above the circles */
+  }
+  .contact-circle {
+    width: 30px;
+    height: 30px;
+    background-color: #2A3647; /* Default circle color, will be overridden */
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+  }

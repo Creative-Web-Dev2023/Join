@@ -1,3 +1,6 @@
+document.addEventListener('DOMContentLoaded', updateProfileIcon);
+document.addEventListener('click', hideDropdown);
+
 function showDropDown() {
     var dropdown = document.getElementById('dropdown');
     if (dropdown.style.display === "block") {
@@ -14,9 +17,6 @@ function hideDropdown(event) {
         dropdown.style.display = "none";
     }
 }
-
-document.addEventListener('click', hideDropdown);
-
 
 function getInitials(name) {
     if (!name) return "G";
@@ -36,7 +36,6 @@ function getInitials(name) {
     return initials;
 }
 
-document.addEventListener('DOMContentLoaded', updateProfileIcon);
 
 function updateProfileIcon() {
     const isGuest = localStorage.getItem('isGuest') === 'true';
