@@ -469,6 +469,10 @@ function putOnFb(taskId) {
     const category = document.getElementById('category').value;
     const priority = document.querySelector('.prio-button.clicked')?.alt || 'low';
 
+    if (!title || !date || !category) {
+        return; // Exit the function if validation fails
+    }
+
     subtaskFB(`tasks/task${taskId}/subtask`).then(existingSubtasks => {
         const existingSubtaskArray = Array.isArray(existingSubtasks) ? existingSubtasks : existingSubtasks.split(',').filter(subtask => subtask.trim() !== '');
 
@@ -488,8 +492,7 @@ function putOnFb(taskId) {
 
         putData(`tasks/task${taskId}`, updatedTask)
             .then(() => {
-                loadBoard();
-                closePopup();
+                window.location.href = '/html/board.html';
             })
             .catch(error => {
                 console.error('Error updating task:', error);

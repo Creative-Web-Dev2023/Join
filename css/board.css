@@ -149,13 +149,13 @@ body {
 }
 
 .task {
-    padding: 10px;
-    margin: 10px 0;
+    min-width: 250px;
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
     cursor: move;
     transition: transform 0.3s ease;
+    width: 250px;
 }
 
 .task:hover {
@@ -175,12 +175,14 @@ body {
     padding: 10px;
     border-radius: 5px;
     display: block;
+    width: 250px;
 }
 
 .headline-kanban {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 272px;
 }
 
 .plus_button {
@@ -195,7 +197,7 @@ body {
 
 .h2-board-font {
     color: #42526E;
-    ;
+    margin: 0px;
 }
 
 /* POP UP */
@@ -325,7 +327,7 @@ body {
     font-size: 0.8em;
     font-weight: bold;
     margin-right: -8px;
-    border: 2px solid white;
+    border: 2px solid #2A3647;
 }
 
 /* POP UP TASK  */
@@ -358,6 +360,8 @@ body {
     padding: 48px 40px 48px 40px;
     z-index: 99;
     overflow-y: auto;
+    display: flex;
+    justify-content: center;
 }
 
 .close-button {
@@ -414,6 +418,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    width: 100%;
 }
 
 .subtasks li input[type="checkbox"] {
@@ -431,14 +436,11 @@ body {
     display: flex;
     flex-direction: column;
     align-items: start;
-    justify-content: space-evenly;
-    gap: 42px;
 
     div {
         display: flex;
-        flex-direction: row;
         align-items: center;
-        gap: 30px;
+        gap: 15px;
     }
 }
 
