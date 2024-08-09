@@ -256,7 +256,7 @@ function addSubtask() {
   subtaskItem.className = 'list';
   subtaskItem.contentEditable = 'true';
 
-  subtaskItem.innerHTML = `<p class="subtask">${subtaskText}</p> <img class="trash" src="/assets/img/img_add_task/trash.png">`;
+  subtaskItem.innerHTML = `<p class="subtask">${subtaskText}</p> <img class="trash" src="/assets/img/delete.png">`;
 
   subtaskItem.querySelector('.trash').addEventListener('click', deleteSubtask);
 

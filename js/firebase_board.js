@@ -12,7 +12,7 @@ function createTaskElement(task, index) {
     const userStoryText = task.userStory || 'User Story';
     const titleText = task.title || 'Title';
     const descriptionText = task.description || 'Description';
-    const subtasks = task.subtask ? task.subtask.split(',') : [];
+    const subtasks = task.subtask ? task.subtask.split(',').filter(subtask => subtask.trim() !== '') : [];
     const subtaskCount = subtasks.length;
     const assignedPeople = task.assigned || [];
     const priorityText = task.priority || 'low';
@@ -46,15 +46,22 @@ function createTaskElement(task, index) {
     taskElement.draggable = true;
     taskElement.id = `task${index + 1}`;
 
+    let progressBarHtml = '';
+    if (subtaskCount > 0) {
+        progressBarHtml = `
+            <div class="task-progress">
+                <div class="progress-bar" id="progress-bar-${index + 1}" style="width: 0%;"></div>
+            </div>
+            <p id="subtask-count-${index + 1}">0/${subtaskCount} Subtasks</p>
+        `;
+    }
+
     taskElement.innerHTML = `
         <div class="task-header user-story">${userStoryText}</div>
         <div class="task-content">
             <h3>${titleText}</h3>
             <p>${descriptionText}</p>
-            <div class="task-progress">
-                <div class="progress-bar" id="progress-bar-${index + 1}" style="width: 0%;"></div>
-            </div>
-            <p id="subtask-count-${index + 1}">0/${subtaskCount} Subtasks</p>
+            ${progressBarHtml}
             <div class="d-flex">
                 <div class="task-assignees">
                     ${assignedHtml}    
@@ -72,14 +79,17 @@ function createTaskElement(task, index) {
     return taskElement;
 }
 
+
 async function loadBoard() {
     const contentTodo = document.getElementById('content-todo');
     contentTodo.innerHTML = ''; // Clear existing tasks to avoid duplication
 
     const tasks = await fetchTasks();
 
-    if (!Array.isArray(tasks)) {
-        console.error('Tasks is not an array:', tasks);
+    if (!Array.isArray(tasks) || tasks.length === 0) {
+        console.log('No tasks available.');
+        // If there are no tasks, you can optionally display a message or leave the content area empty
+        contentTodo.innerHTML = '<p>No tasks available.</p>';
         return;
     }
 
@@ -213,7 +223,7 @@ async function openPopup(taskId) {
         const initials = person.name.split(' ').map(name => name[0]).join('');
         return `
         <div>
-            <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
+            <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; text-align: center; color: #fff;">
                 ${initials}
             </span>
             <p>${person.name}<p>
@@ -221,7 +231,15 @@ async function openPopup(taskId) {
         `;
     }).join('') : '<p>No one assigned</p>';
     
-    const subtasks = Array.isArray(subtaskText) ? subtaskText : subtaskText.split(',');
+    const subtasks = Array.isArray(subtaskText) ? subtaskText : subtaskText.split(',').filter(subtask => subtask.trim() !== '');
+
+    const subtasksHtml = subtasks.length > 0 ? subtasks.map((subtask, index) => `
+        <div class="subtask">
+            <input type="checkbox" id="popup-subtask-${index}" name="subtask-${index}" onchange="updateProgress(${taskId})">
+            <label for="popup-subtask-${index}">${subtask.trim()}</label>
+        </div>
+    `).join('') : '<p>No subtasks available.</p>';
+
     let priorityImage;
     switch (priorityText.toLowerCase()) {
         case 'urgent':
@@ -236,13 +254,6 @@ async function openPopup(taskId) {
         default:
             priorityImage = 'default.png';
     }
-
-    const subtasksHtml = subtasks.map((subtask, index) => `
-        <div class="subtask">
-            <input type="checkbox" id="popup-subtask-${index}" name="subtask-${index}" onchange="updateProgress(${taskId})">
-            <label for="popup-subtask-${index}">${subtask.trim()}</label>
-        </div>
-    `).join('');
 
     popup.style.display = 'flex';
     popup.innerHTML =  `
@@ -278,6 +289,7 @@ async function openPopup(taskId) {
     // After populating the popup, load the saved subtask states
     loadSubtaskProgress(taskId);
 }
+
 
 
 
@@ -358,14 +370,14 @@ async function openEdit(taskId) {
 
     // Populate the subtask list using the correct variable subtaskText
     if (typeof subtaskText === 'string') {
-        const subtasks = subtaskText.split(',');
-        
+        const subtasks = subtaskText.split(',').filter(subtask => subtask.trim() !== '');
+    
         const subtaskList = document.getElementById('subtask-list');
         subtaskList.innerHTML = subtasks.map((subtask, index) => `
-            <li>
-                <input type="checkbox" id="subtask-${index}" ${subtask.trim() ? 'checked' : ''}>
-                <label for="subtask-${index}">${subtask.trim()}</label>
-            </li>
+            <div id="subtask-${index}" style="display: flex; align-items: center;">
+                <p class="subtask" style="flex-grow: 1;">${subtask.trim()}</p>
+                <img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtask(${index})">
+            </div>
         `).join('');
     } else {
         console.error('subtaskText is not a string:', subtaskText);
@@ -375,6 +387,15 @@ async function openEdit(taskId) {
     await getInfo(); // This will populate the dropdown with contacts
 }
 
+function removeSubtask(index) {
+    const subtaskElement = document.getElementById(`subtask-${index}`);
+    
+    if (subtaskElement) {
+        subtaskElement.remove();
+    }
+}
+
+
 
 function putOnFb(taskId) {
     const title = document.getElementById('title-input').value;
@@ -382,28 +403,42 @@ function putOnFb(taskId) {
     const date = document.getElementById('date').value;
     const category = document.getElementById('category').value;
     const priority = document.querySelector('.prio-button.clicked')?.alt || 'low';
-    const subtasks = Array.from(document.querySelectorAll('#subtask-list li')).map(li => li.textContent.trim());
 
-    const updatedTask = {
-        title,
-        description,
-        date,
-        category,
-        priority,
-        subtask: subtasks.join(','),
-        assigned: getSelectedContacts()
-    };
+    // Get the existing subtasks from the Firebase database
+    subtaskFB(`tasks/task${taskId}/subtask`).then(existingSubtasks => {
+        const existingSubtaskArray = Array.isArray(existingSubtasks) ? existingSubtasks : existingSubtasks.split(',').filter(subtask => subtask.trim() !== '');
 
-    putData(`tasks/task${taskId}`, updatedTask)
-        .then(() => {
-            loadBoard(); // Board nach dem Speichern neu laden
-            closePopup();
-        })
-        .catch(error => {
-            console.error('Error updating task:', error);
-            alert('Error updating task. Please try again later.');
-        });
+        // Get the new subtasks from the input
+        const newSubtasks = Array.from(document.querySelectorAll('#subtask-list li')).map(li => li.textContent.trim());
+
+        // Combine existing subtasks with new subtasks
+        const combinedSubtasks = [...existingSubtaskArray, ...newSubtasks].filter((subtask, index, self) => self.indexOf(subtask) === index); // Remove duplicates
+
+        const updatedTask = {
+            title,
+            description,
+            date,
+            category,
+            priority,
+            subtask: combinedSubtasks.join(','), // Convert the array back to a comma-separated string
+            assigned: getSelectedContacts()
+        };
+
+        // Save the updated task to Firebase
+        putData(`tasks/task${taskId}`, updatedTask)
+            .then(() => {
+                loadBoard(); // Reload the board after saving
+                closePopup();
+            })
+            .catch(error => {
+                console.error('Error updating task:', error);
+                alert('Error updating task. Please try again later.');
+            });
+    }).catch(error => {
+        console.error('Error fetching existing subtasks:', error);
+    });
 }
+
 
 
 async function dateFB(path = "") {
