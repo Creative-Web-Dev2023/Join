@@ -423,7 +423,7 @@ async function openEdit(taskId) {
                 </div>
                 <ul id="subtask-list" class="subtask-list"></ul>
             </div>
-            <button type="button" onclick="putOnFb(${taskId}), error()">Save</button>
+            <div type="button" class="edit-button" onclick="putOnFb(${taskId}), error()"><p>Ok</p> <img src="/assets/img/img_board/check.png"></div>
         </div>
     </form>
     </div>

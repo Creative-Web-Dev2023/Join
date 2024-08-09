@@ -427,6 +427,34 @@ body {
     color: #000 !important;
 }
 
+.edit-button {
+    width: fit-content;
+    height: fit-content;
+    padding: 16px;
+    gap: 4px;
+    border-radius: 10px 10px 10px 10px;
+    opacity: 0px;
+    background: #2A3647;
+    display: flex;
+    align-items: center;
+    animation-timing-function: ease-out;
+    animation-duration: 100ms;
+
+    p {
+        font-size: 21px;
+        font-weight: 700;
+        line-height: 25.2px;
+        text-align: left;
+        color: #FFFFFF;
+        margin: 0px;
+    }
+
+    img {
+        width: 15.49px;
+        height: 11.22px;
+    }
+}
+
 .user-story-popup .subtasks li::before {
     content: "•";
     color: #000;
