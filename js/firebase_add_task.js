@@ -209,9 +209,10 @@ async function getNameAndColor(path = "") {
   }
 }
 
-function toggleDropdown() {
+function toggleDropdown(taskId) {
   const dropdownContent = document.getElementById('dropdown-content');
   dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+  selctedAssignees(taskId);
 }
 
 window.onclick = function (event) {

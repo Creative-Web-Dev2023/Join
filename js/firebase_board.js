@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', init12);
+
 
 function init12() {
     getInfo();
@@ -294,23 +294,8 @@ async function openPopup(taskId) {
 
     loadSubtaskProgress(taskId);
 }
-
-
-async function openEdit(taskId) {
-    const userStoryText = await userStory(`tasks/task${taskId}/category`);
-    const titleText = await title(`tasks/task${taskId}/title`);
-    const dueDate = await dateFB(`tasks/task${taskId}/date`);
-    const descriptionText = await descriptionFB(`tasks/task${taskId}/description`);
-    const subtaskText = await subtaskFB(`tasks/task${taskId}/subtask`);
-    const priorityText = await priorityFB(`tasks/task${taskId}/priority`);
+async function selctedAssignees(taskId) {
     let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`); 
-
-    if (!Array.isArray(assignedPeople)) {
-        assignedPeople = [];
-    }
-
-    const assignedHtml = generateAssignedHtml(assignedPeople);
-
 
     document.querySelectorAll('.dropdown-item').forEach(item => {
         item.setAttribute('data-selected', 'false');
@@ -330,8 +315,28 @@ async function openEdit(taskId) {
             img.alt = 'Selected';
             dropdownItem.style.backgroundColor = '#2A3647';
             dropdownItem.style.color = 'white';
+            console.log(dropdownItem);
         }
     });
+}
+
+async function openEdit(taskId) {
+    const userStoryText = await userStory(`tasks/task${taskId}/category`);
+    const titleText = await title(`tasks/task${taskId}/title`);
+    const dueDate = await dateFB(`tasks/task${taskId}/date`);
+    const descriptionText = await descriptionFB(`tasks/task${taskId}/description`);
+    const subtaskText = await subtaskFB(`tasks/task${taskId}/subtask`);
+    const priorityText = await priorityFB(`tasks/task${taskId}/priority`);
+    let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`); 
+
+    if (!Array.isArray(assignedPeople)) {
+        assignedPeople = [];
+    }
+
+    const assignedHtml = generateAssignedHtml(assignedPeople);
+
+
+
 
     document.getElementById(`popup-task${taskId}`).style.height = '80%';
 
@@ -353,7 +358,7 @@ async function openEdit(taskId) {
             <div class="first-container-formatted part-3">
                 <label for="assigned to">Assigned To</label>
                 <div class="dropdown-format">
-                    <div class="dropdown-toggle dropdown-start" onclick="toggleDropdown()">
+                    <div class="dropdown-toggle dropdown-start" onclick="toggleDropdown(${taskId})">
                         <span class="dropdown-start">Select contacts to assign</span>
                         <span class="dropdown-start">▼</span>
                     </div>
