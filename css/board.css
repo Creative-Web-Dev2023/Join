@@ -421,11 +421,11 @@ body {
 
 #subtask-count-1 {
 
-font-size: 12px;
-font-weight: 400;
-line-height: 14.4px;
-text-align: left;
-color: #000;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 14.4px;
+    text-align: left;
+    color: #000;
 }
 
 .user-story-popup .subtasks li::before {
@@ -458,11 +458,13 @@ color: #000;
     display: flex;
     flex-direction: column;
     align-items: start;
+    padding-left: 15px;
 
     div {
         display: flex;
         align-items: center;
         gap: 15px;
+        height: 50px;
     }
 }
 
@@ -479,7 +481,7 @@ color: #000;
     border-radius: 12px;
     display: inline-block;
     margin-bottom: 1%;
-    width: 70%;
+    width: auto;
 }
 
 .assignee-popup {
@@ -663,5 +665,33 @@ color: #000;
 
 .h1-popup {
     margin: 0;
-    font-size: 41px;
+    font-size: 61px;
+    font-weight: 700;
+    line-height: 73.2px;
+    text-align: left;
+}
+
+.reactivefont {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+    color: #000;
+    margin: 0px;
+}
+
+.hardfont {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 24px;
+    text-align: left;
+    color: #2A3647;
+    margin: 0px;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    gap: 10px;
 }

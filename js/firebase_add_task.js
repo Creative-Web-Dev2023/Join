@@ -269,8 +269,7 @@ function toggleSelection(item) {
 
   getSelectedContacts();
 }
-
-function addSubtask() {
+function addSubtask(taskId) {
   const input = document.getElementById('subtask-input');
   const subtaskText = input.value.trim();
 
@@ -278,22 +277,38 @@ function addSubtask() {
 
   const subtaskList = document.getElementById('subtask-list');
 
-  const subtaskItem = document.createElement('li');
-  subtaskItem.className = 'list';
-  subtaskItem.contentEditable = 'true';
+  // Split the input text by new lines to handle multiple subtasks
+  const subtasks = subtaskText.split('\n').filter(subtask => subtask.trim() !== '');
 
-  subtaskItem.innerHTML = `<p class="subtask">${subtaskText}</p> <img class="trash" src="/assets/img/delete.png">`;
+  subtasks.forEach((subtask, index) => {
+      const subtaskItem = document.createElement('li');
+      subtaskItem.className = 'list';
+      subtaskItem.contentEditable = 'true';
 
-  subtaskItem.querySelector('.trash').addEventListener('click', deleteSubtask);
+      subtaskItem.innerHTML = `
+          <p class="subtask">${subtask.trim()}</p>
+          <img class="trash" src="/assets/img/delete.png">
+      `;
 
-  subtaskItem.addEventListener('input', updateSubtasks);
+      subtaskItem.querySelector('.trash').addEventListener('click', (event) => {
+          deleteSubtask(event, taskId);
+      });
 
-  subtaskList.appendChild(subtaskItem);
+      subtaskItem.addEventListener('input', () => {
+          updateSubtasks(taskId);
+      });
+
+      subtaskList.appendChild(subtaskItem);
+  });
 
   pushsubtasks();
+  updateProgress(taskId);
+  saveSubtaskProgress(taskId);
 
   input.value = '';
 }
+
+
 
 function pushsubtasks() {
   subtask = [];
@@ -301,27 +316,37 @@ function pushsubtasks() {
   const subtaskElements = document.querySelectorAll('.subtask');
 
   subtaskElements.forEach(element => {
-    subtask.push(element.innerHTML);
+      subtask.push(element.innerHTML);
   });
 
   listtask = [...subtask];
   console.log('Subtasks:', subtask);
   console.log('Listtask:', listtask);
+
+  updateProgress(currentTaskData.taskId);
+  saveSubtaskProgress(currentTaskData.taskId);
 }
 
-function updateSubtasks() {
+function updateSubtasks(taskId) {
   const subtaskElements = document.querySelectorAll('.subtask');
   subtask = [];
   subtaskElements.forEach(element => {
-    subtask.push(element.innerHTML.trim());
+      subtask.push(element.innerHTML.trim());
   });
   listtask = [...subtask];
   console.log('Updated Subtasks:', subtask);
+
+  updateProgress(taskId);
+  saveSubtaskProgress(taskId);
 }
 
-function deleteSubtask(event) {
+
+function deleteSubtask(event, taskId) {
   const subtaskItem = event.target.parentElement;
   subtaskItem.remove();
 
   pushsubtasks();
+  updateProgress(taskId);
+  saveSubtaskProgress(taskId);
 }
+

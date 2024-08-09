@@ -16,7 +16,7 @@ function createTaskElement(task, index) {
     const assignedPeople = task.assigned || [];
     const priorityText = task.priority || 'low';
 
-    
+
 
     let priorityImage;
     switch (priorityText.toLowerCase()) {
@@ -134,50 +134,60 @@ function updateProgressBarFromLocalStorage(taskId) {
 }
 
 function updateProgress(taskId) {
-    const checkboxes = document.querySelectorAll(`#popup-task${taskId} input[type="checkbox"]`);
-    const completedCount = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
-    const totalSubtasks = checkboxes.length;
+    // Get all subtask images for the current task
+    const subtaskImages = document.querySelectorAll(`#popup-task${taskId} .subtask img`);
+    const totalSubtasks = subtaskImages.length;
+    const completedCount = Array.from(subtaskImages).filter(img => img.src.includes('checkesbox.png')).length;
 
+    // Update the progress bar
     const progressBar = document.getElementById(`progress-bar-${taskId}`);
     if (progressBar) {
         const progressPercentage = (completedCount / totalSubtasks) * 100;
         progressBar.style.width = `${progressPercentage}%`;
     }
 
+    // Update the subtask count display
     const subtaskCountElement = document.getElementById(`subtask-count-${taskId}`);
     if (subtaskCountElement) {
         subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
     }
 
-    saveSubtaskProgress(taskId, checkboxes);
+    // Save the subtask progress to localStorage
+    saveSubtaskProgress(taskId, subtaskImages);
 }
 
-function saveSubtaskProgress(taskId, checkboxes) {
-    const subtaskStatuses = Array.from(checkboxes).map(checkbox => checkbox.checked);
+function saveSubtaskProgress(taskId) {
+    const subtaskImages = document.querySelectorAll(`#popup-task${taskId} .subtask img`);
+    const subtaskStatuses = Array.from(subtaskImages).map(img => img.src.includes('checkesbox.png'));
+    
+    // Save the subtask states to localStorage
     localStorage.setItem(`task-${taskId}-subtasks`, JSON.stringify(subtaskStatuses));
 }
 
+
+
 function loadSubtaskProgress(taskId) {
     const savedStatuses = JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
-    const checkboxes = document.querySelectorAll(`#popup-task${taskId} input[type="checkbox"]`);
+    const subtaskImages = document.querySelectorAll(`#popup-task${taskId} .subtask img`);
 
-    if (checkboxes.length > 0) {
-        checkboxes.forEach((checkbox, index) => {
-            checkbox.checked = savedStatuses[index] || false;
+    if (subtaskImages.length > 0) {
+        subtaskImages.forEach((img, index) => {
+            img.src = savedStatuses[index] ? '/assets/img/img_add_task/checkesbox.png' : '/assets/img/img_add_task/checkbox.png';
         });
         updateProgress(taskId);
     } else {
         document.addEventListener('DOMContentLoaded', () => {
-            const checkboxes = document.querySelectorAll(`#popup-task${taskId} input[type="checkbox"]`);
-            if (checkboxes.length > 0) {
-                checkboxes.forEach((checkbox, index) => {
-                    checkbox.checked = savedStatuses[index] || false;
+            const subtaskImages = document.querySelectorAll(`#popup-task${taskId} .subtask img`);
+            if (subtaskImages.length > 0) {
+                subtaskImages.forEach((img, index) => {
+                    img.src = savedStatuses[index] ? '/assets/img/img_add_task/checkesbox.png' : '/assets/img/img_add_task/checkbox.png';
                 });
                 updateProgress(taskId);
             }
         });
     }
 }
+
 
 async function fetchTasks() {
     try {
@@ -230,11 +240,12 @@ async function openPopup(taskId) {
     const subtasks = Array.isArray(subtaskText) ? subtaskText : subtaskText.split(',').filter(subtask => subtask.trim() !== '');
 
     const subtasksHtml = subtasks.length > 0 ? subtasks.map((subtask, index) => `
-        <div class="subtask">
-            <input type="checkbox" id="popup-subtask-${index}" name="subtask-${index}" onchange="updateProgress(${taskId})">
-            <label for="popup-subtask-${index}">${subtask.trim()}</label>
-        </div>
-    `).join('') : '<p>No subtasks available.</p>';
+    <div class="subtask flex" onclick="toggleCheckbox(${index}, ${taskId})">
+        <img src="/assets/img/img_add_task/checkbox.png" id="popup-subtask-${index}" name="subtask-${index}" style="height: 16px">
+        <label for="popup-subtask-${index}">${subtask.trim()}</label>
+    </div>
+`).join('') : '<p>No subtasks available.</p>';
+
 
     let priorityImage;
     switch (priorityText.toLowerCase()) {
@@ -264,19 +275,27 @@ async function openPopup(taskId) {
     popup.style.display = 'flex';
     popup.innerHTML = `
     <div class="popup-content-task" id="popup-task${taskId}">
-        <span class="close-button" onclick="closePopup()">&times;</span>
         <div class="user-story-popup">
-            <div class="task-header-pop-up user-story" style="background: ${headerBackgroundColor};">${userStoryText}</div>
+            <div class="header-popup-cross">
+                <div class="task-header-pop-up user-story" style="background: ${headerBackgroundColor};">${userStoryText}</div>
+                <span class="close-button" onclick="closePopup()">&times;</span>
+            <div>    
             <h2 class="h1-popup">${titleText}</h2>
             <p>${descriptionText}</p>
-            <p>Due date: ${dueDate}</p>
-            <p>Priority: ${priorityText} <img src="${priorityImage}" style="width: 15px; height: 15px;"></p>
-            <p>Assigned To:</p>
+            <div class="flex">
+                <p class="hardfont">Due date:</p>
+                <p class="reactivefont">${dueDate}</p>
+            </div>
+            <div class="flex">
+                <p class="hardfont">Priority:</p>
+                <p class="reactivefont">${priorityText} <img src="${priorityImage}" style="width: 15px; height: 15px;"></p>
+            </div>
+            <p class="hardfont">Assigned To:</p>
             <div class="assigned-popup-split2">
             ${assignedHtml}
             </div>
-            <p>${subtasks.length} Subtasks</p>
-            <div class="task-subtasks">
+            <p class="hardfont">Subtasks</p>
+            <div class="task-subtasks reactivefont">
                 ${subtasksHtml}
             </div>
             <div class="trash-edit-popup-container">
@@ -294,8 +313,19 @@ async function openPopup(taskId) {
 
     loadSubtaskProgress(taskId);
 }
+
+function toggleCheckbox(index, taskId) {
+    const imgElement = document.getElementById(`popup-subtask-${index}`);
+    const isChecked = imgElement.src.includes('checkbox.png');
+    
+    imgElement.src = isChecked ? '/assets/img/img_add_task/checkesbox.png' : '/assets/img/img_add_task/checkbox.png';
+
+    updateProgress(taskId);
+    saveSubtaskProgress(taskId);
+}
+
 async function selctedAssignees(taskId) {
-    let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`); 
+    let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
 
     document.querySelectorAll('.dropdown-item').forEach(item => {
         item.setAttribute('data-selected', 'false');
@@ -305,7 +335,7 @@ async function selctedAssignees(taskId) {
         item.style.backgroundColor = '';
         item.style.color = '';
     });
-    
+
     assignedPeople.forEach(person => {
         const dropdownItem = document.querySelector(`.dropdown-item[data-name="${person.name}"]`);
         if (dropdownItem) {
@@ -327,7 +357,7 @@ async function openEdit(taskId) {
     const descriptionText = await descriptionFB(`tasks/task${taskId}/description`);
     const subtaskText = await subtaskFB(`tasks/task${taskId}/subtask`);
     const priorityText = await priorityFB(`tasks/task${taskId}/priority`);
-    let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`); 
+    let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
 
     if (!Array.isArray(assignedPeople)) {
         assignedPeople = [];
@@ -473,12 +503,14 @@ function putOnFb(taskId) {
         return; // Exit the function if validation fails
     }
 
+    // Collect all current subtasks from the list
+    const newSubtasks = Array.from(document.querySelectorAll('#subtask-list .subtask')).map(p => p.textContent.trim());
+
     subtaskFB(`tasks/task${taskId}/subtask`).then(existingSubtasks => {
         const existingSubtaskArray = Array.isArray(existingSubtasks) ? existingSubtasks : existingSubtasks.split(',').filter(subtask => subtask.trim() !== '');
 
-        const newSubtasks = Array.from(document.querySelectorAll('#subtask-list li')).map(li => li.textContent.trim());
-
-        const combinedSubtasks = [...existingSubtaskArray, ...newSubtasks].filter((subtask, index, self) => self.indexOf(subtask) === index); // Remove duplicates
+        // Combine existing subtasks with newly added subtasks, ensuring no duplicates
+        const combinedSubtasks = [...existingSubtaskArray, ...newSubtasks].filter((subtask, index, self) => self.indexOf(subtask) === index);
 
         const updatedTask = {
             title,
@@ -486,13 +518,14 @@ function putOnFb(taskId) {
             date,
             category,
             priority,
-            subtask: combinedSubtasks.join(','),
+            subtask: combinedSubtasks.join(','),  // Join subtasks into a single string
             assigned: getSelectedContacts()
         };
 
+        // Save the updated task to Firebase
         putData(`tasks/task${taskId}`, updatedTask)
             .then(() => {
-                window.location.href = '/html/board.html';
+                window.location.href = '/html/board.html'; // Redirect or refresh the board
             })
             .catch(error => {
                 console.error('Error updating task:', error);
@@ -502,6 +535,7 @@ function putOnFb(taskId) {
         console.error('Error fetching existing subtasks:', error);
     });
 }
+
 
 
 
