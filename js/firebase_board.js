@@ -16,14 +16,7 @@ function createTaskElement(task, index) {
     const assignedPeople = task.assigned || [];
     const priorityText = task.priority || 'low';
 
-    const assignedHtml = assignedPeople.map(person => {
-        const initials = person.name.split(' ').map(name => name[0]).join('');
-        return `
-            <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
-                ${initials}
-            </span>
-        `;
-    }).join('');
+    
 
     let priorityImage;
     switch (priorityText.toLowerCase()) {
@@ -39,6 +32,7 @@ function createTaskElement(task, index) {
         default:
             priorityImage = 'default.png';
     }
+    const assignedHtml = generateAssignedHtml(assignedPeople);
 
     const taskElement = document.createElement('div');
     taskElement.className = 'task';
@@ -88,7 +82,16 @@ function createTaskElement(task, index) {
     return taskElement;
 }
 
-
+function generateAssignedHtml(assignedPeople) {
+    return assignedPeople.map(person => {
+        const initials = person.name.split(' ').map(name => name[0]).join('');
+        return `
+            <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
+                ${initials}
+            </span>
+        `;
+    }).join('');
+}
 
 async function loadBoard() {
     const contentTodo = document.getElementById('content-todo');
@@ -306,6 +309,9 @@ async function openEdit(taskId) {
         assignedPeople = [];
     }
 
+    const assignedHtml = generateAssignedHtml(assignedPeople);
+
+
     document.querySelectorAll('.dropdown-item').forEach(item => {
         item.setAttribute('data-selected', 'false');
         const img = item.querySelector('.toggle-image');
@@ -354,7 +360,7 @@ async function openEdit(taskId) {
                     <div class="dropdown-content" id="dropdown-content" style="width: 65%">
                     </div>
                 </div>
-                <div id="selected-contacts-container" class="selected-contacts">${assignedPeople}</div>
+                <div id="selected-contacts-container" class="selected-contacts">${assignedHtml}</div>
             </div>
             <div class="first-container-formatted part-1">
                 <label for="due-date">Due date <span class="red">*</span></label>
