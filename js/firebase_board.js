@@ -300,7 +300,32 @@ async function openEdit(taskId) {
     const descriptionText = await descriptionFB(`tasks/task${taskId}/description`);
     const subtaskText = await subtaskFB(`tasks/task${taskId}/subtask`);
     const priorityText = await priorityFB(`tasks/task${taskId}/priority`);
-    let assignedPeople = getSelectedContacts();
+    let assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`); 
+
+    if (!Array.isArray(assignedPeople)) {
+        assignedPeople = [];
+    }
+
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.setAttribute('data-selected', 'false');
+        const img = item.querySelector('.toggle-image');
+        img.src = '/assets/img/img_add_task/checkbox.png';
+        img.alt = 'Unselected';
+        item.style.backgroundColor = '';
+        item.style.color = '';
+    });
+    
+    assignedPeople.forEach(person => {
+        const dropdownItem = document.querySelector(`.dropdown-item[data-name="${person.name}"]`);
+        if (dropdownItem) {
+            dropdownItem.setAttribute('data-selected', 'true');
+            const img = dropdownItem.querySelector('.toggle-image');
+            img.src = '/assets/img/img_add_task/checkedbox.png';
+            img.alt = 'Selected';
+            dropdownItem.style.backgroundColor = '#2A3647';
+            dropdownItem.style.color = 'white';
+        }
+    });
 
     document.getElementById(`popup-task${taskId}`).style.height = '80%';
 
@@ -378,8 +403,6 @@ async function openEdit(taskId) {
     } else {
         console.error('subtaskText is not a string:', subtaskText);
     }
-
-    await getInfo();
 }
 
 function removeSubtask(index) {
