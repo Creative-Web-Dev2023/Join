@@ -173,40 +173,65 @@ function updateSelectedContactsDisplay(selectedContacts) {
 
 async function getInfo(path = "contacts") {
   try {
-    let response = await fetch(BASE_URL + path + ".json");
-    let contacts = await response.json();
+      let response = await fetch(BASE_URL + path + ".json");
+      let contacts = await response.json();
 
-    if (!contacts) {
-      console.log("No contacts found.");
-      return;
-    }
+      if (!contacts) {
+          console.log("No contacts found.");
+          return;
+      }
 
-    const contactKeys = Object.keys(contacts);
+      const contactKeys = Object.keys(contacts);
 
-    for (let key of contactKeys) {
-      await getNameAndColor(`contacts/${key}`);
-    }
+      for (let key of contactKeys) {
+          // Get the name and color, but skip if any of them is null
+          let contactData = await getNameAndColor(`contacts/${key}`);
+          if (contactData.name && contactData.color) {
+              const nameElement = document.getElementById('dropdown-content');
+              nameElement.innerHTML += displayNameColor(contactData.name, contactData.color, contactData.emblem);
+          }
+      }
   } catch (error) {
-    console.error("Error fetching contacts:", error);
+      console.error("Error fetching contacts:", error);
   }
 }
 
 async function getNameAndColor(path = "") {
   try {
-    let nameResponse = await fetch(BASE_URL + path + "/name.json");
-    let nameData = await nameResponse.json();
+      let nameResponse = await fetch(BASE_URL + path + "/name.json");
+      let nameData = await nameResponse.json();
 
-    let colorResponse = await fetch(BASE_URL + path + "/color.json");
-    let colorData = await colorResponse.json();
+      let colorResponse = await fetch(BASE_URL + path + "/color.json");
+      let colorData = await colorResponse.json();
 
-    let emblemResponse = await fetch(BASE_URL + path + "/emblem.json");
-    let emblemData = await emblemResponse.json();
+      let emblemResponse = await fetch(BASE_URL + path + "/emblem.json");
+      let emblemData = await emblemResponse.json();
 
-    const nameElement = document.getElementById('dropdown-content');
-    nameElement.innerHTML += displayNameColor(nameData, colorData, emblemData);
+      // Return the data if it's valid (i.e., not null)
+      if (nameData && colorData) {
+          return {
+              name: nameData,
+              color: colorData,
+              emblem: emblemData || ""  // Emblem may not always exist
+          };
+      } else {
+          return {};  // Return an empty object if data is null
+      }
   } catch (error) {
-    console.error("Error fetching name or color:", error);
+      console.error("Error fetching name or color:", error);
+      return {};  // Return an empty object in case of error
   }
+}
+
+function displayNameColor(name, color, emblem) {
+  // This function returns the HTML to be inserted into the dropdown
+  return `
+      <div class="dropdown-item" data-selected="false" onclick="toggleSelection(this)">
+          <div class="circle" style="background-color:${color};"></div>
+          <span class="chosenName">${name}</span>
+          <span class="toggle-image" src="/assets/img/img_add_task/checkbox.png" alt="Unselected"></span>
+      </div>
+  `;
 }
 
 function toggleDropdown(taskId) {
