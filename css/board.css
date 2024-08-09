@@ -419,13 +419,12 @@ body {
     align-items: center;
 }
 
-#subtask-count-1 {
-
-    font-size: 12px;
-    font-weight: 400;
-    line-height: 14.4px;
-    text-align: left;
-    color: #000;
+.subtask-counter {
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 14.4px !important;
+    text-align: left !important;
+    color: #000 !important;
 }
 
 .user-story-popup .subtasks li::before {

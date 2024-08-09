@@ -53,7 +53,7 @@ function createTaskElement(task, index) {
             <div class="task-progress">
                 <div class="progress-bar" id="progress-bar-${index + 1}" style="width: 0%;"></div>
             </div>
-            <p id="subtask-count-${index + 1}">0/${subtaskCount} Subtasks</p>
+            <p class="subtask-counter" id="subtask-count-${index + 1}">0/${subtaskCount} Subtasks</p>
         `;
     }
 
