@@ -1,15 +1,14 @@
 document.addEventListener('DOMContentLoaded', init12);
 
 function init12() {
-    getInfo(); // Load any necessary initial configurations
-    loadBoard(); // Load tasks and initially render them
-
+    getInfo();
+    loadBoard();
 }
 
 
 
 function createTaskElement(task, index) {
-    const userStoryText = task.userStory || 'User Story';
+    const userStoryText = task.category;
     const titleText = task.title || 'Title';
     const descriptionText = task.description || 'Description';
     const subtasks = task.subtask ? task.subtask.split(',').filter(subtask => subtask.trim() !== '') : [];
@@ -46,6 +45,16 @@ function createTaskElement(task, index) {
     taskElement.draggable = true;
     taskElement.id = `task${index + 1}`;
 
+    // Determine the background color based on the user story type
+    let headerBackgroundColor;
+    if (userStoryText === 'Technical Task') {
+        headerBackgroundColor = '#1FD7C1';
+    } else if (userStoryText === 'User Story') {
+        headerBackgroundColor = '#0038FF';
+    } else {
+        headerBackgroundColor = '#FFF'; // Default or other task types
+    }
+
     let progressBarHtml = '';
     if (subtaskCount > 0) {
         progressBarHtml = `
@@ -57,7 +66,7 @@ function createTaskElement(task, index) {
     }
 
     taskElement.innerHTML = `
-        <div class="task-header user-story">${userStoryText}</div>
+        <div class="task-header user-story" style="background: ${headerBackgroundColor};">${userStoryText}</div>
         <div class="task-content">
             <h3>${titleText}</h3>
             <p>${descriptionText}</p>
@@ -80,15 +89,14 @@ function createTaskElement(task, index) {
 }
 
 
+
 async function loadBoard() {
     const contentTodo = document.getElementById('content-todo');
-    contentTodo.innerHTML = ''; // Clear existing tasks to avoid duplication
-
+    contentTodo.innerHTML = '';
     const tasks = await fetchTasks();
 
     if (!Array.isArray(tasks) || tasks.length === 0) {
         console.log('No tasks available.');
-        // If there are no tasks, you can optionally display a message or leave the content area empty
         contentTodo.innerHTML = '<p>No tasks available.</p>';
         return;
     }
@@ -97,14 +105,12 @@ async function loadBoard() {
         const taskElement = createTaskElement(task, index);
         contentTodo.appendChild(taskElement);
 
-        // Load saved subtask progress for each task
-        loadSubtaskProgress(index + 1); // Ensure task has a unique id
+        loadSubtaskProgress(index + 1);
 
-        // Load and update progress bar directly from local storage
         updateProgressBarFromLocalStorage(index + 1);
     });
 
-    loadTasks(); // Call this to restore the positions
+    loadTasks();
 }
 
 function updateProgressBarFromLocalStorage(taskId) {
@@ -112,40 +118,34 @@ function updateProgressBarFromLocalStorage(taskId) {
     const completedCount = savedStatuses.filter(status => status).length;
     const totalSubtasks = savedStatuses.length;
 
-    // Update progress bar
     const progressBar = document.getElementById(`progress-bar-${taskId}`);
     if (progressBar) {
         const progressPercentage = totalSubtasks > 0 ? (completedCount / totalSubtasks) * 100 : 0;
         progressBar.style.width = `${progressPercentage}%`;
     }
 
-    // Update completed subtask count
     const subtaskCountElement = document.getElementById(`subtask-count-${taskId}`);
     if (subtaskCountElement) {
         subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
     }
 }
 
-// Function to update progress based on checked subtasks
 function updateProgress(taskId) {
     const checkboxes = document.querySelectorAll(`#popup-task${taskId} input[type="checkbox"]`);
     const completedCount = Array.from(checkboxes).filter(checkbox => checkbox.checked).length;
     const totalSubtasks = checkboxes.length;
 
-    // Update progress bar
     const progressBar = document.getElementById(`progress-bar-${taskId}`);
     if (progressBar) {
         const progressPercentage = (completedCount / totalSubtasks) * 100;
         progressBar.style.width = `${progressPercentage}%`;
     }
 
-    // Update completed subtask count
     const subtaskCountElement = document.getElementById(`subtask-count-${taskId}`);
     if (subtaskCountElement) {
         subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
     }
 
-    // Save the updated checkbox states to local storage
     saveSubtaskProgress(taskId, checkboxes);
 }
 
@@ -162,11 +162,8 @@ function loadSubtaskProgress(taskId) {
         checkboxes.forEach((checkbox, index) => {
             checkbox.checked = savedStatuses[index] || false;
         });
-
-        // After loading, update the progress bar based on saved states
         updateProgress(taskId);
     } else {
-        // If checkboxes are not found, load when the popup is opened
         document.addEventListener('DOMContentLoaded', () => {
             const checkboxes = document.querySelectorAll(`#popup-task${taskId} input[type="checkbox"]`);
             if (checkboxes.length > 0) {
@@ -184,12 +181,8 @@ async function fetchTasks() {
         let response = await fetch(BASE_URL + 'tasks.json');
         let data = await response.json();
         console.log('Tasks data:', data);
-
-        // Check if data is an object and contains the tasks
-        // Adjust this line based on the actual structure of your data
         let tasks = Object.values(data);
-
-        return tasks; // Ensure that tasks is an array
+        return tasks;
     } catch (error) {
         console.error('Error fetching tasks:', error);
         return [];
@@ -230,7 +223,7 @@ async function openPopup(taskId) {
         </div>
         `;
     }).join('') : '<p>No one assigned</p>';
-    
+
     const subtasks = Array.isArray(subtaskText) ? subtaskText : subtaskText.split(',').filter(subtask => subtask.trim() !== '');
 
     const subtasksHtml = subtasks.length > 0 ? subtasks.map((subtask, index) => `
@@ -255,12 +248,22 @@ async function openPopup(taskId) {
             priorityImage = 'default.png';
     }
 
+    // Determine the background color based on the user story type
+    let headerBackgroundColor;
+    if (userStoryText === 'Technical Task') {
+        headerBackgroundColor = '#1FD7C1';
+    } else if (userStoryText === 'User Story') {
+        headerBackgroundColor = '#0038FF';
+    } else {
+        headerBackgroundColor = '#FFF'; // Default or other task types
+    }
+
     popup.style.display = 'flex';
-    popup.innerHTML =  `
+    popup.innerHTML = `
     <div class="popup-content-task" id="popup-task${taskId}">
         <span class="close-button" onclick="closePopup()">&times;</span>
         <div class="user-story-popup">
-            <div class="task-header-pop-up user-story">${userStoryText}</div>
+            <div class="task-header-pop-up user-story" style="background: ${headerBackgroundColor};">${userStoryText}</div>
             <h2 class="h1-popup">${titleText}</h2>
             <p>${descriptionText}</p>
             <p>Due date: ${dueDate}</p>
@@ -286,14 +289,8 @@ async function openPopup(taskId) {
     </div>
     `;
 
-    // After populating the popup, load the saved subtask states
     loadSubtaskProgress(taskId);
 }
-
-
-
-
-
 
 
 async function openEdit(taskId) {
@@ -368,10 +365,9 @@ async function openEdit(taskId) {
     </div>
     `;
 
-    // Populate the subtask list using the correct variable subtaskText
     if (typeof subtaskText === 'string') {
         const subtasks = subtaskText.split(',').filter(subtask => subtask.trim() !== '');
-    
+
         const subtaskList = document.getElementById('subtask-list');
         subtaskList.innerHTML = subtasks.map((subtask, index) => `
             <div id="subtask-${index}" style="display: flex; align-items: center;">
@@ -383,16 +379,51 @@ async function openEdit(taskId) {
         console.error('subtaskText is not a string:', subtaskText);
     }
 
-    // Fetch and display contacts in the dropdown
-    await getInfo(); // This will populate the dropdown with contacts
+    await getInfo();
 }
 
 function removeSubtask(index) {
     const subtaskElement = document.getElementById(`subtask-${index}`);
-    
+    const subtaskText = subtaskElement.querySelector('.subtask').textContent;
+
     if (subtaskElement) {
         subtaskElement.remove();
+        deleteSubTaskFB(`tasks/task${currentTaskData.taskId}`, subtaskText);
     }
+}
+
+
+async function deleteSubTaskFB(path, subtaskToDelete) {
+    console.log("Path:", path);
+
+    let taskResponse = await fetch(BASE_URL + path + ".json");
+    let taskData = await taskResponse.json();
+
+    if (!taskData || !taskData.subtask) {
+        console.log("No subtasks found or invalid path.");
+        return;
+    }
+
+    let subtasks = taskData.subtask.split(',');
+
+    let updatedSubtasks = subtasks.filter(subtask => subtask.trim() !== subtaskToDelete.trim());
+
+    if (updatedSubtasks.length === subtasks.length) {
+        console.log("Subtask not found.");
+        return;
+    }
+
+    let updatedSubtaskString = updatedSubtasks.join(',');
+
+    let updateResponse = await fetch(BASE_URL + path + ".json", {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ subtask: updatedSubtaskString })
+    });
+
+    return await updateResponse.json();
 }
 
 
@@ -404,14 +435,11 @@ function putOnFb(taskId) {
     const category = document.getElementById('category').value;
     const priority = document.querySelector('.prio-button.clicked')?.alt || 'low';
 
-    // Get the existing subtasks from the Firebase database
     subtaskFB(`tasks/task${taskId}/subtask`).then(existingSubtasks => {
         const existingSubtaskArray = Array.isArray(existingSubtasks) ? existingSubtasks : existingSubtasks.split(',').filter(subtask => subtask.trim() !== '');
 
-        // Get the new subtasks from the input
         const newSubtasks = Array.from(document.querySelectorAll('#subtask-list li')).map(li => li.textContent.trim());
 
-        // Combine existing subtasks with new subtasks
         const combinedSubtasks = [...existingSubtaskArray, ...newSubtasks].filter((subtask, index, self) => self.indexOf(subtask) === index); // Remove duplicates
 
         const updatedTask = {
@@ -420,14 +448,13 @@ function putOnFb(taskId) {
             date,
             category,
             priority,
-            subtask: combinedSubtasks.join(','), // Convert the array back to a comma-separated string
+            subtask: combinedSubtasks.join(','),
             assigned: getSelectedContacts()
         };
 
-        // Save the updated task to Firebase
         putData(`tasks/task${taskId}`, updatedTask)
             .then(() => {
-                loadBoard(); // Reload the board after saving
+                loadBoard();
                 closePopup();
             })
             .catch(error => {
@@ -446,7 +473,7 @@ async function dateFB(path = "") {
         let response = await fetch(BASE_URL + path + ".json");
         let dueDate = await response.json();
         console.log(dueDate);
-        return dueDate; // Assuming duedate is a string
+        return dueDate;
     } catch (error) {
         console.error('Error fetching duedate:', error);
         return 'Error loading duedate';
@@ -458,7 +485,7 @@ async function subtaskFB(path = "") {
         let response = await fetch(BASE_URL + path + ".json");
         let subtask = await response.json();
         console.log(subtask);
-        return subtask; // Assuming subtask is a string
+        return subtask;
     } catch (error) {
         console.error('Error fetching subtask:', error);
         return 'Error loading subtask';
@@ -506,7 +533,7 @@ async function assignedFB(path = "") {
         let response = await fetch(BASE_URL + path + ".json");
         let assigned = await response.json();
         console.log(assigned);
-        return assigned; // Assuming assigned is an array of objects with 'name' and 'color'
+        return assigned;
     } catch (error) {
         console.error('Error fetching assigned people:', error);
         return [];
@@ -518,7 +545,7 @@ async function priorityFB(path = "") {
         let response = await fetch(BASE_URL + path + ".json");
         let priority = await response.json();
         console.log(priority);
-        return priority; // Assuming priority is a string like 'Urgent', 'Medium', or 'Low'
+        return priority;
     } catch (error) {
         console.error('Error fetching priority:', error);
         return 'Error loading priority';
@@ -545,19 +572,12 @@ function move() {
 }
 async function deleteTask(taskId) {
     try {
-        // Call deleteData function to delete the task from Firebase
         await deleteData(`tasks/task${taskId}`);
-
-        // Remove task from the DOM
         const taskElement = document.getElementById(`task${taskId}`);
         if (taskElement) {
             taskElement.remove();
         }
-
-        // Update local storage
         saveTasks();
-
-        // Close the popup after deletion
         closePopup();
     } catch (error) {
         console.error('Error deleting task:', error);
@@ -586,18 +606,13 @@ function closePopup() {
     const overlay = document.getElementById('overlay-task');
 
     if (popup) {
-        // Hide the popup
         popup.style.display = 'none';
-        
-        // Optionally clear the popup content if needed
         popup.innerHTML = '';
     }
 
     if (overlay) {
-        // Hide the overlay if used
         overlay.style.display = 'none';
     }
-    
-    // Reset any global state or variables if needed
-    currentTaskData = {}; // Reset any task-specific data
+
+    currentTaskData = {};
 }
