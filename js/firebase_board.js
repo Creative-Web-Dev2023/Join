@@ -1,5 +1,3 @@
-
-
 function init12() {
     getInfo();
     loadBoard();

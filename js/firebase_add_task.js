@@ -239,7 +239,10 @@ function toggleDropdown(taskId) {
   dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
   selctedAssignees(taskId);
 }
-
+function toggleDropdowns(taskId) {
+  const dropdownContent = document.getElementById('dropdown-content');
+  dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+}
 window.onclick = function (event) {
   const dropdownContent = document.getElementById('dropdown-content');
   const dropdownToggle = document.querySelector('.dropdown-toggle');
@@ -273,7 +276,7 @@ function addSubtask(taskId) {
   const input = document.getElementById('subtask-input');
   const subtaskText = input.value.trim();
 
-  if (subtaskText === '') return;
+  if (subtaskText === '') return; // Prevent empty subtasks
 
   const subtaskList = document.getElementById('subtask-list');
 
@@ -301,13 +304,13 @@ function addSubtask(taskId) {
       subtaskList.appendChild(subtaskItem);
   });
 
+  // Clear the input field after adding the subtasks
+  input.value = '';
+
   pushsubtasks();
   updateProgress(taskId);
   saveSubtaskProgress(taskId);
-
-  input.value = '';
 }
-
 
 
 function pushsubtasks() {
@@ -350,3 +353,44 @@ function deleteSubtask(event, taskId) {
   saveSubtaskProgress(taskId);
 }
 
+
+function pushAndDisplaySubtask() {
+    const input = document.getElementById('subtask-input');
+    const subtaskText = input.value.trim();
+
+    if (subtaskText === '') return; // Prevent empty subtasks
+
+    // Push the subtask into the array
+    subtask.push(subtaskText);
+
+    // Display the updated subtask list
+    displaySubtasks();
+
+    // Clear the input field
+    input.value = '';
+}
+
+function displaySubtasks() {
+    const subtaskList = document.getElementById('subtask-list');
+    subtaskList.innerHTML = ''; // Clear the list before rendering
+
+    subtask.forEach((task, index) => {
+        const subtaskItem = document.createElement('li');
+        subtaskItem.className = 'list';
+
+        subtaskItem.innerHTML = `
+            <p class="subtask">${task}</p>
+            <img class="trash" src="/assets/img/delete.png" onclick="removeSubtask(${index})">
+        `;
+
+        subtaskList.appendChild(subtaskItem);
+    });
+}
+
+function removeSubtask(index) {
+    // Remove the subtask from the array
+    subtask.splice(index, 1);
+
+    // Update the displayed list
+    displaySubtasks();
+}
