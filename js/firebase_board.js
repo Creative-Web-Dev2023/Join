@@ -70,7 +70,7 @@ function createTaskElement(task, index) {
                     ${assignedHtml}    
                 </div>
                 <div class="task-priority">
-                    <img src="${priorityImage}" style="width: 30px; height: 30px;">
+                    <img src="${priorityImage}" style="width: 30px; height: 20px;">
                 </div>
             </div>
         </div>

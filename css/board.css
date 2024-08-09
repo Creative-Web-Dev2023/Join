@@ -138,9 +138,10 @@ body {
     padding: 10px;
     margin-bottom: 25px;
     border-radius: 14px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0px 10px 3px #00000014;
     cursor: grab;
     display: block;
+    height: fit-content;
 }
 
 .kanban-column .task~.no-tasks {
@@ -288,9 +289,21 @@ body {
     margin-top: 10px;
 }
 
+.task-content p {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 19.2px;
+    text-align: left;
+    color: #A8A8A8;
+}
+
 .task-content h3 {
-    margin: 10px 0;
-    font-size: 1.2em;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 19.2px;
+    text-align: left;
+    color: #2A3647;
+
 }
 
 .task-progress {
@@ -406,6 +419,15 @@ body {
     align-items: center;
 }
 
+#subtask-count-1 {
+
+font-size: 12px;
+font-weight: 400;
+line-height: 14.4px;
+text-align: left;
+color: #000;
+}
+
 .user-story-popup .subtasks li::before {
     content: "•";
     color: #000;
@@ -495,6 +517,7 @@ body {
 .d-flex {
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
 .popup-bottom-edit {
