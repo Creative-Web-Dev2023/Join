@@ -437,7 +437,7 @@ async function openEdit(taskId) {
         subtaskList.innerHTML = subtasks.map((subtask, index) => `
             <div id="subtask-${index}" style="display: flex; align-items: center;">
                 <p class="subtask" contenteditable="true" style="flex-grow: 1;">${subtask.trim()}</p>
-                <img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtask(${index})">
+                <img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtasks(${index})">
             </div>
         `).join('');
 
@@ -468,7 +468,7 @@ function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
 }
 
 
-function removeSubtask(index) {
+function removeSubtasks(index) {
     const subtaskElement = document.getElementById(`subtask-${index}`);
     const subtaskText = subtaskElement.querySelector('.subtask').textContent;
 

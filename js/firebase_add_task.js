@@ -353,44 +353,56 @@ function deleteSubtask(event, taskId) {
   saveSubtaskProgress(taskId);
 }
 
-
 function pushAndDisplaySubtask() {
-    const input = document.getElementById('subtask-input');
-    const subtaskText = input.value.trim();
+  const input = document.getElementById('subtask-input');
+  const subtaskText = input.value.trim();
 
-    if (subtaskText === '') return; // Prevent empty subtasks
+  if (subtaskText === '') return; // Verhindert leere Subtasks
 
-    // Push the subtask into the array
-    subtask.push(subtaskText);
+  // Fügt die neue Subtask in das Array ein
+  subtask.push(subtaskText);
 
-    // Display the updated subtask list
-    displaySubtasks();
+  // Aktualisiert listtask, um den aktuellen Subtasks zu entsprechen
+  listtask = [...subtask];
 
-    // Clear the input field
-    input.value = '';
+  // Zeigt die aktualisierte Subtask-Liste an
+  displaySubtasks();
+
+  // Leert das Eingabefeld
+  input.value = '';
 }
 
 function displaySubtasks() {
-    const subtaskList = document.getElementById('subtask-list');
-    subtaskList.innerHTML = ''; // Clear the list before rendering
+  const subtaskList = document.getElementById('subtask-list');
+  subtaskList.innerHTML = ''; // Leert die Liste vor dem Rendern
 
-    subtask.forEach((task, index) => {
-        const subtaskItem = document.createElement('li');
-        subtaskItem.className = 'list';
+  subtask.forEach((task, index) => {
+      const subtaskItem = document.createElement('li');
+      subtaskItem.className = 'list';
 
-        subtaskItem.innerHTML = `
-            <p class="subtask">${task}</p>
-            <img class="trash" src="/assets/img/delete.png" onclick="removeSubtask(${index})">
-        `;
+      subtaskItem.innerHTML = `
+          <p class="subtask" contenteditable="true" oninput="updateSubtaskText(event, ${index})">${task}</p>
+          <img class="trash" src="/assets/img/delete.png" onclick="removeSubtask(${index})">
+      `;
 
-        subtaskList.appendChild(subtaskItem);
-    });
+      subtaskList.appendChild(subtaskItem);
+  });
+}
+
+function updateSubtaskText(event, index) {
+  const updatedText = event.target.textContent.trim();
+  subtask[index] = updatedText; // Aktualisiert das Subtask-Array mit dem bearbeiteten Inhalt
+  listtask = [...subtask]; // Aktualisiert listtask, um den aktuellen Subtasks zu entsprechen
+  console.log('Aktualisierte Subtasks:', subtask);
 }
 
 function removeSubtask(index) {
-    // Remove the subtask from the array
-    subtask.splice(index, 1);
+  // Entfernt die Subtask aus dem Array
+  subtask.splice(index, 1);
 
-    // Update the displayed list
-    displaySubtasks();
+  // Aktualisiert listtask, um den aktuellen Subtasks zu entsprechen
+  listtask = [...subtask];
+
+  // Aktualisiert die angezeigte Liste
+  displaySubtasks();
 }
