@@ -259,8 +259,7 @@ body {
 .first-container-popup {
     width: 20vw;
     height: 40vh;
-    top: 327px;
-    left: 328px;
+
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -366,6 +365,10 @@ body {
     display: flex;
     justify-content: center;
     height: 80% !important;
+}
+
+.line {
+    margin: 0px !important;
 }
 
 .popup-content-task {

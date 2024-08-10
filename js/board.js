@@ -70,6 +70,7 @@ function updateNoTasksMessage(column) {
 }
 
 function showPopup() {
+    getButtonData();
     const popup = document.getElementById("popup");
     const overlay = document.getElementById("overlay");
     overlay.style.display = "block";
