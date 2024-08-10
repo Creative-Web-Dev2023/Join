@@ -482,7 +482,7 @@ span {
     display: flex;
     gap: 10px; /* Space between circles */
     margin-top: 10px; /* Space above the circles */
-    height: auto;
+    height: 50px;
   }
   
   .contact-circle {
@@ -553,17 +553,22 @@ span {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 10px;
 }
 
 
 .trash {
-    height: 17px;
+    height: 24px;
     right: 2px;
 }
 
 .trash:hover {
     cursor: pointer;
     height: 18px;
+}
+
+.subtask {
+    width: 100%;
 }
 
 #subtask-list {

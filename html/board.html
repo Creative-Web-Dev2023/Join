@@ -15,7 +15,7 @@
     <script src="/js/header_taskbar.js"></script>
 </head>
 
-<body>
+<body onload="init12()">
     <header class="eins">
         <div class="dreizehn">
             <img class="vierzehn" src="/assets/img/header_navbar_img/join_small.png" alt="" style="display: none;">
@@ -142,7 +142,7 @@
         <div id="popup" class="main-section-popup">
             <button id="closeButton" onclick="hidePopup()">&times;</button>
             <div class="main-section-popup">
-                <h1>Add Task</h1>
+                <h1 class="h1">Add Task</h1>
                 <div class="format-sections">
                     <form>
                         <div class="first-container-popup">
@@ -158,7 +158,7 @@
                             <div class="first-container-formatted part-3">
                                 <label for="assigned to">Assigned To</label>
                                 <div class="dropdown-format">
-                                    <div class="dropdown-toggle dropdown-start" onclick="toggleDropdown()">
+                                    <div class="dropdown-toggle dropdown-start" onclick="toggleDropdowns()">
                                         <span class="dropdown-start">Select contacts to assign</span>
                                         <span class="dropdown-start">▼</span>
                                     </div>
@@ -204,7 +204,7 @@
                                     <div class="input-wrapper">
                                         <input class="input-style-1 img-for-subtask" placeholder="Add new subtask"
                                             type="text" id="subtask-input">
-                                        <div id="add-subtask-btn" onclick="addSubtask()"></div>
+                                        <div id="add-subtask-btn" onclick="pushAndDisplaySubtask()"></div>
                                     </div>
                                     <ul id="subtask-list" class="subtask-list"></ul>
                                 </div>
@@ -218,16 +218,17 @@
                     <p><span class="red">*</span>This field is required</p>
                 </div>
                 <div class="buttons">
-                    <button class="clear-popup" onclick="resetInput()">Cancel<img
+                    <button class="clear-popup" onclick="resetInput()">Clear <img
                             src="/assets/img/img_add_task/cross.png" alt=""></button>
                     <button class="create-popup" onclick="count(); error()">Create Task <img
                             src="/assets/img/img_add_task/check.png" alt=""></button>
                 </div>
             </div>
         </div>
-
+        <div id="successPopup">Task added to Board</div>
         <div id="overlay-task" onclick="closePopup()"></div>
 
+<<<<<<< HEAD
         <!-- Popup-Container -->
 <div id="task-edit-popup" class="popup-task-edit-popup">
     <div class="popup-content-task-edit-popup">
@@ -295,6 +296,9 @@
                     </div>
                 </form>
             </div>
+=======
+        <div id="popup-task">
+>>>>>>> bd51c54c4f0275f3095221f73341f42534b29492
         </div>
 
         <div class="bottom-section-task-edit-popup">
@@ -314,6 +318,7 @@
         <script src="/js/firebase_board.js"></script>
         <script src="/js/firebase_add_task.js"></script>
         <script src="/js/html_functions.js"></script>
+        <script src="/js/board_html.js"></script>
 </body>
 
 </html>

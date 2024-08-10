@@ -70,6 +70,7 @@ function updateNoTasksMessage(column) {
 }
 
 function showPopup() {
+    getButtonData();
     const popup = document.getElementById("popup");
     const overlay = document.getElementById("overlay");
     overlay.style.display = "block";
@@ -103,6 +104,7 @@ function deleteTask(event) {
     }
 }
 
+<<<<<<< HEAD
 function editTask() {
     document.getElementById("task-edit-popup").style.display = "block";
 }
@@ -111,5 +113,7 @@ function closeTaskEditPopup() {
     document.getElementById("task-edit-popup").style.display = "none";
 }
 
+=======
+>>>>>>> bd51c54c4f0275f3095221f73341f42534b29492
 
 

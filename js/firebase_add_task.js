@@ -28,8 +28,15 @@ async function count() {
 
 function init(taskId) {
   getButtonData();
-  const selectedContacts = getSelectedContacts();
 
+  putOnFB(taskId);
+
+  clearInputs();
+  showAddedPopup()
+}
+
+function putOnFB(taskId) {
+  const selectedContacts = getSelectedContacts();
   putData(`tasks/task${taskId}/title`, `${text.value}`);
   putData(`tasks/task${taskId}/description`, `${description.value}`);
   putData(`tasks/task${taskId}/assigned`, selectedContacts);
@@ -37,9 +44,6 @@ function init(taskId) {
   putData(`tasks/task${taskId}/category`, `${category.value}`);
   putData(`tasks/task${taskId}/priority`, `${priority}`);
   putData(`tasks/task${taskId}/subtask`, `${listtask}`);
-
-  clearInputs();
-  showAddedPopup()
 }
 
 function getButtonData() {
@@ -169,43 +173,69 @@ function updateSelectedContactsDisplay(selectedContacts) {
 
 async function getInfo(path = "contacts") {
   try {
-    let response = await fetch(BASE_URL + path + ".json");
-    let contacts = await response.json();
+      let response = await fetch(BASE_URL + path + ".json");
+      let contacts = await response.json();
 
-    if (!contacts) {
-      console.log("No contacts found.");
-      return;
-    }
+      if (!contacts) {
+          console.log("No contacts found.");
+          return;
+      }
 
-    const contactKeys = Object.keys(contacts);
+      const contactKeys = Object.keys(contacts);
 
-    for (let key of contactKeys) {
-      await getNameAndColor(`contacts/${key}`);
-    }
+      for (let key of contactKeys) {
+          // Get the name and color, but skip if any of them is null
+          let contactData = await getNameAndColor(`contacts/${key}`);
+          if (contactData.name && contactData.color) {
+              const nameElement = document.getElementById('dropdown-content');
+              nameElement.innerHTML += displayNameColor(contactData.name, contactData.color, contactData.emblem);
+          }
+      }
   } catch (error) {
-    console.error("Error fetching contacts:", error);
+      console.error("Error fetching contacts:", error);
   }
 }
 
 async function getNameAndColor(path = "") {
   try {
-    let nameResponse = await fetch(BASE_URL + path + "/name.json");
-    let nameData = await nameResponse.json();
+      let nameResponse = await fetch(BASE_URL + path + "/name.json");
+      let nameData = await nameResponse.json();
 
-    let colorResponse = await fetch(BASE_URL + path + "/color.json");
-    let colorData = await colorResponse.json();
+      let colorResponse = await fetch(BASE_URL + path + "/color.json");
+      let colorData = await colorResponse.json();
 
-    let emblemResponse = await fetch(BASE_URL + path + "/emblem.json");
-    let emblemData = await emblemResponse.json();
+      let emblemResponse = await fetch(BASE_URL + path + "/emblem.json");
+      let emblemData = await emblemResponse.json();
 
-    const nameElement = document.getElementById('dropdown-content');
-    nameElement.innerHTML += displayNameColor(nameData, colorData, emblemData);
+      // Return the data if it's valid (i.e., not null)
+      if (nameData && colorData) {
+          return {
+              name: nameData,
+              color: colorData,
+              emblem: emblemData || ""  // Emblem may not always exist
+          };
+      } else {
+          return {};  // Return an empty object if data is null
+      }
   } catch (error) {
-    console.error("Error fetching name or color:", error);
+      console.error("Error fetching name or color:", error);
+      return {};  // Return an empty object in case of error
   }
 }
 
-function toggleDropdown() {
+function displayNameColor(name, color, emblem) {
+  // This function returns the HTML to be inserted into the dropdown
+  return `
+      <div class="dropdown-item" data-selected="false" onclick="toggleSelection(this)">
+          <div class="circle" style="background-color:${color};"></div>
+          <span class="chosenName">${name}</span>
+          <span class="toggle-image" src="/assets/img/img_add_task/checkbox.png" alt="Unselected"></span>
+      </div>
+  `;
+}
+
+function toggleDropdown(taskId) {
+  selctedAssignees(taskId)
   const dropdownContent = document.getElementById('dropdown-content');
   dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
 }
@@ -239,31 +269,46 @@ function toggleSelection(item) {
 
   getSelectedContacts();
 }
-
-function addSubtask() {
+function addSubtask(taskId) {
   const input = document.getElementById('subtask-input');
   const subtaskText = input.value.trim();
 
-  if (subtaskText === '') return;
+  if (subtaskText === '') return; // Prevent empty subtasks
 
   const subtaskList = document.getElementById('subtask-list');
 
-  const subtaskItem = document.createElement('li');
-  subtaskItem.className = 'list';
-  subtaskItem.contentEditable = 'true';
+  // Split the input text by new lines to handle multiple subtasks
+  const subtasks = subtaskText.split('\n').filter(subtask => subtask.trim() !== '');
 
-  subtaskItem.innerHTML = `<p class="subtask">${subtaskText}</p> <img class="trash" src="/assets/img/img_add_task/trash.png">`;
+  subtasks.forEach((subtask, index) => {
+      const subtaskItem = document.createElement('li');
+      subtaskItem.className = 'list';
+      subtaskItem.contentEditable = 'true';
 
-  subtaskItem.querySelector('.trash').addEventListener('click', deleteSubtask);
+      subtaskItem.innerHTML = `
+          <p class="subtask">${subtask.trim()}</p>
+          <img class="trash" src="/assets/img/delete.png">
+      `;
 
-  subtaskItem.addEventListener('input', updateSubtasks);
+      subtaskItem.querySelector('.trash').addEventListener('click', (event) => {
+          deleteSubtask(event, taskId);
+      });
 
-  subtaskList.appendChild(subtaskItem);
+      subtaskItem.addEventListener('input', () => {
+          updateSubtasks(taskId);
+      });
+
+      subtaskList.appendChild(subtaskItem);
+  });
+
+  // Clear the input field after adding the subtasks
+  input.value = '';
 
   pushsubtasks();
-
-  input.value = '';
+  updateProgress(taskId);
+  saveSubtaskProgress(taskId);
 }
+
 
 function pushsubtasks() {
   subtask = [];
@@ -271,27 +316,90 @@ function pushsubtasks() {
   const subtaskElements = document.querySelectorAll('.subtask');
 
   subtaskElements.forEach(element => {
-    subtask.push(element.innerHTML);
+      subtask.push(element.innerHTML);
   });
 
   listtask = [...subtask];
   console.log('Subtasks:', subtask);
   console.log('Listtask:', listtask);
+
+  updateProgress(currentTaskData.taskId);
+  saveSubtaskProgress(currentTaskData.taskId);
 }
 
-function updateSubtasks() {
+function updateSubtasks(taskId) {
   const subtaskElements = document.querySelectorAll('.subtask');
   subtask = [];
   subtaskElements.forEach(element => {
-    subtask.push(element.innerHTML.trim());
+      subtask.push(element.innerHTML.trim());
   });
   listtask = [...subtask];
   console.log('Updated Subtasks:', subtask);
+
+  updateProgress(taskId);
+  saveSubtaskProgress(taskId);
 }
 
-function deleteSubtask(event) {
+
+function deleteSubtask(event, taskId) {
   const subtaskItem = event.target.parentElement;
   subtaskItem.remove();
 
   pushsubtasks();
+  updateProgress(taskId);
+  saveSubtaskProgress(taskId);
+}
+
+function pushAndDisplaySubtask() {
+  const input = document.getElementById('subtask-input');
+  const subtaskText = input.value.trim();
+
+  if (subtaskText === '') return; // Verhindert leere Subtasks
+
+  // Fügt die neue Subtask in das Array ein
+  subtask.push(subtaskText);
+
+  // Aktualisiert listtask, um den aktuellen Subtasks zu entsprechen
+  listtask = [...subtask];
+
+  // Zeigt die aktualisierte Subtask-Liste an
+  displaySubtasks();
+
+  // Leert das Eingabefeld
+  input.value = '';
+}
+
+function displaySubtasks() {
+  const subtaskList = document.getElementById('subtask-list');
+  subtaskList.innerHTML = ''; // Leert die Liste vor dem Rendern
+
+  subtask.forEach((task, index) => {
+      const subtaskItem = document.createElement('li');
+      subtaskItem.className = 'list';
+
+      subtaskItem.innerHTML = `
+          <p class="subtask" contenteditable="true" oninput="updateSubtaskText(event, ${index})">${task}</p>
+          <img class="trash" src="/assets/img/delete.png" onclick="removeSubtask(${index})">
+      `;
+
+      subtaskList.appendChild(subtaskItem);
+  });
+}
+
+function updateSubtaskText(event, index) {
+  const updatedText = event.target.textContent.trim();
+  subtask[index] = updatedText; // Aktualisiert das Subtask-Array mit dem bearbeiteten Inhalt
+  listtask = [...subtask]; // Aktualisiert listtask, um den aktuellen Subtasks zu entsprechen
+  console.log('Aktualisierte Subtasks:', subtask);
+}
+
+function removeSubtask(index) {
+  // Entfernt die Subtask aus dem Array
+  subtask.splice(index, 1);
+
+  // Aktualisiert listtask, um den aktuellen Subtasks zu entsprechen
+  listtask = [...subtask];
+
+  // Aktualisiert die angezeigte Liste
+  displaySubtasks();
 }
