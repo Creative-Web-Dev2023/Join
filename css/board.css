@@ -191,6 +191,10 @@ body {
     height: 24px;
 }
 
+.selected-contacts {
+    height: 38px !important;
+}
+
 .plus_button:hover {
     cursor: pointer;
     content: url('/assets/img/plus_button_hover.png');
@@ -370,7 +374,8 @@ body {
     position: relative;
     height: AUTO;
     width: 40%;
-    padding: 48px 40px 48px 40px;
+    padding: 48px 10px 10px;
+    padding-bottom: 0px;
     z-index: 99;
     overflow-y: auto;
     display: flex;
@@ -455,12 +460,33 @@ body {
     }
 }
 
+.input-style-1 {
+    margin-bottom: 24px;
+}
+.input-style-2 {
+    margin-bottom: 24px;
+}
+
+#category {
+    margin-bottom: 24px;
+}
+
 .user-story-popup .subtasks li::before {
     content: "•";
     color: #000;
     font-size: 24px;
     line-height: 0;
     margin-right: 8px;
+}
+
+.div-button-edit {
+    position: sticky;
+    bottom: 0;
+    background-color: white;
+    padding: 5px 0;
+    text-align: center;
+    display: flex;
+    justify-content: end
 }
 
 .user-story-popup {

@@ -35,8 +35,8 @@
         padding-bottom: 25%;
     }
     .popup-content-task {
-        width: 80%;
-        padding: 8px;
+        width: 400px;
+
     }
     .task-header-pop-up {
         width: 40%;
@@ -83,5 +83,12 @@
 
     #overlay {
         position: relative;
+    }
+    .first-container {
+        width: 400px !important;
+    }
+
+    .form-content {
+        padding: 8px;
     }
 }

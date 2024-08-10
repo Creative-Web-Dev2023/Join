@@ -363,9 +363,6 @@ async function openEdit(taskId) {
 
     const assignedHtml = generateAssignedHtml(assignedPeople);
 
-
-
-
     document.getElementById(`popup-task${taskId}`).style.height = '80%';
 
     let edit = document.getElementById(`popup-task${taskId}`);
@@ -373,6 +370,7 @@ async function openEdit(taskId) {
     <div>
     <form>
         <div class="first-container">
+        <div class="form-content">
             <div class="first-container-formatted part-1">
                 <label for="title">Title <span class="red">*</span></label>
                 <input id="title-input" class="input-style-1" placeholder="Enter a title" type="text" value="${titleText}">
@@ -423,7 +421,10 @@ async function openEdit(taskId) {
                 </div>
                 <ul id="subtask-list" class="subtask-list"></ul>
             </div>
-            <div type="button" class="edit-button" onclick="putOnFb(${taskId}), error()"><p>Ok</p> <img src="/assets/img/img_board/check.png"></div>
+        </div>
+            <div class="div-button-edit">
+                <div type="button" class="edit-button" onclick="putOnFb(${taskId}), error()"><p>Ok</p> <img src="/assets/img/img_board/check.png"></div>
+            </div>
         </div>
     </form>
     </div>
@@ -435,14 +436,37 @@ async function openEdit(taskId) {
         const subtaskList = document.getElementById('subtask-list');
         subtaskList.innerHTML = subtasks.map((subtask, index) => `
             <div id="subtask-${index}" style="display: flex; align-items: center;">
-                <p class="subtask" style="flex-grow: 1;">${subtask.trim()}</p>
+                <p class="subtask" contenteditable="true" style="flex-grow: 1;">${subtask.trim()}</p>
                 <img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtask(${index})">
             </div>
         `).join('');
+
+        // Add event listeners to each subtask for immediate local storage update
+        subtasks.forEach((subtask, index) => {
+            const subtaskElement = document.querySelector(`#subtask-${index} .subtask`);
+            subtaskElement.addEventListener('input', () => updateSubtaskInLocalStorage(taskId, index, subtaskElement.textContent));
+        });
     } else {
         console.error('subtaskText is not a string:', subtaskText);
     }
 }
+
+function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
+    const savedStatuses = JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
+
+    // Ensure the savedStatuses array is the correct length
+    while (savedStatuses.length <= subtaskIndex) {
+        savedStatuses.push(false); // Assuming false means not completed
+    }
+
+    // Update the corresponding subtask text in local storage
+    const existingSubtasks = JSON.parse(localStorage.getItem(`task-${taskId}-subtask-texts`)) || [];
+    existingSubtasks[subtaskIndex] = newText.trim();
+    localStorage.setItem(`task-${taskId}-subtask-texts`, JSON.stringify(existingSubtasks));
+
+    console.log(`Subtask ${subtaskIndex} updated to: ${newText}`);
+}
+
 
 function removeSubtask(index) {
     const subtaskElement = document.getElementById(`subtask-${index}`);
