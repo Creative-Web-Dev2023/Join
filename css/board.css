@@ -736,7 +736,6 @@ body {
     margin: 0px;
 }
 
-<<<<<<< HEAD
 /* Popup Styles */
 .popup-task-edit-popup {
     display: none;
@@ -770,16 +769,6 @@ body {
 }
 
 
-=======
-.hardfont {
-    font-size: 20px;
-    font-weight: 400;
-    line-height: 24px;
-    text-align: left;
-    color: #2A3647;
-    margin: 0px;
-}
->>>>>>> bd51c54c4f0275f3095221f73341f42534b29492
 
 .flex {
     display: flex;

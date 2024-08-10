@@ -702,3 +702,41 @@ function closePopup() {
 
     currentTaskData = {};
 }
+
+document.querySelectorAll('.prio-button').forEach(function(button) {
+    button.addEventListener('mouseover', handleMouseOver);
+    button.addEventListener('mouseout', handleMouseOut);
+    button.addEventListener('click', handleClick);
+});
+
+function handleMouseOver() {
+    if (!this.classList.contains('clicked')) {
+        const hoverSrc = this.src.replace('_standart', '_hover');
+        this.src = hoverSrc;
+    }
+}
+
+function handleMouseOut() {
+    if (!this.classList.contains('clicked')) {
+        const standartSrc = this.src.replace('_hover', '_standart');
+        this.src = standartSrc;
+    }
+}
+
+function handleClick() {
+    document.querySelectorAll('.prio-button').forEach(function(btn) {
+        if (btn !== this) {
+            btn.classList.remove('clicked');
+            if (btn.src.includes('_clicked')) {
+                btn.src = btn.src.replace('_clicked', '_standart');
+            }
+        }
+    }, this);
+
+    this.classList.add('clicked');
+    if (this.src.includes('_hover')) {
+        this.src = this.src.replace('_hover', '_clicked');
+    } else if (this.src.includes('_standart')) {
+        this.src = this.src.replace('_standart', '_clicked');
+    }
+}

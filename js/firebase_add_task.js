@@ -235,11 +235,14 @@ function displayNameColor(name, color, emblem) {
 }
 
 function toggleDropdown(taskId) {
-  selctedAssignees(taskId)
+  selctedAssignees(taskId);
   const dropdownContent = document.getElementById('dropdown-content');
   dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
 }
-
+function toggleDropdowns() {
+  const dropdownContent = document.getElementById('dropdown-content');
+  dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+}
 window.onclick = function (event) {
   const dropdownContent = document.getElementById('dropdown-content');
   const dropdownToggle = document.querySelector('.dropdown-toggle');
