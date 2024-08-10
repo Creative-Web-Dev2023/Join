@@ -228,11 +228,87 @@
 
         <div id="overlay-task" onclick="closePopup()"></div>
 
-        <div id="popup-task">
-            <div class="popup-content-task">
-                <!-- Der Inhalt wird hier dynamisch durch JavaScript ersetzt -->
+        <!-- Popup-Container -->
+<div id="task-edit-popup" class="popup-task-edit-popup">
+    <div class="popup-content-task-edit-popup">
+        <span class="close-btn-task-edit-popup" onclick="closeTaskEditPopup()">&times;</span>
+        <!-- Beginn des bearbeitbaren Formulars -->
+        <div class="format-sections-task-edit-popup">
+            <form>
+                <div class="first-container-task-edit-popup">
+                    <div class="first-container-formatted-task-edit-popup part-1-task-edit-popup">
+                        <label for="title-task-edit-popup">Title <span class="red-task-edit-popup">*</span></label>
+                        <input id="title-input-task-edit-popup" class="input-style-1-task-edit-popup" placeholder="Enter a title" type="text">
+                    </div>
+                    <div class="first-container-formatted-task-edit-popup part-2-task-edit-popup">
+                        <label for="description-task-edit-popup">Description</label>
+                        <textarea id="description-input-task-edit-popup" class="input-style-2-task-edit-popup" placeholder="Enter a Description"></textarea>
+                    </div>
+                    <div class="first-container-formatted-task-edit-popup part-3-task-edit-popup">
+                        <label for="assigned-to-task-edit-popup">Assigned To</label>
+                        <div class="dropdown-format-task-edit-popup">
+                            <div class="dropdown-toggle-task-edit-popup dropdown-start-task-edit-popup" onclick="toggleDropdown()">
+                                <span class="dropdown-start-task-edit-popup">Select contacts to assign</span>
+                                <span class="dropdown-start-task-edit-popup">▼</span>
+                            </div>
+                            <div class="dropdown-content-task-edit-popup" id="dropdown-content-task-edit-popup"></div>
+                        </div>
+                        <div id="selected-contacts-container-task-edit-popup" class="selected-contacts-task-edit-popup"></div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="line-task-edit-popup"></div>
+
+            <div class="second-section-task-edit-popup">
+                <form>
+                    <div class="first-container-task-edit-popup">
+                        <div class="first-container-formatted-task-edit-popup part-1-task-edit-popup">
+                            <label for="due-date-task-edit-popup">Due date <span class="red-task-edit-popup">*</span></label>
+                            <input id="date-task-edit-popup" class="input-style-1-task-edit-popup" placeholder="dd/mm/yyyy" type="date" min="1997-01-01" max="2030-12-31">
+                        </div>
+                        <div>
+                            <label for="prio-task-edit-popup">Prio</label>
+                            <div class="prio-buttons-task-edit-popup">
+                                <img class="prio-button-task-edit-popup" id="urgent-task-edit-popup" src="/assets/img/img_add_task/urgent_standart.png" alt="Urgent">
+                                <img class="prio-button-task-edit-popup" id="medium-task-edit-popup" src="/assets/img/img_add_task/medium_standart.png" alt="Medium">
+                                <img class="prio-button-task-edit-popup" id="low-task-edit-popup" src="/assets/img/img_add_task/low_standart.png" alt="Low">
+                            </div>
+                        </div>
+
+                        <div class="first-container-formatted-task-edit-popup part-2-task-edit-popup">
+                            <label for="category-task-edit-popup">Category <span class="red-task-edit-popup">*</span></label>
+                            <select id="category-task-edit-popup" class="input-style-1-task-edit-popup">
+                                <option value="" disabled selected>Select Task Category</option>
+                                <option>Technical Task</option>
+                                <option>User Story</option>
+                            </select>
+                        </div>
+                        <div class="first-container-formatted-task-edit-popup part-3-task-edit-popup space-task-edit-popup subtask-container-task-edit-popup">
+                            <label for="subtask-task-edit-popup">Subtasks</label>
+                            <div class="input-wrapper-task-edit-popup">
+                                <input class="input-style-1-task-edit-popup img-for-subtask-task-edit-popup" placeholder="Add new subtask" type="text" id="subtask-input-task-edit-popup">
+                                <div id="add-subtask-btn-task-edit-popup" onclick="addSubtask()"></div>
+                            </div>
+                            <ul id="subtask-list-task-edit-popup" class="subtask-list-task-edit-popup"></ul>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
+
+        <div class="bottom-section-task-edit-popup">
+            <div>
+                <p><span class="red-task-edit-popup">*</span>This field is required</p>
+            </div>
+            <div class="buttons-task-edit-popup">
+                <button class="clear-task-edit-popup" onclick="resetInput()">Clear <img src="/assets/img/img_add_task/cross.png" alt=""></button>
+                <button class="create-task-edit-popup" onclick="count(); error()">Create Task <img src="/assets/img/img_add_task/check.png" alt=""></button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
         <script src="/js/firebase_board.js"></script>

@@ -104,103 +104,12 @@ function deleteTask(event) {
 }
 
 function editTask() {
-    // Den Bearbeitungsbereich laden
-    const editContent = `
-        <div class="format-sections">
-            <form>
-                <div class="first-container">
-                    <div class="first-container-formatted part-1">
-                        <label for="title">Title <span class="red">*</span></label>
-                        <input id="title-input" class="input-style-1" placeholder="Enter a title" type="text">
-                    </div>
-                    <div class="first-container-formatted part-2">
-                        <label for="description">Description</label>
-                        <textarea id="description-input" class="input-style-2" placeholder="Enter a Description"
-                            type="text"></textarea>
-                    </div>
-                    <div class="first-container-formatted part-3">
-                        <label for="assigned to">Assigned To</label>
-                        <div class="dropdown-format">
-                            <div class="dropdown-toggle dropdown-start" onclick="toggleDropdown()">
-                                <span class="dropdown-start">Select contacts to assign</span>
-                                <span class="dropdown-start">▼</span>
-                            </div>
-                            <div class="dropdown-content" id="dropdown-content">
-                            </div>
-                        </div>
-                        <div id="selected-contacts-container" class="selected-contacts"></div>
-                    </div>
-                </div>
-            </form>
-
-            <div class="line"></div>
-            <div class="second-section">
-                <form>
-                    <div class="first-container">
-                        <div class="first-container-formatted part-1">
-                            <label for="due-date">Due date <span class="red">*</span></label>
-                            <input id="date" class="input-style-1" placeholder="dd/mm/yyyy" type="date" min="1997-01-01"
-                                max="2030-12-31">
-                        </div>
-                        <div>
-                            <label for="prio">Prio</label>
-                            <div class="prio-buttons">
-                                <img class="prio-button" id="urgent" src="/assets/img/img_add_task/urgent_standart.png"
-                                    alt="Urgent">
-                                <img class="prio-button" id="medium" src="/assets/img/img_add_task/medium_standart.png"
-                                    alt="Medium">
-                                <img class="prio-button" id="low" src="/assets/img/img_add_task/low_standart.png"
-                                    alt="Low">
-                            </div>
-                        </div>
-
-                        <div class="first-container-formatted part-2">
-                            <label for="category">Category <span class="red">*</span></label>
-                            <select id="category" name="Selects contacts to assign" id="">
-                                <option value="" disabled selected>Select Task Category</option>
-                                <option>Technical Task</option>
-                                <option>User Story</option>
-                            </select>
-                        </div>
-                        <div class="first-container-formatted part-3 space subtask-container">
-                            <label for="subtask">Subtasks</label>
-                            <div class="input-wrapper">
-                                <input class="input-style-1 img-for-subtask" placeholder="Add new subtask" type="text"
-                                    id="subtask-input">
-                                <div id="add-subtask-btn" onclick="addSubtask()"></div>
-                            </div>
-                            <ul id="subtask-list" class="subtask-list"></ul>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="bottom-section">
-            <div>
-                <p><span class="red">*</span>This field is required</p>
-            </div>
-            <div class="buttons">
-                <button class="clear" onclick="resetInput()">Clear <img src="/assets/img/img_add_task/cross.png"
-                        alt=""></button>
-                <button class="create" onclick="count(); error()">Create Task <img src="/assets/img/img_add_task/check.png"
-                        alt=""></button>
-            </div>
-        </div>
-    `;
-
-    // Den Inhalt des Popups aktualisieren
-    document.querySelector('.popup-content-task').innerHTML = editContent;
-
-    // Das Popup anzeigen
-    document.getElementById('popup-task').style.right = '0';
-
-    // Das Overlay anzeigen
-    document.getElementById('overlay-task').style.display = 'block';
+    document.getElementById("task-edit-popup").style.display = "block";
 }
 
-function closePopup() {
-    document.getElementById('popup').style.right = '-100%';
-    document.getElementById('overlay').style.display = 'none';
+function closeTaskEditPopup() {
+    document.getElementById("task-edit-popup").style.display = "none";
 }
+
 
 
