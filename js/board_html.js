@@ -33,9 +33,9 @@ function HtmlEdit(titleText, descriptionText, taskId, assignedHtml, dueDate, pri
             <div>
                 <label for="prio">Prio</label>
                 <div class="prio-buttons">
-                    <img class="prio-button" id="urgent" src="/assets/img/img_add_task/urgent_standart.png" alt="Urgent" ${priorityText === 'Urgent' ? 'class="clicked"' : ''}>
-                    <img class="prio-button" id="medium" src="/assets/img/img_add_task/medium_standart.png" alt="Medium" ${priorityText === 'Medium' ? 'class="clicked"' : ''}>
-                    <img class="prio-button" id="low" src="/assets/img/img_add_task/low_standart.png" alt="Low" ${priorityText === 'Low' ? 'class="clicked"' : ''}>
+                    <img class="prio-button ${priorityText === 'Urgent' ? 'clicked' : ''}" id="urgent" src="/assets/img/img_add_task/urgent_${priorityText === 'Urgent' ? 'clicked' : 'standart'}.png" alt="Urgent">
+                    <img class="prio-button ${priorityText === 'Medium' ? 'clicked' : ''}" id="medium" src="/assets/img/img_add_task/medium_${priorityText === 'Medium' ? 'clicked' : 'standart'}.png" alt="Medium">
+                    <img class="prio-button ${priorityText === 'Low' ? 'clicked' : ''}" id="low" src="/assets/img/img_add_task/low_${priorityText === 'Low' ? 'clicked' : 'standart'}.png" alt="Low">
                 </div>
             </div>
             <div class="first-container-formatted part-2">

@@ -134,31 +134,48 @@ async function setDataToFirebase(path = '', data = {}) {
     }
 }
 
+function generateRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+function generateEmblem(name) {
+    const nameParts = name.trim().split(' ');
+    const firstInitial = nameParts[0].charAt(0).toUpperCase();
+    const secondInitial = nameParts.length > 1 ? nameParts[1].charAt(0).toUpperCase() : '';
+    return firstInitial + secondInitial;
+}
+
 async function addContact() {
     let contactName = document.getElementById('name').value;
     let contactEmail = document.getElementById('email').value;
     let contactPhone = document.getElementById('phone').value;
-    let contactEmblem = document.getElementById('emblem').value;
-    let contactColor = document.getElementById('color').value;
+
     if (!contactName || !contactEmail) {
         alert("Please fill out all required fields.");
         return;
     }
+
     let contactData = {
         "name": contactName,
         "email": contactEmail,
         "phone": contactPhone,
-        "emblem": contactEmblem,
-        "color": contactColor
+        "color": generateRandomColor(),
+        "emblem": generateEmblem(contactName)
     };
+
     await setDataToFirebase('contacts', contactData);
+
     await loadContacts();
     displayContacts();
+
     document.getElementById('name').value = '';
     document.getElementById('email').value = '';
     document.getElementById('phone').value = '';
-    document.getElementById('emblem').value = '';
-    document.getElementById('color').value = '#ff0000';
 }
 
 async function updateContactInFirebase(contactId, updateData){

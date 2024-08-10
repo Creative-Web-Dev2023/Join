@@ -10,23 +10,33 @@ async function submitContact() {
   let contactName = document.getElementById("name-input").value;
   let contactEmail = document.getElementById("email-input").value;
   let contactPhone = document.getElementById("phone-input").value;
+
   if (!contactName || !contactEmail || !contactPhone) {
     alert("Please fill out all required fields.");
     return;
   }
+
   let contactData = {
     name: contactName,
     email: contactEmail,
     phone: contactPhone,
+    color: generateRandomColor(),
+    emblem: generateEmblem(contactName)
   };
+
   await addContactToFirebase(contactData);
+
   document.getElementById("name-input").value = "";
   document.getElementById("email-input").value = "";
   document.getElementById("phone-input").value = "";
+  
   closeModal();
   await loadContacts();
   displayContacts();
 }
+
+
+
 
 async function addContactToFirebase(contactData) {
   let BASE_URL =
@@ -114,7 +124,6 @@ function openEditContactModal(contact) {
   document.getElementById("email-input").value = contact.email;
   document.getElementById("phone-input").value = contact.phone;
 
-  // Setze den Button, um die aktualisierten Daten zu speichern
   const submitButton = document.getElementById("submit-button");
   submitButton.textContent = "Update contact";
   submitButton.onclick = async function () {
@@ -122,6 +131,8 @@ function openEditContactModal(contact) {
       name: document.getElementById("name-input").value,
       email: document.getElementById("email-input").value,
       phone: document.getElementById("phone-input").value,
+      color: contact.color || generateRandomColor(),
+      emblem: generateEmblem(document.getElementById("name-input").value)
     };
 
     await updateContactInFirebase(contact.id, updatedContactData);
@@ -131,6 +142,7 @@ function openEditContactModal(contact) {
   };
   openModal();
 }
+
 
 async function updateContactInFirebase(contactId, updatedContactData) {
   try {
@@ -184,10 +196,3 @@ async function deleteContactFromFirebase(contactId) {
     return null;
   }
 }
-
-// function showContact() {
-//   contactCard.classList.add('contact-card-active');
-// }
-// function hideContact() {
-//   contactCard.classList.remove('contact-card-active');
-// }
