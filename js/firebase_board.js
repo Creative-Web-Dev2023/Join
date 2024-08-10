@@ -417,7 +417,7 @@ async function openEdit(taskId) {
                 <label for="subtask">Subtasks</label>
                 <div class="input-wrapper">
                     <input class="input-style-1 img-for-subtask" placeholder="Add new subtask" type="text" id="subtask-input">
-                    <div id="add-subtask-btn" onclick="addSubtask()"></div>
+                    <div id="add-subtask-btn" onclick="addSubtasks(${taskId})"></div>
                 </div>
                 <ul id="subtask-list" class="subtask-list"></ul>
             </div>
@@ -430,6 +430,7 @@ async function openEdit(taskId) {
     </div>
     `;
 
+    // Load existing subtasks into the edit form
     if (typeof subtaskText === 'string') {
         const subtasks = subtaskText.split(',').filter(subtask => subtask.trim() !== '');
 
@@ -450,7 +451,52 @@ async function openEdit(taskId) {
         console.error('subtaskText is not a string:', subtaskText);
     }
 }
+function updateSubtasksInFirebase(taskId) {
+    const newSubtasks = Array.from(document.querySelectorAll('#subtask-list .subtask')).map(p => p.textContent.trim());
 
+    const combinedSubtasks = newSubtasks.filter(subtask => subtask.trim() !== '');
+
+    putData(`tasks/task${taskId}/subtask`, combinedSubtasks.join(','))
+        .then(() => {
+            console.log('Subtasks updated in Firebase.');
+        })
+        .catch(error => {
+            console.error('Error updating subtasks in Firebase:', error);
+        });
+}
+
+function addSubtasks(taskId) {
+    const input = document.getElementById('subtask-input');
+    const subtaskText = input.value.trim();
+
+    if (subtaskText === '') return; // Prevent empty subtasks
+
+    const subtaskList = document.getElementById('subtask-list');
+    const index = subtaskList.children.length;
+
+    // Create a new subtask element
+    const subtaskItem = document.createElement('div');
+    subtaskItem.id = `subtask-${index}`;
+    subtaskItem.style.display = 'flex';
+    subtaskItem.style.alignItems = 'center';
+    subtaskItem.innerHTML = `
+        <p class="subtask" contenteditable="true" style="flex-grow: 1;">${subtaskText}</p>
+        <img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtasks(${index})">
+    `;
+
+    // Add event listener for immediate updates
+    const subtaskElement = subtaskItem.querySelector('.subtask');
+    subtaskElement.addEventListener('input', () => updateSubtaskInLocalStorage(taskId, index, subtaskElement.textContent));
+
+    // Append the new subtask to the list
+    subtaskList.appendChild(subtaskItem);
+
+    // Clear the input field after adding the subtask
+    input.value = '';
+
+    // Update the subtask in Firebase immediately
+    updateSubtasksInFirebase(taskId);
+}
 function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
     const savedStatuses = JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
 
@@ -465,8 +511,10 @@ function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
     localStorage.setItem(`task-${taskId}-subtask-texts`, JSON.stringify(existingSubtasks));
 
     console.log(`Subtask ${subtaskIndex} updated to: ${newText}`);
-}
 
+    // Update Firebase as well
+    updateSubtasksInFirebase(taskId);
+}
 
 function removeSubtasks(index) {
     const subtaskElement = document.getElementById(`subtask-${index}`);
