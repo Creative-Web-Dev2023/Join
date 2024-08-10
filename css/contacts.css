@@ -417,6 +417,22 @@ main h2 {
   flex-direction: column;
   gap: 22px;
 }
+/* .edit-contact-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  box-shadow: 0px 0px 4px 0px #0000001a;
+  height: 592px;
+  width: 85%;
+  max-width: 1300px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  z-index: 1001;
+} */
+
 .edit-contact-container {
   position: fixed;
   top: 50%;
@@ -431,6 +447,21 @@ main h2 {
   display: flex;
   align-items: center;
   z-index: 1001;
+  opacity: 0; /* Startet unsichtbar */
+  pointer-events: none; /* Deaktiviert Interaktionen */
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.edit-contact-container.slide-in {
+  transform: translate(0, -50%); /* Positioniert das Popup in der Mitte */
+  opacity: 1; /* Macht das Popup sichtbar */
+  pointer-events: all; /* Ermöglicht Interaktionen */
+}
+
+.edit-contact-container.slide-out {
+  transform: translate(100%, -50%); /* Schiebt das Popup nach rechts */
+  opacity: 0; /* Macht das Popup unsichtbar */
+  pointer-events: none; /* Deaktiviert Interaktionen */
 }
 .edit-contact-left-section {
   padding-left: 66px;
@@ -438,7 +469,18 @@ main h2 {
 /* .d-none{
   display: none;
 } */
-.contact-action-details{
+/* .contact-action-details{
+  background-color: var(--maincolor);
+  padding: 154px 46px 252px;
+  height: 100%;
+  width: 480px;
+  border-top-left-radius: 30px;
+  border-bottom-left-radius: 30px;
+  display: flex;
+  flex-direction: column;
+} */
+
+.contact-action-details {
   background-color: var(--maincolor);
   padding: 154px 46px 252px;
   height: 100%;

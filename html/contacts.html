@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="../css/contacts.css">
     <link rel="shortcut icon" href="../assets/img/favicon.svg" type="image/x-icon">
 </head>
+
 <body onload="init()">
     <header class="eins">
         <div class="dreizehn">
@@ -69,77 +70,81 @@
                 <img src="../assets/img/person_add.png">
             </button>
             <div class="contact-list" id="contact-list">
-                 <!-- Hier werden Kontakte dynamisch hinzugefügt -->
+                <!-- Hier werden Kontakte dynamisch hinzugefügt -->
             </div>
         </div>
         <!-- Das Modal -->
         <div id="contact-modal" class="modal" style="display: none;">
             <div class="modal-content">
-                    <div class="add-contact-container">
-                        <div class="add-contact-left-section">
-                            <div class="add-contact-left-section-container">
-                                <img class="add-contact-left-section-container-logo" src="/assets/img/img_login/join_logo_white.svg" alt>
-                                <div class="contact-heading">Add contact</div>
-                                <div class="contact-heading-2">Tasks are better with a team!</div>
-                            </div>
+                <div class="add-contact-container">
+                    <div class="add-contact-left-section">
+                        <div class="add-contact-left-section-container">
+                            <img class="add-contact-left-section-container-logo"
+                                src="/assets/img/img_login/join_logo_white.svg">
+                            <img src="/assets/img/edit_contact.png">
                         </div>
-                        <div class="add-contact-right-section">
-                            <img class="contact-logo" src="/assets/img/img_contacts/contact_logo.svg" alt>
-                            <div class="add-contact-right-section-2">
-                                <div class="close-button-container">
-                                    <button id="close-modal-button">
-                                        <img class="close-img" src="/assets/img/img_contacts/close.svg" alt>
-                                    </button>
-                                </div>
-                                <form id="contact-form" class="contact-data" onsubmit="return false;">
-                                    <div class="input-field">
-                                        <input id="name-input" class="log-in-input" type="text" placeholder="Name" required>
-                                        <img class="input-icon" src="/assets/img/img_contacts/person.svg">
-                                    </div>
-                                    <div class="input-field">
-                                        <input id="email-input" class="log-in-input" type="text" placeholder="Email" required>
-                                        <img class="input-icon" src="/assets/img/img_contacts/mail.svg">
-                                    </div>
-                                    <div class="input-field">
-                                        <input id="phone-input" class="log-in-input" type="text" placeholder="Phone" required>
-                                        <img class="input-icon" src="/assets/img/img_contacts/phone.svg">
-                                    </div>
-                                    <section class="add-contact-buttons">
-                                        <button id="cancel-button" class="button-left btn" style="font-size: 21px" type="button">
-                                            <div>Cancel</div>
-                                            <img src="/assets/img/img_contacts/close.svg" alt>
-                                        </button>
-                                        <button id="submit-button" class="button-right btn" style="font-size: 21px" type="submit">
-                                            <div>Create contact</div>
-                                            <img src="/assets/img/img_contacts/check.svg" alt>
-                                        </button>
-                                    </section>
-                                </form>
+                    </div>
+                    <div class="add-contact-right-section">
+                        <img class="contact-logo" src="/assets/img/img_contacts/contact_logo.svg">
+                        <div class="add-contact-right-section-2">
+                            <div class="close-button-container">
+                                <button id="close-modal-button">
+                                    <img class="close-img" src="/assets/img/img_contacts/close.svg">
+                                </button>
                             </div>
+                            <form id="contact-form" class="contact-data" onsubmit="return false;">
+                                <div class="input-field">
+                                    <input id="name-input" class="log-in-input" type="text" placeholder="Name" required>
+                                    <img class="input-icon" src="/assets/img/img_contacts/person.svg">
+                                </div>
+                                <div class="input-field">
+                                    <input id="email-input" class="log-in-input" type="text" placeholder="Email"
+                                        required>
+                                    <img class="input-icon" src="/assets/img/img_contacts/mail.svg">
+                                </div>
+                                <div class="input-field">
+                                    <input id="phone-input" class="log-in-input" type="text" placeholder="Phone"
+                                        required>
+                                    <img class="input-icon" src="/assets/img/img_contacts/phone.svg">
+                                </div>
+                                <section class="add-contact-buttons">
+                                    <button id="cancel-button" class="button-left btn" style="font-size: 21px"
+                                        type="button">
+                                        <div>Cancel</div>
+                                        <img src="/assets/img/img_contacts/close.svg" alt>
+                                    </button>
+                                    <button id="submit-button" class="button-right btn" style="font-size: 21px"
+                                        type="submit">
+                                        <div>Create contact</div>
+                                        <img src="/assets/img/img_contacts/check.svg" alt>
+                                    </button>
+                                </section>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="contactPage" class="contact-page">
-                <div class="contacts-header">
-                    <h1>Contacts</h1>
-                    <div class="contacts-border"></div>
-                    <h2>Better with a team</h2>
-                </div>
-                <div class="contact-card contact-card-active" id="contact-detail-card">
-                    <!-- Details eines ausgewählten Kontakts werden hier angezeigt -->
-                </div>
+        </div>
+        <div id="contactPage" class="contact-page">
+            <div class="contacts-header">
+                <h1>Contacts</h1>
+                <div class="contacts-border"></div>
+                <h2>Better with a team</h2>
+            </div>
+            <div class="contact-card contact-card-active" id="contact-detail-card">
+                <!-- Details eines ausgewählten Kontakts werden hier angezeigt -->
             </div>
         </div>
         </div>
-        <div class="edit-contact-container d-none"  id="editContactContainer">
+        </div>
+        <div class="edit-contact-container d-none" id="editContactContainer">
             <div class="contact-action-details">
                 <div>
                     <img class="contact-action-logo" src="../assets/img/img_contacts/logo.png">
                 </div>
-        </div>
+            </div>
     </main>
-    
+
     <script src="/js/firebase__contacts.js" defer></script>
     <script src="/js/contacts.js" defer></script>
 </body>

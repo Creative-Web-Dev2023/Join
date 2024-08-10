@@ -67,40 +67,47 @@ function makeContactsClickable() {
 
 function showContactDetails(contact) {
   const contactDetailElement = document.getElementById("contact-detail-card");
+  
+  // Sicherheitsmaßnahmen: Ersetzen von Anführungszeichen und Escape-Zeichen
+  const contactJsonString = JSON.stringify(contact).replace(/"/g, '&quot;');
+
   contactDetailElement.innerHTML = `
-  <div class="contact-card-main-infos">
-        <div class="contact-detail-header">
-            <div class="profile-content-big" style="background-color: ${contact.color}">
-                ${contact.firstInitial}${contact.secondInitial}
-            </div>
-            <div class="contact-name-big">
-                <h2>${contact.name}</h2>
-            </div>
-             <div class="contact-actions">
-                   <div class="contact-functions" onclick="openEditContactModal(${JSON.stringify(contact)})">
-                   <img class="contact-functions-icons" src="../assets/img/img_contacts/edit.png" alt="">Edit
-             </div>
-                <div class="contact-functions" onclick="deleteContact('${contact.id}')">
-                <img class="contact-functions-icons" src="../assets/img/img_contacts/delete.png" alt="">Delete
+    <div class="contact-card-main-infos">
+      <div class="contact-detail-header">
+        <div class="profile-content-big" style="background-color: ${contact.color}">
+          ${contact.firstInitial}${contact.secondInitial}
         </div>
-              </div>
-         <div class="contact-card-subtitle">Contact Information</div>
-             <div class="contact-card-details">
-                <div class="contact-card-info">
-                 <div class="contact-method">Email</div>
-                <div class=" contact-email">
-                     <a href="mailto:${contact.email}">${contact.email}</a>
-                </div>
-                <div class="contact-card-info">
-                 <div class="contact-method">Phone</div>
-               <div class="contact-phone">
-               <p>${contact.phone}</p>
-              </div>
-           </div>
-         </div>
-       </div>
-    `;
+        <div class="contact-name-big">
+          <h2>${contact.name}</h2>
+        </div>
+        <div class="contact-actions">
+          <div class="contact-functions" onclick="openEditContactModal(${contactJsonString})">
+            <img class="contact-functions-icons" src="../assets/img/img_contacts/edit.png" alt="">Edit
+          </div>
+          <div class="contact-functions" onclick="deleteContact('${contact.id}')">
+            <img class="contact-functions-icons" src="../assets/img/img_contacts/delete.png" alt="">Delete
+          </div>
+        </div>
+        <div class="contact-card-subtitle">Contact Information</div>
+        <div class="contact-card-details">
+          <div class="contact-card-info">
+            <div class="contact-method">Email</div>
+            <div class="contact-email">
+              <a href="mailto:${contact.email}">${contact.email}</a>
+            </div>
+          </div>
+          <div class="contact-card-info">
+            <div class="contact-method">Phone</div>
+            <div class="contact-phone">
+              <p>${contact.phone}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
 }
+
 
 function openEditContactModal(contact) {
   document.getElementById("name-input").value = contact.name;
