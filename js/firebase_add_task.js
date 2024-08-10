@@ -239,10 +239,7 @@ function toggleDropdown(taskId) {
   dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
   selctedAssignees(taskId);
 }
-function toggleDropdowns(taskId) {
-  const dropdownContent = document.getElementById('dropdown-content');
-  dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-}
+
 window.onclick = function (event) {
   const dropdownContent = document.getElementById('dropdown-content');
   const dropdownToggle = document.querySelector('.dropdown-toggle');

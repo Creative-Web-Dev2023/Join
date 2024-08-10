@@ -349,6 +349,8 @@ async function selctedAssignees(taskId) {
 }
 
 async function openEdit(taskId) {
+    selctedAssignees(taskId);
+
     const userStoryText = await userStory(`tasks/task${taskId}/category`);
     const titleText = await title(`tasks/task${taskId}/title`);
     const dueDate = await dateFB(`tasks/task${taskId}/date`);
