@@ -319,6 +319,9 @@ function highlightAssignedPeople(assignedPeople) {
 }
 
 function setItemSelected(item) {
+    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    console.log(item);
+    
     item.setAttribute('data-selected', 'true');
     const img = item.querySelector('.toggle-image');
     img.src = '/assets/img/img_add_task/checkedbox.png';
