@@ -553,6 +553,7 @@ span {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 10px;
 }
 
 
@@ -564,6 +565,10 @@ span {
 .trash:hover {
     cursor: pointer;
     height: 18px;
+}
+
+.subtask {
+    width: 100%;
 }
 
 #subtask-list {
