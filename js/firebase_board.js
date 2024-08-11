@@ -71,7 +71,7 @@ function getPriorityImage(priority) {
         'medium': '/assets/img/img_board/medium.png',
         'low': '/assets/img/img_board/low.png'
     };
-    return priorities[priority?.toLowerCase()] || 'default.png';
+    return priorities[priority?.toLowerCase()] || '/assets/img/img_board/default.png';
 }
 
 function createTaskDiv(index) {

@@ -29,7 +29,7 @@ async function submitContact() {
   document.getElementById("name-input").value = "";
   document.getElementById("email-input").value = "";
   document.getElementById("phone-input").value = "";
-  
+
   closeModal();
   await loadContacts();
   displayContacts();
@@ -75,9 +75,19 @@ function makeContactsClickable() {
   });
 }
 
+function contactLogo(contact) {
+  let logo = document.getElementById('contact-logo');
+
+  logo.innerHTML = `
+  <div class="profile-logo background-colors" style="background-color: ${contact.color};">
+    ${contact.firstInitial}${contact.secondInitial}
+  </div>
+  `;
+}
+
 function showContactDetails(contact) {
   const contactDetailElement = document.getElementById("contact-detail-card");
-  
+
   // Sicherheitsmaßnahmen: Ersetzen von Anführungszeichen und Escape-Zeichen
   const contactJsonString = JSON.stringify(contact).replace(/"/g, '&quot;');
 
@@ -120,6 +130,7 @@ function showContactDetails(contact) {
 
 
 function openEditContactModal(contact) {
+  contactLogo(contact)
   document.getElementById("name-input").value = contact.name;
   document.getElementById("email-input").value = contact.email;
   document.getElementById("phone-input").value = contact.phone;
