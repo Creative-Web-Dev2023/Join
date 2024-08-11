@@ -663,6 +663,12 @@ main h2 {
     }
   }
 
+  @media (max-width: 1060px) {
+    main {
+      padding-left: 0px !important;
+    }
+  }
+
   @media (max-width: 940px) {
     main {
       padding: 80px 0px !important;
@@ -685,6 +691,24 @@ main h2 {
     .add-contact-right-section {
       padding: 66px;
     }
+
+    .contacts-frame {
+      width: 100vw;
+    }
+
+    .contact-page {
+      display: none;
+    }
+    
+    .back-button {
+      display: block;
+      background-color: var(--maincolor);
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+  }
   }
 
   @media (max-width: 400px) {

@@ -48,16 +48,21 @@ async function submitContact() {
   let contactPhone = document.getElementById("phone-input").value;
 
   if (!contactName || !contactEmail || !contactPhone) {
-    alert("Please fill out all required fields.");
-    return;
+      alert("Please fill out all required fields.");
+      return; // Stop the function if any required field is missing
+  }
+
+  if (!isValidEmail(contactEmail)) {
+      alert("Please enter a valid email address ending with .de or .com.");
+      stop; // Stop the function if the email is not valid
   }
 
   let contactData = {
-    name: contactName,
-    email: contactEmail,
-    phone: contactPhone,
-    color: generateRandomColor(),
-    emblem: generateEmblem(contactName)
+      name: contactName,
+      email: contactEmail,
+      phone: contactPhone,
+      color: generateRandomColor(),
+      emblem: generateEmblem(contactName)
   };
 
   await addContactToFirebase(contactData);
@@ -70,6 +75,7 @@ async function submitContact() {
   await loadContacts();
   displayContacts();
 }
+
 
 
 
@@ -98,16 +104,16 @@ async function addContactToFirebase(contactData) {
 
 function makeContactsClickable() {
   contacts.forEach((contact) => {
-    const contactElement = document.getElementById(`contact-${contact.id}`);
+      const contactElement = document.getElementById(`contact-${contact.id}`);
 
-    if (contactElement) {
-      contactElement.addEventListener("click", (event) => {
-        event.preventDefault();
-        showContactDetails(contact); // Show details without opening the edit modal
-      });
-    } else {
-      console.warn(`No element found for contact with ID: ${contact.id}`);
-    }
+      if (contactElement) {
+          contactElement.addEventListener("click", (event) => {
+              event.preventDefault();
+              showContactDetails(contact); // Show details and switch to the contact page
+          });
+      } else {
+          console.warn(`No element found for contact with ID: ${contact.id}`);
+      }
   });
 }
 
@@ -131,46 +137,69 @@ function contactLogo(contact) {
 
 function showContactDetails(contact) {
   const contactDetailElement = document.getElementById("contact-detail-card");
+  const contactPageElement = document.getElementById("contactPage");
+  const backButtonElement = document.getElementById("back-button");
 
   // Escape quotes to prevent issues
   const contactJsonString = JSON.stringify(contact).replace(/"/g, '&quot;');
 
   contactDetailElement.innerHTML = `
-    <div class="contact-card-main-infos">
+  <div class="contact-card-main-infos">
       <div class="contact-detail-header">
-        <div class="profile-content-big" style="background-color: ${contact.color}">
-          ${contact.firstInitial}${contact.secondInitial}
-        </div>
-        <div class="contact-name-big">
-          <h2>${contact.name}</h2>
-        </div>
-        <div class="contact-actions">
-          <div class="contact-functions" onclick='openEditContactModal(${contactJsonString})'>
-            <img class="contact-functions-icons" src="../assets/img/img_contacts/edit.png" alt="">Edit
+          <div class="profile-content-big" style="background-color: ${contact.color}">
+              ${contact.firstInitial}${contact.secondInitial}
           </div>
-          <div class="contact-functions" onclick="deleteContact('${contact.id}')">
-            <img class="contact-functions-icons" src="../assets/img/img_contacts/delete.png" alt="">Delete
+          <div class="contact-name-big">
+              <h2>${contact.name}</h2>
           </div>
-        </div>
-        <div class="contact-card-subtitle">Contact Information</div>
-        <div class="contact-card-details">
-          <div class="contact-card-info">
-            <div class="contact-method">Email</div>
-            <div class="contact-email">
-              <a href="mailto:${contact.email}">${contact.email}</a>
-            </div>
+          <div class="contact-actions">
+              <div class="contact-functions" onclick='openEditContactModal(${contactJsonString})'>
+                  <img class="contact-functions-icons" src="../assets/img/img_contacts/edit.png" alt="">Edit
+              </div>
+              <div class="contact-functions" onclick="deleteContact('${contact.id}')">
+                  <img class="contact-functions-icons" src="../assets/img/img_contacts/delete.png" alt="">Delete
+              </div>
           </div>
-          <div class="contact-card-info">
-            <div class="contact-method">Phone</div>
-            <div class="contact-phone">
-              <p>${contact.phone}</p>
-            </div>
+          <div class="contact-card-subtitle">Contact Information</div>
+          <div class="contact-card-details">
+              <div class="contact-card-info">
+                  <div class="contact-method">Email</div>
+                  <div class="contact-email">
+                      <a href="mailto:${contact.email}">${contact.email}</a>
+                  </div>
+              </div>
+              <div class="contact-card-info">
+                  <div class="contact-method">Phone</div>
+                  <div class="contact-phone">
+                      <p>${contact.phone}</p>
+                  </div>
+              </div>
           </div>
-        </div>
       </div>
-    </div>
+  </div>
   `;
+
+  // Im mobilen Modus die Contact Page anzeigen
+  if (window.innerWidth <= 800) {
+      document.querySelector('.contacts-frame').style.display = 'none';
+      contactPageElement.style.display = 'block';
+      backButtonElement.style.display = 'block';
+  }
 }
+
+// Funktion zum Zurückgehen zur Kontaktliste
+function showContactList() {
+  const contactPageElement = document.getElementById("contactPage");
+  const backButtonElement = document.getElementById("back-button");
+
+  document.querySelector('.contacts-frame').style.display = 'block';
+  contactPageElement.style.display = 'none';
+  backButtonElement.style.display = 'none';
+}
+
+// Event-Listener für den Zurück-Button
+document.getElementById("back-button").addEventListener('click', showContactList);
+
 
 
 
@@ -201,6 +230,23 @@ function openEditContactModal(contact) {
 
   // Open the modal for editing
   document.getElementById("contact-modal").style.display = "block";
+}
+
+document.getElementById("submit-button").addEventListener("click", function (event) {
+  const contactEmail = document.getElementById("email-input").value;
+
+  if (!isValidEmail(contactEmail)) {
+      alert("Please enter a valid email address ending with .de or .com.");
+      event.preventDefault(); // Prevent form submission
+      return;
+  }
+
+  // Continue with form submission if email is valid
+});
+
+function isValidEmail(email) {
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(de|com)$/;
+  return emailPattern.test(email);
 }
 
 
