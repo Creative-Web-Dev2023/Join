@@ -178,25 +178,6 @@ async function addContact() {
     document.getElementById('phone').value = '';
 }
 
-async function updateContactInFirebase(contactId, updateData){
-try{
-    let response = await fetch(BASE_URL + 'contacts/' + contactId + '.json', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updateData)
-    });
-    if (!response.ok) {
-        console.error('Failed to update data in Firebase:', response.statusText);
-        return {};
-    }
-    return await response.json();
-} catch (error) {
-    console.error('Error updating data:', error);
-    return {};
-}
-}
 
 async function deleteContact(contactId){
     try{

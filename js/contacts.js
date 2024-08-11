@@ -1,9 +1,45 @@
-function openModal() {
+function openModal(isEditMode = false, contact = null) {
+  if (isEditMode && contact) {
+    CreateSvg();
+    // Populate fields with the contact's data for editing
+    document.getElementById("name-input").value = contact.name;
+    document.getElementById("email-input").value = contact.email;
+    document.getElementById("phone-input").value = contact.phone;
+
+    const submitButton = document.getElementById("submit-button");
+    submitButton.textContent = "Update contact";
+    submitButton.onclick = async function () {
+      let updatedContactData = {
+        name: document.getElementById("name-input").value,
+        email: document.getElementById("email-input").value,
+        phone: document.getElementById("phone-input").value,
+        color: contact.color || generateRandomColor(),
+        emblem: generateEmblem(document.getElementById("name-input").value)
+      };
+
+      await updateContactInFirebase(contact.id, updatedContactData);
+      closeModal();
+      await loadContacts();
+      displayContacts();
+    };
+  } else {
+    // Clear the input fields for adding a new contact
+    document.getElementById("name-input").value = "";
+    document.getElementById("email-input").value = "";
+    document.getElementById("phone-input").value = "";
+
+    const submitButton = document.getElementById("submit-button");
+    submitButton.textContent = "Create contact";
+    submitButton.onclick = submitContact;
+  }
+
   document.getElementById("contact-modal").style.display = "block";
 }
 
+
 function closeModal() {
   document.getElementById("contact-modal").style.display = "none";
+  window.location.href = '/html/contacts.html';
 }
 
 async function submitContact() {
@@ -67,12 +103,20 @@ function makeContactsClickable() {
     if (contactElement) {
       contactElement.addEventListener("click", (event) => {
         event.preventDefault();
-        showContactDetails(contact);
+        showContactDetails(contact); // Show details without opening the edit modal
       });
     } else {
       console.warn(`No element found for contact with ID: ${contact.id}`);
     }
   });
+}
+
+function CreateSvg() {
+  let logo = document.getElementById('contact-logo');
+
+  logo.innerHTML += `
+  <img class="svg-logo" src="/assets/img/img_contacts/contact_logo.svg">
+  `;
 }
 
 function contactLogo(contact) {
@@ -88,7 +132,7 @@ function contactLogo(contact) {
 function showContactDetails(contact) {
   const contactDetailElement = document.getElementById("contact-detail-card");
 
-  // Sicherheitsmaßnahmen: Ersetzen von Anführungszeichen und Escape-Zeichen
+  // Escape quotes to prevent issues
   const contactJsonString = JSON.stringify(contact).replace(/"/g, '&quot;');
 
   contactDetailElement.innerHTML = `
@@ -101,7 +145,7 @@ function showContactDetails(contact) {
           <h2>${contact.name}</h2>
         </div>
         <div class="contact-actions">
-          <div class="contact-functions" onclick="openEditContactModal(${contactJsonString})">
+          <div class="contact-functions" onclick='openEditContactModal(${contactJsonString})'>
             <img class="contact-functions-icons" src="../assets/img/img_contacts/edit.png" alt="">Edit
           </div>
           <div class="contact-functions" onclick="deleteContact('${contact.id}')">
@@ -129,12 +173,15 @@ function showContactDetails(contact) {
 }
 
 
+
 function openEditContactModal(contact) {
   contactLogo(contact)
+  // Populate fields with the contact's data for editing
   document.getElementById("name-input").value = contact.name;
   document.getElementById("email-input").value = contact.email;
   document.getElementById("phone-input").value = contact.phone;
 
+  // Change the submit button text and functionality
   const submitButton = document.getElementById("submit-button");
   submitButton.textContent = "Update contact";
   submitButton.onclick = async function () {
@@ -151,7 +198,26 @@ function openEditContactModal(contact) {
     await loadContacts();
     displayContacts();
   };
-  openModal();
+
+  // Open the modal for editing
+  document.getElementById("contact-modal").style.display = "block";
+}
+
+
+function openAddContactModal() {
+  CreateSvg();
+  // Clear the input fields for adding a new contact
+  document.getElementById("name-input").value = "";
+  document.getElementById("email-input").value = "";
+  document.getElementById("phone-input").value = "";
+
+  // Change the submit button text and functionality
+  const submitButton = document.getElementById("submit-button");
+  submitButton.textContent = "Create contact";
+  submitButton.onclick = submitContact;
+
+  // Open the modal for adding a new contact
+  document.getElementById("contact-modal").style.display = "block";
 }
 
 
@@ -188,7 +254,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   makeContactsClickable();
 });
 
-document.getElementById("add-contact-button").onclick = openModal;
+document.getElementById("add-contact-button").onclick = openAddContactModal;
 document.getElementById("cancel-button").onclick = closeModal;
 document.getElementById("submit-button").onclick = submitContact;
 document.getElementById("close-modal-button").onclick = closeModal;
