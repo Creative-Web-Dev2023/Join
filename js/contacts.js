@@ -50,6 +50,8 @@ async function addContactToFirebase(contactData) {
   }
 }
 
+let selectedContact = null;
+
 function makeContactsClickable() {
   contacts.forEach((contact) => {
     const contactElement = document.getElementById(`contact-${contact.id}`);
@@ -57,6 +59,19 @@ function makeContactsClickable() {
     if (contactElement) {
       contactElement.addEventListener("click", (event) => {
         event.preventDefault();
+        
+        // Wenn bereits ein Kontakt ausgewählt wurde, entferne die Markierung
+        if (selectedContact) {
+          selectedContact.classList.remove("selected");
+        }
+
+        // Markiere das aktuell geklickte Element
+        contactElement.classList.add("selected");
+
+        // Speichere das aktuell ausgewählte Element
+        selectedContact = contactElement;
+
+        // Optionale Funktion zum Anzeigen der Kontaktdetails
         showContactDetails(contact);
       });
     } else {
@@ -64,6 +79,7 @@ function makeContactsClickable() {
     }
   });
 }
+
 
 function showContactDetails(contact) {
   const contactDetailElement = document.getElementById("contact-detail-card");
@@ -160,6 +176,17 @@ async function deleteContact(contactId) {
     }
   }
 }
+
+async function deleteContact(contactId) {
+  // Direktes Löschen ohne Bestätigung
+  let success = await deleteContactFromFirebase(contactId);
+  location.reload();
+  // Seite neu laden, nur wenn das Löschen erfolgreich war
+  if (success) {
+    await location.reload();
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   await init();
   makeContactsClickable();
@@ -185,9 +212,3 @@ async function deleteContactFromFirebase(contactId) {
   }
 }
 
-// function showContact() {
-//   contactCard.classList.add('contact-card-active');
-// }
-// function hideContact() {
-//   contactCard.classList.remove('contact-card-active');
-// }

@@ -97,11 +97,30 @@ main h2 {
 .contact-field {
   display: flex;
   align-items: center;
-  padding: 10px 0;
+  padding: 20px 23px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  width: 100%;
+  margin: 10px;
 }
+
+.contact-field:hover {
+  background-color: #f5f5f5;
+}
+
+.contact-field.selected {
+  background-color: #2a3647; /* Hintergrundfarbe für ausgewählten Zustand */
+  border-radius: 8px; /* Stelle sicher, dass die Abrundung bei Auswahl beibehalten wird */
+}
+
+.contact-field.selected .contact-data div {
+  color: white; /* Schriftfarbe für Namen und E-Mail */
+}
+
+
+
+
 .profile-content {
   width: 40px;
   height: 40px;
@@ -146,9 +165,7 @@ main h2 {
   font-size: 0.9em;
 }
 
-.contact-field:hover {
-  background-color: #f5f5f5;
-}
+
 
 .contact-page {
   margin-left: 65px;
