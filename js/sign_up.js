@@ -101,3 +101,64 @@ document.addEventListener('DOMContentLoaded', function () {
 function areInputsFilled(inputs) {
     return Array.from(inputs).every(input => input.value.trim() !== ''); // Gibt true zurück, wenn alle Felder ausgefüllt sind
 }
+
+async function submitContactFB() {
+    let contactName = document.getElementById("fullName").value;
+    let contactEmail = document.getElementById("email").value;
+  
+    if (!contactName || !contactEmail) {
+      alert("Please fill out all required fields.");
+      return;
+    }
+  
+    let contactData = {
+      name: contactName,
+      email: contactEmail,
+      color: generateRandomColor(),
+      emblem: generateEmblem(contactName)
+    };
+  
+    await addContactToFirebase(contactData);
+  
+    document.getElementById("fullName").value = "";
+    document.getElementById("email").value = "";
+
+  }
+
+  function generateRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+function generateEmblem(name) {
+    const nameParts = name.trim().split(' ');
+    const firstInitial = nameParts[0].charAt(0).toUpperCase();
+    const secondInitial = nameParts.length > 1 ? nameParts[1].charAt(0).toUpperCase() : '';
+    return firstInitial + secondInitial;
+}
+
+async function addContactToFirebase(contactData) {
+    let BASE_URL =
+      "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
+    try {
+      let response = await fetch(BASE_URL + "contacts.json", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(contactData),
+      });
+      if (!response.ok) {
+        console.error("Failed to set data to Firebase:", response.statusText);
+        return {};
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error setting data:", error);
+      return {};
+    }
+  }

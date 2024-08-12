@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/assets/img/img_login/Capa_2.svg" type="image/x-icon">
     <title>Board</title>
     <link rel="stylesheet" href="/css/header_taskbar.css">
     <link rel="stylesheet" href="/css/header_taskbar_responsive.css">
@@ -72,7 +73,7 @@
 
             <div class="search-container_and_button">
                 <div class="search-container">
-                    <input type="text" placeholder="Find Task">
+                    <input type="text" placeholder="Find Task" id="findTask">
                     <div class="divider"></div>
                     <button>
                         <img src="/assets/img/search_bar_glass.png" alt="">
@@ -218,7 +219,7 @@
                     <p><span class="red">*</span>This field is required</p>
                 </div>
                 <div class="buttons">
-                    <button class="clear-popup" onclick="resetInput()">Clear <img
+                    <button class="clear-popup" onclick="hidePopup()">Cancel <img
                             src="/assets/img/img_add_task/cross.png" alt=""></button>
                     <button class="create-popup" onclick="count(); error()">Create Task <img
                             src="/assets/img/img_add_task/check.png" alt=""></button>

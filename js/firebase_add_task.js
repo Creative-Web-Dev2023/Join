@@ -173,53 +173,53 @@ function updateSelectedContactsDisplay(selectedContacts) {
 
 async function getInfo(path = "contacts") {
   try {
-      let response = await fetch(BASE_URL + path + ".json");
-      let contacts = await response.json();
+    let response = await fetch(BASE_URL + path + ".json");
+    let contacts = await response.json();
 
-      if (!contacts) {
-          console.log("No contacts found.");
-          return;
+    if (!contacts) {
+      console.log("No contacts found.");
+      return;
+    }
+
+    const contactKeys = Object.keys(contacts);
+
+    for (let key of contactKeys) {
+      // Get the name and color, but skip if any of them is null
+      let contactData = await getNameAndColor(`contacts/${key}`);
+      if (contactData.name && contactData.color) {
+        const nameElement = document.getElementById('dropdown-content');
+        nameElement.innerHTML += displayNameColor(contactData.name, contactData.color, contactData.emblem);
       }
-
-      const contactKeys = Object.keys(contacts);
-
-      for (let key of contactKeys) {
-          // Get the name and color, but skip if any of them is null
-          let contactData = await getNameAndColor(`contacts/${key}`);
-          if (contactData.name && contactData.color) {
-              const nameElement = document.getElementById('dropdown-content');
-              nameElement.innerHTML += displayNameColor(contactData.name, contactData.color, contactData.emblem);
-          }
-      }
+    }
   } catch (error) {
-      console.error("Error fetching contacts:", error);
+    console.error("Error fetching contacts:", error);
   }
 }
 
 async function getNameAndColor(path = "") {
   try {
-      let nameResponse = await fetch(BASE_URL + path + "/name.json");
-      let nameData = await nameResponse.json();
+    let nameResponse = await fetch(BASE_URL + path + "/name.json");
+    let nameData = await nameResponse.json();
 
-      let colorResponse = await fetch(BASE_URL + path + "/color.json");
-      let colorData = await colorResponse.json();
+    let colorResponse = await fetch(BASE_URL + path + "/color.json");
+    let colorData = await colorResponse.json();
 
-      let emblemResponse = await fetch(BASE_URL + path + "/emblem.json");
-      let emblemData = await emblemResponse.json();
+    let emblemResponse = await fetch(BASE_URL + path + "/emblem.json");
+    let emblemData = await emblemResponse.json();
 
-      // Return the data if it's valid (i.e., not null)
-      if (nameData && colorData) {
-          return {
-              name: nameData,
-              color: colorData,
-              emblem: emblemData || ""  // Emblem may not always exist
-          };
-      } else {
-          return {};  // Return an empty object if data is null
-      }
+    // Return the data if it's valid (i.e., not null)
+    if (nameData && colorData) {
+      return {
+        name: nameData,
+        color: colorData,
+        emblem: emblemData || ""  // Emblem may not always exist
+      };
+    } else {
+      return {};  // Return an empty object if data is null
+    }
   } catch (error) {
-      console.error("Error fetching name or color:", error);
-      return {};  // Return an empty object in case of error
+    console.error("Error fetching name or color:", error);
+    return {};  // Return an empty object in case of error
   }
 }
 
@@ -284,24 +284,24 @@ function addSubtask(taskId) {
   const subtasks = subtaskText.split('\n').filter(subtask => subtask.trim() !== '');
 
   subtasks.forEach((subtask, index) => {
-      const subtaskItem = document.createElement('li');
-      subtaskItem.className = 'list';
-      subtaskItem.contentEditable = 'true';
+    const subtaskItem = document.createElement('li');
+    subtaskItem.className = 'list';
+    subtaskItem.contentEditable = 'true';
 
-      subtaskItem.innerHTML = `
+    subtaskItem.innerHTML = `
           <p class="subtask">${subtask.trim()}</p>
           <img class="trash" src="/assets/img/delete.png">
       `;
 
-      subtaskItem.querySelector('.trash').addEventListener('click', (event) => {
-          deleteSubtask(event, taskId);
-      });
+    subtaskItem.querySelector('.trash').addEventListener('click', (event) => {
+      deleteSubtask(event, taskId);
+    });
 
-      subtaskItem.addEventListener('input', () => {
-          updateSubtasks(taskId);
-      });
+    subtaskItem.addEventListener('input', () => {
+      updateSubtasks(taskId);
+    });
 
-      subtaskList.appendChild(subtaskItem);
+    subtaskList.appendChild(subtaskItem);
   });
 
   // Clear the input field after adding the subtasks
@@ -319,7 +319,7 @@ function pushsubtasks() {
   const subtaskElements = document.querySelectorAll('.subtask');
 
   subtaskElements.forEach(element => {
-      subtask.push(element.innerHTML);
+    subtask.push(element.innerHTML);
   });
 
   listtask = [...subtask];
@@ -334,7 +334,7 @@ function updateSubtasks(taskId) {
   const subtaskElements = document.querySelectorAll('.subtask');
   subtask = [];
   subtaskElements.forEach(element => {
-      subtask.push(element.innerHTML.trim());
+    subtask.push(element.innerHTML.trim());
   });
   listtask = [...subtask];
   console.log('Updated Subtasks:', subtask);
@@ -377,15 +377,15 @@ function displaySubtasks() {
   subtaskList.innerHTML = ''; // Leert die Liste vor dem Rendern
 
   subtask.forEach((task, index) => {
-      const subtaskItem = document.createElement('li');
-      subtaskItem.className = 'list';
+    const subtaskItem = document.createElement('li');
+    subtaskItem.className = 'list';
 
-      subtaskItem.innerHTML = `
+    subtaskItem.innerHTML = `
           <p class="subtask" contenteditable="true" oninput="updateSubtaskText(event, ${index})">${task}</p>
           <img class="trash" src="/assets/img/delete.png" onclick="removeSubtask(${index})">
       `;
 
-      subtaskList.appendChild(subtaskItem);
+    subtaskList.appendChild(subtaskItem);
   });
 }
 

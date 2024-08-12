@@ -65,7 +65,7 @@
     </div>
     <main>
         <div class="contacts-frame">
-            <button id="add-contact-button" class="new-contact-button">
+            <button id="add-contact-button" class="new-contact-button" onclick="openModal()">
                 Add new contact
                 <img src="../assets/img/person_add.png">
             </button>
@@ -86,7 +86,11 @@
                         </div>
                     </div>
                     <div class="add-contact-right-section">
-                        <img class="contact-logo" src="/assets/img/img_contacts/contact_logo.svg">
+                        <div class="contact-logo" id="contact-logo"> 
+
+                            
+                        </div>
+                        
                         <div class="add-contact-right-section-2">
                             <div class="close-button-container">
                                 <button id="close-modal-button">
@@ -99,12 +103,12 @@
                                     <img class="input-icon" src="/assets/img/img_contacts/person.svg">
                                 </div>
                                 <div class="input-field">
-                                    <input id="email-input" class="log-in-input" type="text" placeholder="Email"
+                                    <input id="email-input" class="log-in-input" type="email" placeholder="Email"
                                         required>
                                     <img class="input-icon" src="/assets/img/img_contacts/mail.svg">
                                 </div>
                                 <div class="input-field">
-                                    <input id="phone-input" class="log-in-input" type="text" placeholder="Phone"
+                                    <input id="phone-input" class="log-in-input" type="tel" placeholder="Phone"
                                         required>
                                     <img class="input-icon" src="/assets/img/img_contacts/phone.svg">
                                 </div>
@@ -127,6 +131,7 @@
             </div>
         </div>
         <div id="contactPage" class="contact-page">
+            <button id="back-button" class="back-button" style="display: none;">Back</button>
             <div class="contacts-header">
                 <h1>Contacts</h1>
                 <div class="contacts-border"></div>

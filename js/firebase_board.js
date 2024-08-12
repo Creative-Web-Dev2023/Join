@@ -28,13 +28,50 @@ function createTaskElement(task, index) {
     return taskElement;
 }
 
+document.querySelectorAll('.prio-button').forEach(function(button) {
+    button.addEventListener('mouseover', handleMouseOver);
+    button.addEventListener('mouseout', handleMouseOut);
+    button.addEventListener('click', handleClick);
+});
+
+function handleMouseOver() {
+    if (!this.classList.contains('clicked')) {
+        const hoverSrc = this.src.replace('_standart', '_hover');
+        this.src = hoverSrc;
+    }
+}
+
+function handleMouseOut() {
+    if (!this.classList.contains('clicked')) {
+        const standartSrc = this.src.replace('_hover', '_standart');
+        this.src = standartSrc;
+    }
+}
+
+function handleClick() {
+    document.querySelectorAll('.prio-button').forEach(function(btn) {
+        if (btn !== this) {
+            btn.classList.remove('clicked');
+            if (btn.src.includes('_clicked')) {
+                btn.src = btn.src.replace('_clicked', '_standart');
+            }
+        }
+    }, this);
+
+    this.classList.add('clicked');
+    if (this.src.includes('_hover') || this.src.includes('_standart')) {
+        this.src = this.src.replace(/_hover|_standart/, '_clicked');
+    }
+}
+
+
 function getPriorityImage(priority) {
     const priorities = {
         'urgent': '/assets/img/img_board/urgent.png',
         'medium': '/assets/img/img_board/medium.png',
         'low': '/assets/img/img_board/low.png'
     };
-    return priorities[priority?.toLowerCase()] || 'default.png';
+    return priorities[priority?.toLowerCase()] || '/assets/img/img_board/default.png';
 }
 
 function createTaskDiv(index) {
@@ -310,6 +347,12 @@ function resetDropdownItems() {
 }
 
 function highlightAssignedPeople(assignedPeople) {
+    if (!assignedPeople || assignedPeople.length === 0) {
+        // No one is assigned, so just return or handle accordingly
+        console.log('No one assigned to this task.');
+        return;
+    }
+
     assignedPeople.forEach(person => {
         const dropdownItem = document.querySelector(`.dropdown-item[data-name="${person.name}"]`);
         if (dropdownItem) {
@@ -332,13 +375,23 @@ function setItemSelected(item) {
 
 
 async function openEdit(taskId) {
-    selctedAssignees(taskId);
+    await selctedAssignees(taskId);
     const taskData = await fetchTaskData(taskId);
     const assignedHtml = generateAssignedHtml(taskData.assignedPeople);
 
     displayEditPopup(taskId, taskData, assignedHtml);
     loadSubtasksIntoEditForm(taskId, taskData.subtaskText);
+
+    
+
+    // Reattach event listeners for prio buttons
+    document.querySelectorAll('.prio-button').forEach(function(button) {
+        button.addEventListener('mouseover', handleMouseOver);
+        button.addEventListener('mouseout', handleMouseOut);
+        button.addEventListener('click', handleClick);
+    });
 }
+
 
 function displayEditPopup(taskId, taskData, assignedHtml) {
     document.getElementById(`popup-task${taskId}`).style.height = '80%';
@@ -703,40 +756,20 @@ function closePopup() {
     currentTaskData = {};
 }
 
-document.querySelectorAll('.prio-button').forEach(function(button) {
-    button.addEventListener('mouseover', handleMouseOver);
-    button.addEventListener('mouseout', handleMouseOut);
-    button.addEventListener('click', handleClick);
-});
+function filterTasks() {
+    const searchTerm = document.getElementById('findTask').value.toLowerCase();
+    const taskElements = document.querySelectorAll('.task');
 
-function handleMouseOver() {
-    if (!this.classList.contains('clicked')) {
-        const hoverSrc = this.src.replace('_standart', '_hover');
-        this.src = hoverSrc;
-    }
-}
+    taskElements.forEach(taskElement => {
+        const titleText = taskElement.querySelector('h3').textContent.toLowerCase();
+        const descriptionText = taskElement.querySelector('p').textContent.toLowerCase();
 
-function handleMouseOut() {
-    if (!this.classList.contains('clicked')) {
-        const standartSrc = this.src.replace('_hover', '_standart');
-        this.src = standartSrc;
-    }
-}
-
-function handleClick() {
-    document.querySelectorAll('.prio-button').forEach(function(btn) {
-        if (btn !== this) {
-            btn.classList.remove('clicked');
-            if (btn.src.includes('_clicked')) {
-                btn.src = btn.src.replace('_clicked', '_standart');
-            }
+        if (titleText.includes(searchTerm) || descriptionText.includes(searchTerm)) {
+            taskElement.style.display = '';
+        } else {
+            taskElement.style.display = 'none';
         }
-    }, this);
-
-    this.classList.add('clicked');
-    if (this.src.includes('_hover')) {
-        this.src = this.src.replace('_hover', '_clicked');
-    } else if (this.src.includes('_standart')) {
-        this.src = this.src.replace('_standart', '_clicked');
-    }
+    });
 }
+
+document.getElementById('findTask').addEventListener('input', filterTasks);
