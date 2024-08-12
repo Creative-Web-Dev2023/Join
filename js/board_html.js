@@ -106,7 +106,7 @@ function HtmlPopup(taskId, headerBackgroundColor, userStoryText, titleText, desc
 
 function HtmlTaskElement(headerBackgroundColor, userStoryText, titleText, descriptionText, progressBarHtml, assignedHtml, priorityImage) {
     return `
-        <div class="task-header user-story" style="background: ${headerBackgroundColor};">${userStoryText}</div>
+        <div class="task-header user-story"  style="background: ${headerBackgroundColor};">${userStoryText}</div>
         <div class="task-content">
             <h3>${titleText}</h3>
             <p>${descriptionText}</p>

@@ -756,3 +756,20 @@ function closePopup() {
     currentTaskData = {};
 }
 
+function filterTasks() {
+    const searchTerm = document.getElementById('findTask').value.toLowerCase();
+    const taskElements = document.querySelectorAll('.task');
+
+    taskElements.forEach(taskElement => {
+        const titleText = taskElement.querySelector('h3').textContent.toLowerCase();
+        const descriptionText = taskElement.querySelector('p').textContent.toLowerCase();
+
+        if (titleText.includes(searchTerm) || descriptionText.includes(searchTerm)) {
+            taskElement.style.display = '';
+        } else {
+            taskElement.style.display = 'none';
+        }
+    });
+}
+
+document.getElementById('findTask').addEventListener('input', filterTasks);
