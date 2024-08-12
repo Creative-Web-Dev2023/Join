@@ -41,10 +41,27 @@ function updateProfileIcon() {
     const isGuest = localStorage.getItem('isGuest') === 'true';
     const fullName = localStorage.getItem('fullName');
     const profileIcon = document.getElementById('profile-icon');
-
     const initials = isGuest ? 'G' : getInitials(fullName);
-
     profileIcon.textContent = initials;
+    const textLength = profileIcon.textContent.length;
+
+    if (textLength > 1) {
+        FullName(profileIcon, initials);
+    }
+}
+
+function getInitials(name) {
+    if (!name) return '';
+    return name.split(' ').map(word => word[0].toUpperCase()).join('');
+}
+
+function FullName(profileIcon, initials) {
+    profileIcon.textContent = initials.slice(0, 2);
+}
+
+
+function FullName(profileIcon, initials) {
+    return profileIcon.textContent = initials;
 }
 
 function handleGuestLogin() {

@@ -56,8 +56,7 @@ function validatePassword(password) {
 }
 
 function handleLoginSuccess() {
-    alert('Login successful!');
-    window.location.href = '.html';
+    window.location.href = './html/summary.html';
 }
 
 function checkIcon() {
