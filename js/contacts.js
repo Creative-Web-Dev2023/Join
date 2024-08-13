@@ -102,36 +102,38 @@ async function addContactToFirebase(contactData) {
   }
 }
 
-let selectedContact = null;
-
 function makeContactsClickable() {
   contacts.forEach((contact) => {
       const contactElement = document.getElementById(`contact-${contact.id}`);
 
-    if (contactElement) {
-      contactElement.addEventListener("click", (event) => {
-        event.preventDefault();
-        
-        // Wenn bereits ein Kontakt ausgewählt wurde, entferne die Markierung
-        if (selectedContact) {
-          selectedContact.classList.remove("selected");
-        }
-
-        // Markiere das aktuell geklickte Element
-        contactElement.classList.add("selected");
-
-        // Speichere das aktuell ausgewählte Element
-        selectedContact = contactElement;
-
-        // Optionale Funktion zum Anzeigen der Kontaktdetails
-        showContactDetails(contact);
-      });
-    } else {
-      console.warn(`No element found for contact with ID: ${contact.id}`);
-    }
+      if (contactElement) {
+          contactElement.addEventListener("click", (event) => {
+              event.preventDefault();
+              showContactDetails(contact); // Show details and switch to the contact page
+          });
+      } else {
+          console.warn(`No element found for contact with ID: ${contact.id}`);
+      }
   });
 }
 
+function CreateSvg() {
+  let logo = document.getElementById('contact-logo');
+
+  logo.innerHTML += `
+  <img class="svg-logo" src="../assets/img/img_contacts/contact_logo.svg">
+  `;
+}
+
+function contactLogo(contact) {
+  let logo = document.getElementById('contact-logo');
+
+  logo.innerHTML = `
+  <div class="profile-logo background-colors" style="background-color: ${contact.color};">
+    ${contact.firstInitial}${contact.secondInitial}
+  </div>
+  `;
+}
 
 function showContactDetails(contact) {
   const contactDetailElement = document.getElementById("contact-detail-card");
@@ -152,10 +154,10 @@ function showContactDetails(contact) {
           </div>
           <div class="contact-actions">
               <div class="contact-functions" onclick='openEditContactModal(${contactJsonString})'>
-                  <img class="contact-functions-icons" src="../assets/img/img_contacts/edit.png" alt="">Edit
+                  <img class="contact-functions-icons" src="/assets/img/img_contacts/edit.png" alt="">Edit
               </div>
               <div class="contact-functions" onclick="deleteContact('${contact.id}')">
-                  <img class="contact-functions-icons" src="../assets/img/img_contacts/delete.png" alt="">Delete
+                  <img class="contact-functions-icons" src="/assets/img/img_contacts/delete.png" alt="">Delete
               </div>
           </div>
           <div class="contact-card-subtitle">Contact Information</div>
@@ -293,17 +295,6 @@ async function deleteContact(contactId) {
     }
   }
 }
-
-async function deleteContact(contactId) {
-  // Direktes Löschen ohne Bestätigung
-  let success = await deleteContactFromFirebase(contactId);
-  location.reload();
-  // Seite neu laden, nur wenn das Löschen erfolgreich war
-  if (success) {
-    await location.reload();
-  }
-}
-
 document.addEventListener("DOMContentLoaded", async () => {
   await init();
   makeContactsClickable();
@@ -329,3 +320,32 @@ async function deleteContactFromFirebase(contactId) {
   }
 }
 
+let selectedContact = null;
+
+    function makeContactsClickable() {
+      contacts.forEach((contact) => {
+        const contactElement = document.getElementById(`contact-${contact.id}`);
+
+        if (contactElement) {
+          contactElement.addEventListener("click", (event) => {
+            event.preventDefault();
+            
+            // Wenn bereits ein Kontakt ausgewählt wurde, entferne die Markierung
+            if (selectedContact) {
+              selectedContact.classList.remove("selected");
+            }
+
+            // Markiere das aktuell geklickte Element
+            contactElement.classList.add("selected");
+
+            // Speichere das aktuell ausgewählte Element
+            selectedContact = contactElement;
+
+            // Optionale Funktion zum Anzeigen der Kontaktdetails
+            showContactDetails(contact);
+          });
+        } else {
+          console.warn(`No element found for contact with ID: ${contact.id}`);
+        }
+      });
+    }

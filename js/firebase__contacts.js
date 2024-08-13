@@ -86,7 +86,7 @@ function displayContacts() {
 
 function renderContactsHtml(contact) {
     return `
-    <div class="contact-field" id="contact-${contact.id}" onclick="makeContactsClickable(this)">
+    <div class="contact-field" id="contact-${contact.id}" onclick="makeContactsClickable()">
         <div>
             <div class="profile-content" style="background-color: ${contact.color}">
                 ${contact.firstInitial}${contact.secondInitial}
@@ -94,7 +94,7 @@ function renderContactsHtml(contact) {
         </div>
         <div class="contact-data">
             <div>${contact.name}</div>
-            <div><a href="mailto:${contact.email}">${contact.email}</a></div>
+            <div><a href="${contact.email}">${contact.email}</a></div>
         </div>
     </div>
     `;
