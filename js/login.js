@@ -23,10 +23,35 @@ function login() {
     const email = getInputValue('email');
     const password = getInputValue('password');
     const rememberMe = document.getElementById('checkbox').checked;
+
     let isValid = validateEmail(email) && validatePassword(password);
-    if (isValid) {
-        handleLoginSuccess();
+    if (!isValid) {
+        return;
     }
+
+    // Daten von der Firebase-Datenbank abrufen
+    fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/contacts.json')
+    .then(response => response.json())
+    .then(data => {
+        let userFound = false;
+        console.log(data);
+        // Überprüfen, ob die Anmeldedaten mit einem Benutzer übereinstimmen
+        for (let key in data) {
+            if (data[key].email === email && data[key].password === password) {
+                userFound = true;
+                handleLoginSuccess(data[key], rememberMe); // Erfolgreiche Anmeldung
+                break;
+            }
+        }
+
+        if (!userFound) {
+            displayErrorMessage('email', 'Invalid email or password.'); // Fehlerhafte Anmeldung
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        displayErrorMessage('email', 'An error occurred. Please try again later.');
+    });
 }
 
 function getInputValue(id) {
@@ -55,7 +80,16 @@ function validatePassword(password) {
     return true;
 }
 
-function handleLoginSuccess() {
+function handleLoginSuccess(user, rememberMe) {
+    // Hier kannst du zusätzliche Benutzerinformationen speichern, wenn nötig
+    const token = btoa(`${user.email}:${user.password}`); // Einfache Kodierung als Token (nur ein Beispiel)
+    
+    if (rememberMe) {
+        localStorage.setItem('authToken', token);
+    } else {
+        sessionStorage.setItem('authToken', token);
+    }
+
     window.location.href = './html/summary.html';
 }
 

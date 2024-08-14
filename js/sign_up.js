@@ -196,8 +196,8 @@ function generateEmblem(name) {
 }
 
 async function addContactToFirebase(contactData) {
-    let BASE_URL =
-        "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
+    let BASE_URL = "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
+
     try {
         let response = await fetch(BASE_URL + "contacts.json", {
             method: "POST",
@@ -206,13 +206,23 @@ async function addContactToFirebase(contactData) {
             },
             body: JSON.stringify(contactData),
         });
+
         if (!response.ok) {
             console.error("Failed to set data to Firebase:", response.statusText);
             return {};
         }
-        return await response.json();
+
+        let responseData = await response.json();
+        console.log("Response from Firebase:", responseData);
+
+        // Hier wird die generierte ID des neuen Kontakts geloggt
+        const newContactId = responseData.name;
+        console.log("New contact ID:", newContactId);
+
+        return responseData;
     } catch (error) {
         console.error("Error setting data:", error);
         return {};
     }
 }
+
