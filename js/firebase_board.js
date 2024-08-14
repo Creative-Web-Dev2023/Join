@@ -108,17 +108,56 @@ function generateAssignedHtml(assignedPeople) {
 }
 
 async function loadBoard() {
-    const contentTodo = document.getElementById('content-todo');
-    contentTodo.innerHTML = '';
     const tasks = await fetchTasks();
 
-    if (!tasks || tasks.length === 0) return showNoTasksMessage(contentTodo);
+    if (!tasks || tasks.length === 0) return showNoTasksMessage();
+
+    const tasksPositions = await fetchTasksPositions();
 
     tasks.forEach(async (task, index) => {
         const taskElement = await processTaskWithSubtasks(task, index);
-        contentTodo.appendChild(taskElement);
+        const columnId = findColumnForTask(task.id, tasksPositions);
+
+        // Hier mappen wir die Spaltennummer auf die entsprechende Spalten-ID im HTML
+        const columnMapping = {
+            "0": "content-todo",           // Zuordnung für die To-Do-Spalte
+            "1": "content-inprogress",     // Zuordnung für die In-Progress-Spalte
+            "2": "content-awaitfeedback",  // Zuordnung für die Await Feedback-Spalte
+            "3": "content-done"            // Zuordnung für die Done-Spalte
+        };
+
+        const columnContentId = columnMapping[columnId];
+
+        if (columnContentId) {
+            const columnContent = document.getElementById(columnContentId);
+
+            if (columnContent) {
+                columnContent.appendChild(taskElement);
+            } else {
+                console.error(`Content element not found for column ID: ${columnContentId}`);
+            }
+        } else {
+            console.error(`No mapping found for column ID: ${columnId}`);
+        }
     });
 }
+
+async function fetchTasksPositions() {
+    const response = await fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/.json');
+    return await response.json();
+}
+
+function findColumnForTask(taskId, tasksPositions) {
+    for (const [columnKey, taskIds] of Object.entries(tasksPositions)) {
+        if (taskIds.includes(taskId)) {
+            return columnKey.replace('column', ''); // Gibt die entsprechende Spaltennummer zurück
+        }
+    }
+
+    console.error(`Task ID: ${taskId} not found in any column, defaulting to column 0`);
+    return "0"; // Fallback auf Spalte 0 (To Do)
+}
+
 
 async function processTaskWithSubtasks(task, index) {
     const taskElement = createTaskElement(task, index);
@@ -264,13 +303,29 @@ async function fetchTasks() {
         let response = await fetch(BASE_URL + 'tasks.json');
         let data = await response.json();
         console.log('Tasks data:', data);
-        let tasks = Object.values(data);
+
+        // Überprüfen, ob die Daten korrekt sind und Tasks existieren
+        if (!data) {
+            console.error('No tasks data found');
+            return [];
+        }
+
+        // Erstelle ein Array von Tasks mit ihren IDs
+        let tasks = Object.keys(data).map(key => {
+            return {
+                id: key, // Setze die ID auf den Schlüssel in Firebase
+                ...data[key] // Füge die restlichen Daten der Task hinzu
+            };
+        });
+
+        console.log('Formatted tasks:', tasks);
         return tasks;
     } catch (error) {
         console.error('Error fetching tasks:', error);
         return [];
     }
 }
+
 
 
 async function openPopup(taskId) {
