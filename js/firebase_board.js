@@ -159,6 +159,28 @@ function findColumnForTask(taskId, tasksPositions) {
     console.error(`Task ID: ${taskId} not found in any column, defaulting to column 0`);
     return "0"; // Fallback auf Spalte 0 (To Do)
 }
+async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
+    const firebasePath = `tasks/task${taskId}/subtaskStatuses/${subtaskIndex}`;
+
+    try {
+        const response = await fetch(BASE_URL + firebasePath + ".json", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(isChecked) // Speichere den Zustand: true oder false
+        });
+
+        if (!response.ok) {
+            throw new Error('Fehler beim Speichern des Zustands in Firebase');
+        }
+
+        console.log(`Subtask ${subtaskIndex} status für Task ${taskId} wurde erfolgreich als ${isChecked} in Firebase gespeichert.`);
+    } catch (error) {
+        console.error('Fehler beim Speichern des Checkbox-Zustands in Firebase:', error);
+        throw error; // Fehler weiterwerfen, damit die obere Funktion den Fehler ebenfalls behandeln kann
+    }
+}
 
 
 async function processTaskWithSubtasks(task, index) {
@@ -169,19 +191,22 @@ async function processTaskWithSubtasks(task, index) {
     if (subtaskText) {
         const subtasksContainer = document.createElement('div');
         taskElement.appendChild(subtasksContainer);
-    }
 
-    // Aktualisiere die Progress Bar direkt nach dem Laden der Subtask-Daten
-    loadSubtaskProgress(index + 1);
-    
-    // Warte kurz, um sicherzustellen, dass alle Daten geladen wurden
-    setTimeout(() => {
-        updateProgressBarFromLocalStorage(index + 1); // Aktuelle Version der Progress Bar laden
-    }, 100); // 100ms Verzögerung, um sicherzustellen, dass die Daten verfügbar sind
+        // Aktualisiere die Progress Bar und den Subtask-Zähler direkt nach dem Laden der Subtasks
+        updateProgressBarFromFirebase(index + 1, subtaskText);
+    }
 
     return taskElement;
 }
+function updateProgressBarFromFirebase(taskId, subtaskText) {
+    const subtasks = subtaskText.split(',').filter(subtask => subtask.trim() !== '');
+    const completedCount = subtasks.filter(subtask => subtask.completed).length;
+    const totalSubtasks = subtasks.length;
 
+    // Aktualisiere den Fortschrittsbalken und den Subtask-Zähler
+    updateProgressBar(taskId, completedCount, totalSubtasks);
+    updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
+}
 
 function showNoTasksMessage(container) {
     console.log('No tasks available.');
@@ -287,13 +312,13 @@ async function saveSubtaskProgress(taskId) {
 
 
 
-function loadSubtaskProgress(taskId) {
-    const savedStatuses = getSavedStatuses(taskId);
+async function loadSubtaskProgress(taskId) {
+    const savedStatuses = await getSavedStatusesFromFirebase(taskId); // Hier wird der gespeicherte Zustand geladen
     const subtaskImages = getSubtaskImages(taskId);
 
     if (subtaskImages.length > 0) {
         applySavedStatuses(subtaskImages, savedStatuses);
-        updateProgress(taskId);
+        updateProgress(taskId); // Aktualisiert den Fortschrittsbalken basierend auf den gespeicherten Zuständen
     } else {
         document.addEventListener('DOMContentLoaded', () => {
             const subtaskImages = getSubtaskImages(taskId);
@@ -305,8 +330,10 @@ function loadSubtaskProgress(taskId) {
     }
 }
 
-function getSavedStatuses(taskId) {
-    return JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
+async function getSavedStatusesFromFirebase(taskId) {
+    const response = await fetch(BASE_URL + `tasks/task${taskId}/subtaskStatuses.json`);
+    const savedStatuses = await response.json();
+    return savedStatuses || [];
 }
 
 function applySavedStatuses(subtaskImages, savedStatuses) {
@@ -354,8 +381,11 @@ async function openPopup(taskId) {
     const headerBackgroundColor = getHeaderBackgroundColor(taskData.userStoryText);
 
     displayPopup(taskId, headerBackgroundColor, taskData, priorityImage, assignedHtml, subtasksHtml);
-    loadSubtaskProgress(taskId);
+    
+    // Lade die Subtask-Progress-Daten aus der Datenbank und setze die Checkbox-Bilder
+    await loadSubtaskProgress(taskId);
 }
+
 
 async function fetchTaskData(taskId) {
     const [userStoryText, titleText, dueDate, descriptionText, subtaskText, priorityText, assignedPeople] = await Promise.all([
@@ -413,15 +443,29 @@ function generateAssignedHtml2(assignedPeople) {
 }
 
 
-function toggleCheckbox(index, taskId) {
-    const imgElement = document.getElementById(`popup-subtask-${index}`);
-    const isChecked = imgElement.src.includes('checkbox.png');
+let isSaving = false; // Flag zum Überprüfen, ob gerade gespeichert wird
 
+async function toggleCheckbox(index, taskId) {
+    if (isSaving) return; // Wenn gerade gespeichert wird, keine weiteren Klicks zulassen
+
+    isSaving = true; // Setze das Flag auf true, um anzuzeigen, dass jetzt gespeichert wird
+
+    const imgElement = document.getElementById(`popup-subtask-${index}`);
+    const isChecked = imgElement.src.includes('checkbox.png'); // Überprüfen, ob das aktuelle Bild die nicht markierte Checkbox ist
+
+    // Ändere das Bild der Checkbox basierend auf dem aktuellen Zustand
     imgElement.src = isChecked ? '/assets/img/img_add_task/checkesbox.png' : '/assets/img/img_add_task/checkbox.png';
 
+    // Speichere den neuen Zustand der Checkbox in Firebase
+    await saveCheckboxState(taskId, index, !isChecked);
+
+    // Aktualisiere den Fortschritt erst nach der erfolgreichen Speicherung
     updateProgress(taskId);
-    saveSubtaskProgress(taskId);
+
+    isSaving = false; // Setze das Flag zurück, nachdem das Speichern abgeschlossen ist
 }
+
+
 
 async function selctedAssignees(taskId) {
     const assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
