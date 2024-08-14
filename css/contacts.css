@@ -18,6 +18,33 @@ body {
   height: 100vh;
 }
 
+.edit-p-contact {
+font-size: 61px;
+font-weight: 700;
+line-height: 73.2px;
+text-align: left;
+color: white;
+}
+
+.add-p-contact {
+font-size: 61px;
+font-weight: 700;
+line-height: 73.2px;
+text-align: left;
+color: white;
+}
+
+.border-p-contact {
+  border: 3px solid #29ABE2;
+  width: 30%;
+}
+.create-p-contact {
+font-size: 27px;
+font-weight: 400;
+line-height: 32.4px;
+text-align: left;
+color: white;
+}
 main {
   padding-left: 232px !important;
   padding-top: 76px !important;
@@ -121,12 +148,15 @@ main h2 {
 }
 
 .contact-field.selected {
-  background-color: #2a3647; /* Hintergrundfarbe für ausgewählten Zustand */
-  border-radius: 8px; /* Stelle sicher, dass die Abrundung bei Auswahl beibehalten wird */
+  background-color: #2a3647;
+  /* Hintergrundfarbe für ausgewählten Zustand */
+  border-radius: 8px;
+  /* Stelle sicher, dass die Abrundung bei Auswahl beibehalten wird */
 }
 
 .contact-field.selected .contact-data div {
-  color: white; /* Schriftfarbe für Namen und E-Mail */
+  color: white;
+  /* Schriftfarbe für Namen und E-Mail */
 }
 
 .profile-content {
@@ -709,7 +739,7 @@ main h2 {
     .contact-page {
       display: none;
     }
-    
+
     .back-button {
       display: block;
       background-color: var(--maincolor);
@@ -718,7 +748,7 @@ main h2 {
       padding: 10px;
       font-size: 16px;
       cursor: pointer;
-  }
+    }
   }
 
   @media (max-width: 400px) {

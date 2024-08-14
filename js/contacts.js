@@ -1,13 +1,25 @@
 function openModal(isEditMode = false, contact = null) {
+  CreateSvg();
+
   if (isEditMode && contact) {
-    CreateSvg();
-    // Populate fields with the contact's data for editing
+    // Edit Mode: Populate fields with the contact's data for editing
     document.getElementById("name-input").value = contact.name;
     document.getElementById("email-input").value = contact.email;
     document.getElementById("phone-input").value = contact.phone;
 
+    // Show/Hide elements for editing mode
+    document.getElementById('contactEdit').style.display = 'block';  // Show "Edit contact"
+    document.getElementById('contactAdd').style.display = 'none';    // Hide "Add contact"
+    document.getElementById('contactAddSmall').style.display = 'none'; // Hide "Tasks are better with a team"
+
+    // Update submit button for edit mode
     const submitButton = document.getElementById("submit-button");
     submitButton.textContent = "Update contact";
+
+    // Clear previous event listeners
+    submitButton.onclick = null;
+
+    // Add the new event listener for updating contact
     submitButton.onclick = async function () {
       let updatedContactData = {
         name: document.getElementById("name-input").value,
@@ -23,16 +35,64 @@ function openModal(isEditMode = false, contact = null) {
       displayContacts();
     };
   } else {
-    // Clear the input fields for adding a new contact
+    // Add Mode: Clear the input fields for adding a new contact
     document.getElementById("name-input").value = "";
     document.getElementById("email-input").value = "";
     document.getElementById("phone-input").value = "";
 
+    // Show/Hide elements for add mode
+    document.getElementById('contactEdit').style.display = 'none';  // Hide "Edit contact"
+    document.getElementById('contactAdd').style.display = 'block';  // Show "Add contact"
+    document.getElementById('contactAddSmall').style.display = 'block'; // Show "Tasks are better with a team"
+
+    // Update submit button for create mode
     const submitButton = document.getElementById("submit-button");
     submitButton.textContent = "Create contact";
+
+    // Clear previous event listeners
+    submitButton.onclick = null;
+
+    // Add the new event listener for creating contact
     submitButton.onclick = submitContact;
   }
 
+  // Show the modal
+  document.getElementById("contact-modal").style.display = "block";
+}
+
+
+
+function openEditContactModal(contact) {
+  contactLogo(contact)
+  // Populate fields with the contact's data for editing
+  document.getElementById("name-input").value = contact.name;
+  document.getElementById("email-input").value = contact.email;
+  document.getElementById("phone-input").value = contact.phone;
+
+  document.getElementById('contactEdit').style.display = 'block';  // Show "Edit contact"
+  document.getElementById('contactAdd').style.display = 'none';    // Hide "Add contact"
+  document.getElementById('contactAddSmall').style.display = 'none'; // Hide "Tasks are better with a team"
+  
+
+  // Change the submit button text and functionality
+  const submitButton = document.getElementById("submit-button");
+  submitButton.textContent = "Update contact";
+  submitButton.onclick = async function () {
+    let updatedContactData = {
+      name: document.getElementById("name-input").value,
+      email: document.getElementById("email-input").value,
+      phone: document.getElementById("phone-input").value,
+      color: contact.color || generateRandomColor(),
+      emblem: generateEmblem(document.getElementById("name-input").value)
+    };
+
+    await updateContactInFirebase(contact.id, updatedContactData);
+    closeModal();
+    await loadContacts();
+    displayContacts();
+  };
+
+  // Open the modal for editing
   document.getElementById("contact-modal").style.display = "block";
 }
 
@@ -200,38 +260,6 @@ function showContactList() {
 // Event-Listener für den Zurück-Button
 document.getElementById("back-button").addEventListener('click', showContactList);
 
-
-
-
-function openEditContactModal(contact) {
-  contactLogo(contact)
-  // Populate fields with the contact's data for editing
-  document.getElementById("name-input").value = contact.name;
-  document.getElementById("email-input").value = contact.email;
-  document.getElementById("phone-input").value = contact.phone;
-
-  // Change the submit button text and functionality
-  const submitButton = document.getElementById("submit-button");
-  submitButton.textContent = "Update contact";
-  submitButton.onclick = async function () {
-    let updatedContactData = {
-      name: document.getElementById("name-input").value,
-      email: document.getElementById("email-input").value,
-      phone: document.getElementById("phone-input").value,
-      color: contact.color || generateRandomColor(),
-      emblem: generateEmblem(document.getElementById("name-input").value)
-    };
-
-    await updateContactInFirebase(contact.id, updatedContactData);
-    closeModal();
-    await loadContacts();
-    displayContacts();
-  };
-
-  // Open the modal for editing
-  document.getElementById("contact-modal").style.display = "block";
-}
-
 document.getElementById("submit-button").addEventListener("click", function (event) {
   const contactEmail = document.getElementById("email-input").value;
 
@@ -300,7 +328,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   makeContactsClickable();
 });
 
-document.getElementById("add-contact-button").onclick = openAddContactModal;
+document.getElementById("add-contact-button").onclick = openModal;
 document.getElementById("cancel-button").onclick = closeModal;
 document.getElementById("submit-button").onclick = submitContact;
 document.getElementById("close-modal-button").onclick = closeModal;
