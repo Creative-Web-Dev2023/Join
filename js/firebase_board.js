@@ -6,6 +6,8 @@ function init12() {
 
 
 
+
+
 function createTaskElement(task, index) {
     const { category, title, description, subtask, assigned, priority } = task;
     const userStoryText = category;
@@ -261,12 +263,26 @@ function updateSubtaskCountUI(taskId, completedCount, totalSubtasks) {
     }
 }
 
-function saveSubtaskProgress(taskId) {
+async function saveSubtaskProgress(taskId) {
     const subtaskImages = document.querySelectorAll(`#popup-task${taskId} .subtask img`);
     const subtaskStatuses = Array.from(subtaskImages).map(img => img.src.includes('checkesbox.png'));
 
-    // Save the subtask states to localStorage
-    localStorage.setItem(`task-${taskId}-subtasks`, JSON.stringify(subtaskStatuses));
+    // Erstelle den Pfad zu Firebase für die Subtask-Statuse
+    const firebasePath = `tasks/task${taskId}/subtaskStatuses`;
+
+    // Speichere die Subtask-Statuse in Firebase
+    try {
+        await fetch(BASE_URL + firebasePath + ".json", {
+            method: "PUT", // Oder "PATCH", wenn du die Daten nur aktualisieren möchtest
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(subtaskStatuses)
+        });
+        console.log(`Subtask statuses for task ${taskId} saved to Firebase.`);
+    } catch (error) {
+        console.error('Error saving subtask statuses to Firebase:', error);
+    }
 }
 
 
