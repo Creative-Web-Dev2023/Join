@@ -1,14 +1,4 @@
-// Event listener für das Formular-Submit-Ereignis
-document.getElementById('signupForm').addEventListener('submit', function (event) {
-    event.preventDefault(); // Verhindert das Standard-Formular-Submit-Verhalten (Seiten-Neuladen)
-    if (!validatePasswords()) { // Überprüft, ob die Passwörter korrekt sind und die Datenschutzrichtlinie akzeptiert wurde
-        return; // Falls die Validierung fehlschlägt, wird die Weiterverarbeitung abgebrochen
-    }
-    const fullName = document.getElementById('fullName').value; // Holt den vollständigen Namen vom Formular
-    localStorage.setItem('fullName', fullName); // Speichert den Namen im lokalen Speicher
-    localStorage.setItem('isGuest', 'false'); // Setzt den Status als Nicht-Gast im lokalen Speicher
-    showSuccessPopup(); // Zeigt ein Erfolgspopup an
-});
+
 
 // Überprüft die Übereinstimmung der Passwörter und ob die Datenschutzrichtlinie akzeptiert wurde
 function validatePasswords() {
@@ -102,30 +92,91 @@ function areInputsFilled(inputs) {
     return Array.from(inputs).every(input => input.value.trim() !== ''); // Gibt true zurück, wenn alle Felder ausgefüllt sind
 }
 
-async function submitContactFB() {
+function validateEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.(de|com)$/;
+    return emailPattern.test(email);
+}
+
+document.getElementById('signupForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevents the default form submission behavior
+
+    // Call the submitContactFB function
+    submitContactFB(event);
+});
+
+async function submitContactFB(event) {
+    // Prevents the default form submission behavior (redundant if already called in the event listener)
+    event.preventDefault(); 
+
     let contactName = document.getElementById("fullName").value;
     let contactEmail = document.getElementById("email").value;
-  
-    if (!contactName || !contactEmail) {
-      alert("Please fill out all required fields.");
-      return;
+    let password = document.getElementById("password").value;
+    let confirmPassword = document.getElementById("confirmPassword").value;
+
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    
+    // Reset error messages visibility
+    emailError.style.display = 'none';
+    passwordError.style.display = 'none';
+
+    let isValid = true;
+
+    // Validate Passwords
+    if (!validatePasswords()) {
+        isValid = false;
     }
-  
+
+    // Validate Email
+    if (!validateEmail(contactEmail)) {
+        emailError.textContent = 'Please enter a valid email address ending in .de or .com';
+        emailError.style.display = 'block';
+        isValid = false;
+    }
+
+    // Check if all required fields are filled
+    if (!contactName || !contactEmail) {
+        alert("Please fill out all required fields.");
+        isValid = false;
+    }
+
+    // Stop further processing if validation fails
+    if (!isValid) {
+        return;
+    }
+
+    // Prepare contact data for submission
     let contactData = {
-      name: contactName,
-      email: contactEmail,
-      color: generateRandomColor(),
-      emblem: generateEmblem(contactName)
+        name: contactName,
+        email: contactEmail,
+        color: generateRandomColor(),
+        emblem: generateEmblem(contactName),
+        password: password
     };
-  
-    await addContactToFirebase(contactData);
-  
-    document.getElementById("fullName").value = "";
-    document.getElementById("email").value = "";
 
-  }
+    try {
+        // Submit data to Firebase
+        await addContactToFirebase(contactData);
 
-  function generateRandomColor() {
+        // Show success popup after successful submission
+        showSuccessPopup();
+
+        // Clear the form fields
+        document.getElementById("fullName").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("confirmPassword").value = "";
+
+    } catch (error) {
+        console.error("Failed to submit contact data:", error);
+        alert("There was an error submitting your data. Please try again.");
+    }
+}
+
+
+
+
+function generateRandomColor() {
     const letters = '0123456789ABCDEF';
     let color = '#';
     for (let i = 0; i < 6; i++) {
@@ -143,22 +194,22 @@ function generateEmblem(name) {
 
 async function addContactToFirebase(contactData) {
     let BASE_URL =
-      "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
+        "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
     try {
-      let response = await fetch(BASE_URL + "contacts.json", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(contactData),
-      });
-      if (!response.ok) {
-        console.error("Failed to set data to Firebase:", response.statusText);
-        return {};
-      }
-      return await response.json();
+        let response = await fetch(BASE_URL + "contacts.json", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(contactData),
+        });
+        if (!response.ok) {
+            console.error("Failed to set data to Firebase:", response.statusText);
+            return {};
+        }
+        return await response.json();
     } catch (error) {
-      console.error("Error setting data:", error);
-      return {};
+        console.error("Error setting data:", error);
+        return {};
     }
-  }
+}
