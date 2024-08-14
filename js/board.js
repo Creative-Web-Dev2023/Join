@@ -32,29 +32,50 @@ function saveTasks() {
         tasksData[`column${index}`] = Array.from(tasks).map(task => task.id);
     });
 
-    localStorage.setItem('tasksPositions', JSON.stringify(tasksData));
+    // Daten über die REST API in Firebase speichern
+    fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions.json', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(tasksData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Tasks successfully saved to Firebase:', data);
+    })
+    .catch(error => {
+        console.error('Error saving tasks to Firebase:', error);
+    });
 }
+
 
 function loadTasks() {
-    const tasksData = JSON.parse(localStorage.getItem('tasksPositions'));
+    fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions.json')
+    .then(response => response.json())
+    .then(tasksData => {
+        if (tasksData) {
+            Object.keys(tasksData).forEach(columnKey => {
+                const columnIndex = columnKey.replace('column', '');
+                const column = document.querySelectorAll('.kanban-column')[columnIndex];
+                const taskIds = tasksData[columnKey];
 
-    if (tasksData) {
-        Object.keys(tasksData).forEach(columnKey => {
-            const columnIndex = columnKey.replace('column', '');
-            const column = document.querySelectorAll('.kanban-column')[columnIndex];
-            const taskIds = tasksData[columnKey];
+                taskIds.forEach(taskId => {
+                    const task = document.getElementById(taskId);
+                    if (task) {
+                        column.querySelector('.content').appendChild(task);
+                    }
+                });
 
-            taskIds.forEach(taskId => {
-                const task = document.getElementById(taskId);
-                if (task) {
-                    column.querySelector('.content').appendChild(task);
-                }
+                updateNoTasksMessage(column); // Ensure correct message display
             });
-
-            updateNoTasksMessage(column); // Ensure correct message display
-        });
-    }
+        }
+    })
+    .catch(error => {
+        console.error('Error loading tasks from Firebase:', error);
+    });
 }
+
 
 
 
