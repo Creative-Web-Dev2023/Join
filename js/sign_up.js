@@ -158,6 +158,10 @@ async function submitContactFB(event) {
         // Submit data to Firebase
         await addContactToFirebase(contactData);
 
+        // Store the user's name in localStorage for later use (e.g., displaying initials)
+        localStorage.setItem('fullName', contactName);
+        localStorage.setItem('isGuest', 'false'); // Indicate that the user is not a guest
+
         // Show success popup after successful submission
         showSuccessPopup();
 
@@ -172,7 +176,6 @@ async function submitContactFB(event) {
         alert("There was an error submitting your data. Please try again.");
     }
 }
-
 
 
 
