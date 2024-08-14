@@ -114,10 +114,33 @@ async function loadBoard() {
 
     if (!tasks || tasks.length === 0) return showNoTasksMessage(contentTodo);
 
-    tasks.forEach((task, index) => processTask(task, index, contentTodo));
-
-    loadTasks();
+    tasks.forEach(async (task, index) => {
+        const taskElement = await processTaskWithSubtasks(task, index);
+        contentTodo.appendChild(taskElement);
+    });
 }
+
+async function processTaskWithSubtasks(task, index) {
+    const taskElement = createTaskElement(task, index);
+
+    // Lade die Subtasks für diesen Task
+    const subtaskText = await subtaskFB(`tasks/task${index + 1}/subtask`);
+    if (subtaskText) {
+        const subtasksContainer = document.createElement('div');
+        taskElement.appendChild(subtasksContainer);
+    }
+
+    // Aktualisiere die Progress Bar direkt nach dem Laden der Subtask-Daten
+    loadSubtaskProgress(index + 1);
+    
+    // Warte kurz, um sicherzustellen, dass alle Daten geladen wurden
+    setTimeout(() => {
+        updateProgressBarFromLocalStorage(index + 1); // Aktuelle Version der Progress Bar laden
+    }, 100); // 100ms Verzögerung, um sicherzustellen, dass die Daten verfügbar sind
+
+    return taskElement;
+}
+
 
 function showNoTasksMessage(container) {
     console.log('No tasks available.');
@@ -627,7 +650,7 @@ async function subtaskFB(path = "") {
         return subtask;
     } catch (error) {
         console.error('Error fetching subtask:', error);
-        return 'Error loading subtask';
+        return [];
     }
 }
 
