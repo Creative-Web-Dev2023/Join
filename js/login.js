@@ -3,6 +3,18 @@ document.getElementById('loginButton').addEventListener('click', () => {
     window.location.href = '../html/summary.html';
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const isGuest = localStorage.getItem('isGuest');
+    const fullName = localStorage.getItem('fullName');
+
+    if (isGuest === 'false' && fullName) {
+        console.log(`Welcome back, ${fullName}!`);
+        // Hier könntest du den Namen des Benutzers auf der Seite anzeigen
+    } else {
+        console.log('Welcome, guest!');
+    }
+});
+
 function openSignUpPage() {
     window.location.href = './html/sign_up.html';
 }
@@ -34,11 +46,15 @@ function login() {
     .then(response => response.json())
     .then(data => {
         let userFound = false;
-        console.log(data);
+        
         // Überprüfen, ob die Anmeldedaten mit einem Benutzer übereinstimmen
         for (let key in data) {
             if (data[key].email === email && data[key].password === password) {
                 userFound = true;
+                // Speichere den Namen des Benutzers und setze isGuest auf false
+                localStorage.setItem('fullName', data[key].name);
+                localStorage.setItem('isGuest', 'false');
+
                 handleLoginSuccess(data[key], rememberMe); // Erfolgreiche Anmeldung
                 break;
             }
@@ -53,6 +69,7 @@ function login() {
         displayErrorMessage('email', 'An error occurred. Please try again later.');
     });
 }
+
 
 function getInputValue(id) {
     return document.getElementById(id).value.trim();
@@ -81,7 +98,6 @@ function validatePassword(password) {
 }
 
 function handleLoginSuccess(user, rememberMe) {
-    // Hier kannst du zusätzliche Benutzerinformationen speichern, wenn nötig
     const token = btoa(`${user.email}:${user.password}`); // Einfache Kodierung als Token (nur ein Beispiel)
     
     if (rememberMe) {
@@ -90,8 +106,10 @@ function handleLoginSuccess(user, rememberMe) {
         sessionStorage.setItem('authToken', token);
     }
 
+    // Leite den Benutzer zur Zusammenfassungsseite weiter
     window.location.href = './html/summary.html';
 }
+
 
 function checkIcon() {
     const checkbox = document.getElementById('checkbox');
