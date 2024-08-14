@@ -12,6 +12,7 @@ function getGreeting() {
 
     return greeting;
 }
+const BASE_URL = 'https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/';
 
 document.addEventListener('DOMContentLoaded', () => {
     const isGuest = localStorage.getItem('isGuest');
@@ -30,19 +31,31 @@ document.addEventListener('DOMContentLoaded', () => {
         greetedNameElement.textContent = "";
     }
 });
+
 document.addEventListener('DOMContentLoaded', summaryCounts);
-function summaryCounts() {
-    todoCount();
-    doneCount();
-    progressCount();
-    feedbackCount();
-    allCount();
+
+async function summaryCounts() {
+    const tasksPositions = await fetchTasksPositions();
+    todoCount(tasksPositions);
+    doneCount(tasksPositions);
+    progressCount(tasksPositions);
+    feedbackCount(tasksPositions);
+    allCount(tasksPositions);
 }
 
-function allCount() {
-    const tasksPositionsString = localStorage.getItem('tasksPositions');
-    const tasksPositions = JSON.parse(tasksPositionsString);
-    let all = document.getElementById('allCounter')
+async function fetchTasksPositions() {
+    try {
+        const response = await fetch(`${BASE_URL}tasksPositions.json`);
+        const tasksPositions = await response.json();
+        return tasksPositions;
+    } catch (error) {
+        console.error('Error fetching tasks positions:', error);
+        return {};
+    }
+}
+
+function allCount(tasksPositions) {
+    let all = document.getElementById('allCounter');
 
     let totalTasks = 0;
     for (const column in tasksPositions) {
@@ -58,15 +71,9 @@ function allCount() {
     console.log('Total number of tasks:', totalTasks);
 }
 
-function openTaskBoard() {
-    window.location.href = './board.html';
-}
-
-function todoCount() {
-    const tasksPositionsString = localStorage.getItem('tasksPositions');
-    const tasksPositions = JSON.parse(tasksPositionsString);
-    const column0Tasks = tasksPositions.column0;
-    let todo = document.getElementById('todoCounter')
+function todoCount(tasksPositions) {
+    const column0Tasks = tasksPositions.column0 || [];
+    let todo = document.getElementById('todoCounter');
 
     console.log(column0Tasks.length);
     todo.innerHTML = `
@@ -74,38 +81,36 @@ function todoCount() {
     `;
 }
 
-function progressCount() {
-    const tasksPositionsString = localStorage.getItem('tasksPositions');
-    const tasksPositions = JSON.parse(tasksPositionsString);
-    const column1Tasks = tasksPositions.column1;
-    let todo = document.getElementById('progressCounter')
+function progressCount(tasksPositions) {
+    const column1Tasks = tasksPositions.column1 || [];
+    let progress = document.getElementById('progressCounter');
 
     console.log(column1Tasks.length);
-    todo.innerHTML = `
+    progress.innerHTML = `
     ${column1Tasks.length}
     `;
 }
 
-function feedbackCount() {
-    const tasksPositionsString = localStorage.getItem('tasksPositions');
-    const tasksPositions = JSON.parse(tasksPositionsString);
-    const column2Tasks = tasksPositions.column2;
-    let todo = document.getElementById('feedbackCounter')
+function feedbackCount(tasksPositions) {
+    const column2Tasks = tasksPositions.column2 || [];
+    let feedback = document.getElementById('feedbackCounter');
 
     console.log(column2Tasks.length);
-    todo.innerHTML = `
+    feedback.innerHTML = `
     ${column2Tasks.length}
     `;
 }
 
-function doneCount() {
-    const tasksPositionsString = localStorage.getItem('tasksPositions');
-    const tasksPositions = JSON.parse(tasksPositionsString);
-    const column3Tasks = tasksPositions.column3;
-    let todo = document.getElementById('doneCounter')
+function doneCount(tasksPositions) {
+    const column3Tasks = tasksPositions.column3 || [];
+    let done = document.getElementById('doneCounter');
 
     console.log(column3Tasks.length);
-    todo.innerHTML = `
+    done.innerHTML = `
     ${column3Tasks.length}
     `;
+}
+
+function openTaskBoard() {
+    window.location.href = './board.html';
 }
