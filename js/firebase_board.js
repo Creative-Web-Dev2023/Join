@@ -116,23 +116,21 @@ async function loadBoard() {
 
     const tasksPositions = await fetchTasksPositions();
 
-    tasks.forEach(async (task, index) => {
+    for (let index = 0; index < tasks.length; index++) {
+        const task = tasks[index];
         const taskElement = await processTaskWithSubtasks(task, index);
         const columnId = findColumnForTask(task.id, tasksPositions);
 
-        // Hier mappen wir die Spaltennummer auf die entsprechende Spalten-ID im HTML
         const columnMapping = {
-            "0": "content-todo",           // Zuordnung für die To-Do-Spalte
-            "1": "content-inprogress",     // Zuordnung für die In-Progress-Spalte
-            "2": "content-awaitfeedback",  // Zuordnung für die Await Feedback-Spalte
-            "3": "content-done"            // Zuordnung für die Done-Spalte
+            "0": "content-todo",
+            "1": "content-inprogress",
+            "2": "content-awaitfeedback",
+            "3": "content-done"
         };
 
         const columnContentId = columnMapping[columnId];
-
         if (columnContentId) {
             const columnContent = document.getElementById(columnContentId);
-
             if (columnContent) {
                 columnContent.appendChild(taskElement);
             } else {
@@ -141,8 +139,13 @@ async function loadBoard() {
         } else {
             console.error(`No mapping found for column ID: ${columnId}`);
         }
-    });
+
+        // Update the progress bar and the checkbox UI after loading each task
+        await updateProgress(task.id); // Aktualisiere die Progress Bar nach dem Laden der Seite
+    }
 }
+
+
 
 async function fetchTasksPositions() {
     const response = await fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/.json');
@@ -187,26 +190,34 @@ async function processTaskWithSubtasks(task, index) {
     const taskElement = createTaskElement(task, index);
 
     // Lade die Subtasks für diesen Task
-    const subtaskText = await subtaskFB(`tasks/task${index + 1}/subtask`);
+    const subtaskText = await subtaskFB(`tasks/task${task.id}/subtask`);
     if (subtaskText) {
         const subtasksContainer = document.createElement('div');
         taskElement.appendChild(subtasksContainer);
 
         // Aktualisiere die Progress Bar und den Subtask-Zähler direkt nach dem Laden der Subtasks
-        updateProgressBarFromFirebase(index + 1, subtaskText);
+        await updateProgressBarFromFirebase(task.id); // Nutze die richtige Task-ID
     }
 
     return taskElement;
 }
-function updateProgressBarFromFirebase(taskId, subtaskText) {
-    const subtasks = subtaskText.split(',').filter(subtask => subtask.trim() !== '');
-    const completedCount = subtasks.filter(subtask => subtask.completed).length;
-    const totalSubtasks = subtasks.length;
 
-    // Aktualisiere den Fortschrittsbalken und den Subtask-Zähler
-    updateProgressBar(taskId, completedCount, totalSubtasks);
+async function updateProgressBarFromFirebase(taskId) {
+    console.log(`Updating progress bar for task ID: ${taskId}`);
+
+    const savedStatuses = await getSavedStatusesFromFirebase(taskId);
+    console.log('Saved statuses:', savedStatuses);
+
+    const totalSubtasks = savedStatuses.length;
+    const completedCount = savedStatuses.filter(status => status === true).length;
+
+    console.log(`Total subtasks: ${totalSubtasks}, Completed: ${completedCount}`);
+
+    updateProgressBarUI(taskId, completedCount, totalSubtasks);
     updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
 }
+
+
 
 function showNoTasksMessage(container) {
     console.log('No tasks available.');
@@ -217,34 +228,41 @@ function processTask(task, index, container) {
     const taskElement = createTaskElement(task, index);
     container.appendChild(taskElement);
     loadSubtaskProgress(index + 1);
-    updateProgressBarFromLocalStorage(index + 1);
+    updateProgressBarFromFirebase(index + 1);
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const columns = document.querySelectorAll('.kanban-column .content');
 
-function updateProgressBarFromLocalStorage(taskId) {
-    const savedStatuses = getSavedSubtaskStatuses(taskId);
-    const { completedCount, totalSubtasks } = calculateSubtaskCounts(savedStatuses);
+    columns.forEach(column => {
+        const observer = new MutationObserver(() => {
+            const tasks = column.querySelectorAll('.task');
+            tasks.forEach(task => {
+                const taskId = task.id.replace('task', ''); // Extrahiere die Task-ID
+                updateProgressBarFromFirebase(taskId); // Aktualisiere die Progress Bar
+            });
+        });
 
-    updateProgressBar(taskId, completedCount, totalSubtasks);
-    updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
-}
+        // Überwache Änderungen in der Struktur der Kinder
+        observer.observe(column, { childList: true });
 
-function getSavedSubtaskStatuses(taskId) {
-    return JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
-}
+        // Initiale Aktualisierung der Progress Bars
+        const tasks = column.querySelectorAll('.task');
+        tasks.forEach(task => {
+            const taskId = task.id.replace('task', ''); // Extrahiere die Task-ID
+            updateProgressBarFromFirebase(taskId); // Aktualisiere die Progress Bar
+        });
+    });
+});
+
+
 
 function calculateSubtaskCounts(statuses) {
     const completedCount = statuses.filter(status => status).length;
     return { completedCount, totalSubtasks: statuses.length };
 }
 
-function updateProgressBar(taskId, completedCount, totalSubtasks) {
-    const progressBar = document.getElementById(`progress-bar-${taskId}`);
-    if (progressBar) {
-        const progressPercentage = totalSubtasks > 0 ? (completedCount / totalSubtasks) * 100 : 0;
-        progressBar.style.width = `${progressPercentage}%`;
-    }
-}
+
 
 function updateSubtaskCountElement(taskId, completedCount, totalSubtasks) {
     const subtaskCountElement = document.getElementById(`subtask-count-${taskId}`);
@@ -313,27 +331,28 @@ async function saveSubtaskProgress(taskId) {
 
 
 async function loadSubtaskProgress(taskId) {
-    const savedStatuses = await getSavedStatusesFromFirebase(taskId); // Hier wird der gespeicherte Zustand geladen
-    const subtaskImages = getSubtaskImages(taskId);
+    const savedStatuses = await getSavedStatusesFromFirebase(taskId); // Load saved statuses (true/false) from Firebase
+    const subtaskImages = getSubtaskImages(taskId); // Get the subtask images (checkboxes)
 
     if (subtaskImages.length > 0) {
-        applySavedStatuses(subtaskImages, savedStatuses);
-        updateProgress(taskId); // Aktualisiert den Fortschrittsbalken basierend auf den gespeicherten Zuständen
+        applySavedStatuses(subtaskImages, savedStatuses); // Update the checkboxes based on saved statuses
+        updateProgressBarFromFirebase(taskId); // Update the progress bar based on the saved statuses
     } else {
         document.addEventListener('DOMContentLoaded', () => {
             const subtaskImages = getSubtaskImages(taskId);
             if (subtaskImages.length > 0) {
                 applySavedStatuses(subtaskImages, savedStatuses);
-                updateProgress(taskId);
+                updateProgressBarFromFirebase(taskId);
             }
         });
     }
 }
 
+
 async function getSavedStatusesFromFirebase(taskId) {
     const response = await fetch(BASE_URL + `tasks/task${taskId}/subtaskStatuses.json`);
     const savedStatuses = await response.json();
-    return savedStatuses || [];
+    return savedStatuses || []; // Return an empty array if no statuses are found
 }
 
 function applySavedStatuses(subtaskImages, savedStatuses) {
@@ -623,21 +642,7 @@ function clearSubtaskInput() {
     document.getElementById('subtask-input').value = '';
 }
 
-function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
-    const savedStatuses = JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
 
-    while (savedStatuses.length <= subtaskIndex) {
-        savedStatuses.push(false);
-    }
-
-    const existingSubtasks = JSON.parse(localStorage.getItem(`task-${taskId}-subtask-texts`)) || [];
-    existingSubtasks[subtaskIndex] = newText.trim();
-    localStorage.setItem(`task-${taskId}-subtask-texts`, JSON.stringify(existingSubtasks));
-
-    console.log(`Subtask ${subtaskIndex} updated to: ${newText}`);
-
-    updateSubtasksInFirebase(taskId);
-}
 
 function removeSubtasks(index) {
     const subtaskElement = document.getElementById(`subtask-${index}`);
@@ -742,8 +747,6 @@ function saveTaskToFb(taskId, taskData) {
             alert('Error updating task. Please try again later.');
         });
 }
-
-
 
 async function dateFB(path = "") {
     try {
