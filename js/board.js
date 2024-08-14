@@ -1,5 +1,19 @@
 document.addEventListener('DOMContentLoaded', loadTasks);
+document.addEventListener('DOMContentLoaded', () => {
+    const columns = document.querySelectorAll('.kanban-column');
 
+    columns.forEach(column => {
+        const observer = new MutationObserver(() => {
+            updateNoTasksMessage(column);
+        });
+
+        // Start observing the column for changes in its children
+        observer.observe(column.querySelector('.content'), { childList: true });
+
+        // Initial check to update the message on page load
+        updateNoTasksMessage(column);
+    });
+});
 function allowDrop(event) {
     event.preventDefault();
 }
