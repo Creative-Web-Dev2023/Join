@@ -3,11 +3,6 @@ function init12() {
     loadBoard();
 }
 
-
-
-
-
-
 function createTaskElement(task, index) {
     const { category, title, description, subtask, assigned, priority } = task;
     const userStoryText = category;
@@ -30,7 +25,7 @@ function createTaskElement(task, index) {
     return taskElement;
 }
 
-document.querySelectorAll('.prio-button').forEach(function(button) {
+document.querySelectorAll('.prio-button').forEach(function (button) {
     button.addEventListener('mouseover', handleMouseOver);
     button.addEventListener('mouseout', handleMouseOut);
     button.addEventListener('click', handleClick);
@@ -51,7 +46,7 @@ function handleMouseOut() {
 }
 
 function handleClick() {
-    document.querySelectorAll('.prio-button').forEach(function(btn) {
+    document.querySelectorAll('.prio-button').forEach(function (btn) {
         if (btn !== this) {
             btn.classList.remove('clicked');
             if (btn.src.includes('_clicked')) {
@@ -142,6 +137,7 @@ async function loadBoard() {
 
         // Update the progress bar and the checkbox UI after loading each task
         await updateProgress(task.id); // Aktualisiere die Progress Bar nach dem Laden der Seite
+        
     }
 }
 
@@ -153,6 +149,13 @@ async function fetchTasksPositions() {
 }
 
 function findColumnForTask(taskId, tasksPositions) {
+    // Überprüfen, ob tasksPositions vorhanden und gültig ist
+    if (!tasksPositions || Object.keys(tasksPositions).length === 0) {
+        console.error(`No task positions found, defaulting task ${taskId} to column 0`);
+        return "0"; // Fallback auf Spalte 0 (To Do), wenn keine Positionen vorhanden sind
+    }
+
+    // Rest des Codes bleibt gleich
     for (const [columnKey, taskIds] of Object.entries(tasksPositions)) {
         if (taskIds.includes(taskId)) {
             return columnKey.replace('column', ''); // Gibt die entsprechende Spaltennummer zurück
@@ -162,6 +165,7 @@ function findColumnForTask(taskId, tasksPositions) {
     console.error(`Task ID: ${taskId} not found in any column, defaulting to column 0`);
     return "0"; // Fallback auf Spalte 0 (To Do)
 }
+
 async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
     const firebasePath = `tasks/task${taskId}/subtaskStatuses/${subtaskIndex}`;
 
@@ -401,7 +405,7 @@ async function openPopup(taskId) {
     const headerBackgroundColor = getHeaderBackgroundColor(taskData.userStoryText);
 
     displayPopup(taskId, headerBackgroundColor, taskData, priorityImage, assignedHtml, subtasksHtml);
-    
+
     // Lade die Subtask-Progress-Daten aus der Datenbank und setze die Checkbox-Bilder
     await loadSubtaskProgress(taskId);
 }
@@ -537,10 +541,10 @@ async function openEdit(taskId) {
     displayEditPopup(taskId, taskData, assignedHtml);
     loadSubtasksIntoEditForm(taskId, taskData.subtaskText);
 
-    
+
 
     // Reattach event listeners for prio buttons
-    document.querySelectorAll('.prio-button').forEach(function(button) {
+    document.querySelectorAll('.prio-button').forEach(function (button) {
         button.addEventListener('mouseover', handleMouseOver);
         button.addEventListener('mouseout', handleMouseOut);
         button.addEventListener('click', handleClick);
@@ -699,12 +703,62 @@ async function updateSubtasks(path, updatedSubtaskString) {
 }
 
 
+
 function putOnFb(taskId) {
     const taskData = collectTaskData();
     if (!validateTaskData(taskData)) return;
 
     const newSubtasks = collectNewSubtasks();
-    mergeAndSaveSubtasks(taskId, newSubtasks, taskData);
+    const subtaskStatuses = newSubtasks.map(() => false);  // Initialize all subtasks as unchecked (false)
+
+    mergeAndSaveSubtasks(taskId, newSubtasks, taskData)
+        .then(() => {
+            // Send the subtask statuses to Firebase
+            return fetch(BASE_URL + `tasks/task${taskId}/subtaskStatuses.json`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(subtaskStatuses)
+            });
+        })
+        .then(() => {
+            // After subtasks are saved, add task to column0
+            addToColumn0(taskId);
+        })
+        .catch(console.error);
+}
+
+
+function addToColumn0(taskId) {
+    // Hole die aktuellen Tasks in column0
+    fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json')
+        .then(response => response.json())
+        .then(column0Tasks => {
+            // Wenn keine Tasks vorhanden sind, erstelle ein leeres Array
+            if (!Array.isArray(column0Tasks)) {
+                column0Tasks = [];
+            }
+
+            // Füge die neue Task-ID hinzu
+            column0Tasks.push(`task${taskId}`);
+
+            // Speichere die aktualisierte Liste in Firebase
+            return fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(column0Tasks),
+            });
+        })
+        .then(response => response.json())
+        .then(() => {
+            console.log(`Task ${taskId} erfolgreich zu column0 hinzugefügt.`);
+        })
+        .catch(error => {
+            console.error('Fehler beim Hinzufügen der Task zu column0:', error);
+        });
 }
 
 function collectTaskData() {
