@@ -67,15 +67,12 @@ function allCount(tasksPositions) {
     all.innerHTML = `
     ${totalTasks}
     `;
-
-    console.log('Total number of tasks:', totalTasks);
 }
 
 function todoCount(tasksPositions) {
     const column0Tasks = tasksPositions.column0 || [];
     let todo = document.getElementById('todoCounter');
 
-    console.log(column0Tasks.length);
     todo.innerHTML = `
     ${column0Tasks.length}
     `;
@@ -85,7 +82,6 @@ function progressCount(tasksPositions) {
     const column1Tasks = tasksPositions.column1 || [];
     let progress = document.getElementById('progressCounter');
 
-    console.log(column1Tasks.length);
     progress.innerHTML = `
     ${column1Tasks.length}
     `;
@@ -95,7 +91,6 @@ function feedbackCount(tasksPositions) {
     const column2Tasks = tasksPositions.column2 || [];
     let feedback = document.getElementById('feedbackCounter');
 
-    console.log(column2Tasks.length);
     feedback.innerHTML = `
     ${column2Tasks.length}
     `;
@@ -105,7 +100,6 @@ function doneCount(tasksPositions) {
     const column3Tasks = tasksPositions.column3 || [];
     let done = document.getElementById('doneCounter');
 
-    console.log(column3Tasks.length);
     done.innerHTML = `
     ${column3Tasks.length}
     `;

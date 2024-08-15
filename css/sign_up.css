@@ -103,6 +103,7 @@ body {
     font-size: 14px;
     right: 10px;
     pointer-events: none;
+    top: 20px;
 }
 
 .checkbox-sign-up-button {

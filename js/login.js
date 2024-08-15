@@ -3,17 +3,7 @@ document.getElementById('loginButton').addEventListener('click', () => {
     window.location.href = '../html/summary.html';
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    const isGuest = localStorage.getItem('isGuest');
-    const fullName = localStorage.getItem('fullName');
 
-    if (isGuest === 'false' && fullName) {
-        console.log(`Welcome back, ${fullName}!`);
-        // Hier könntest du den Namen des Benutzers auf der Seite anzeigen
-    } else {
-        console.log('Welcome, guest!');
-    }
-});
 
 function openSignUpPage() {
     window.location.href = './html/sign_up.html';

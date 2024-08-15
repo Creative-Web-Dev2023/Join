@@ -80,11 +80,11 @@
                     </button>
                 </div>
 
-                <div onclick="showPopup()" class="add-task-responsive">
+                <div onclick="checkWindowSize()" class="add-task-responsive">
                     <img src="/assets/img/add_task_mobile.png">
                 </div>
 
-                <button class="add-task-button" onclick="showPopup()">
+                <button class="add-task-button" onclick="checkWindowSize()">
                     <p class="button-font">Add Task <span>+</span></p>
                 </button>
             </div>
@@ -102,7 +102,7 @@
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">To do</h2>
-                    <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
+                    <img onclick="checkWindowSize()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
                 <div class="content" id="content-todo">
                 </div>
@@ -112,7 +112,7 @@
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">In Progress</h2>
-                    <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
+                    <img onclick="checkWindowSize()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
                 <div class="content" id="content-inprogress"></div>
                 <div class="no-tasks">No tasks In progress</div>
@@ -121,7 +121,7 @@
             <div class="kanban-column" ondrop="drop(event)" ondragover="allowDrop(event)">
                 <div class="headline-kanban">
                     <h2 class="h2-board-font">Await feedback</h2>
-                    <img onclick="showPopup()" class="plus_button" src="/assets/img/add_task_responsive.png">
+                    <img onclick="checkWindowSize()" class="plus_button" src="/assets/img/add_task_responsive.png">
                 </div>
                 <div class="content" id="content-awaitfeedback"></div>
                 <div class="no-tasks">No tasks Await feedback</div>

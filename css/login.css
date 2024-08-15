@@ -20,6 +20,7 @@ body{
     align-items: center;
     background: #f6f7f8;
     font-family: 'Inter', sans-serif;
+    overflow-y: hidden;
 }
 .logo-start-screen {
     position: absolute;

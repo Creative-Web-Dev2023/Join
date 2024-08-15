@@ -68,16 +68,13 @@ function loadTasks() {
     fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions.json')
     .then(response => response.json())
     .then(tasksData => {
-        console.log('Loaded tasksData:', tasksData); // Debugging-Ausgabe
         if (tasksData) {
             Object.keys(tasksData).forEach(columnKey => {
-                console.log('Processing columnKey:', columnKey); // Debugging-Ausgabe
                 const columnIndex = columnKey.replace('column', '');
                 const column = document.querySelectorAll('.kanban-column')[columnIndex];
                 const taskIds = tasksData[columnKey];
 
                 taskIds.forEach(taskId => {
-                    console.log('Assigning taskId:', taskId, 'to column:', columnIndex); // Debugging-Ausgabe
                     const task = document.getElementById(taskId);
                     if (task) {
                         column.querySelector('.content').appendChild(task);
@@ -149,5 +146,13 @@ function closeTaskEditPopup() {
     document.getElementById("task-edit-popup").style.display = "none";
 }
 
+function checkWindowSize() {
+    if (window.innerWidth <= 769) {
+      // Die Seite wird umgeleitet, wenn die Breite kleiner als 769px ist
+      window.location.href = "/html/add_task.html";
+    } else {
+        showPopup();
+    }
+  }
 
 

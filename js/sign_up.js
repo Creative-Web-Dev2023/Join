@@ -111,7 +111,6 @@ async function submitContactFB(event) {
     let contactName = document.getElementById("fullName").value;
     let contactEmail = document.getElementById("email").value;
     let password = document.getElementById("password").value;
-    let confirmPassword = document.getElementById("confirmPassword").value;
 
     const emailError = document.getElementById('emailError');
     const passwordError = document.getElementById('passwordError');
