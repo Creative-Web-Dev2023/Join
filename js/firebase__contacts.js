@@ -3,7 +3,7 @@ let namesFirstLetters = [];
 let contacts = [];
 
 async function init() {
-    await loadContacts(); 
+    await loadContacts();
     displayContacts(); // Kontakte anzeigen   
 }
 
@@ -66,7 +66,7 @@ function sortContactsAndInitials() {
 
 function displayContacts() {
     const contactListElement = document.getElementById("contact-list");
-    contactListElement.innerHTML = ''; 
+    contactListElement.innerHTML = '';
     namesFirstLetters.forEach(letter => {
         contactListElement.innerHTML += `
             <div class="contacts-alphabet">${letter}</div>
@@ -179,8 +179,8 @@ async function addContact() {
 }
 
 
-async function deleteContact(contactId){
-    try{
+async function deleteContact(contactId) {
+    try {
         let response = await fetch(BASE_URL + 'contacts/' + contactId + '.json', {
             method: 'DELETE'
         });
@@ -188,6 +188,7 @@ async function deleteContact(contactId){
             console.error('Failed to delete data in Firebase:', response.statusText);
             return {};
         }
+        location.reload();
         return await response.json();
     } catch (error) {
         console.error('Error deleting data:', error);

@@ -102,21 +102,42 @@ function closeModal() {
   window.location.href = '/html/contacts.html';
 }
 
+// Validate email with specific rules for .de or .com
+function isValidEmail(email) {
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(de|com)$/;
+  return emailPattern.test(email);
+}
+
+// Validate phone number (e.g., allow digits, spaces, +, -, or parentheses)
+function isValidPhoneNumber(phone) {
+  const phonePattern = /^[0-9+\s-()]+$/;  // Allow digits, +, spaces, hyphens, and parentheses
+  return phonePattern.test(phone);
+}
+
 async function submitContact() {
   let contactName = document.getElementById("name-input").value;
   let contactEmail = document.getElementById("email-input").value;
   let contactPhone = document.getElementById("phone-input").value;
 
+  // Check if all required fields are filled
   if (!contactName || !contactEmail || !contactPhone) {
       alert("Please fill out all required fields.");
       return; // Stop the function if any required field is missing
   }
 
+  // Check for a valid email format (.de or .com)
   if (!isValidEmail(contactEmail)) {
       alert("Please enter a valid email address ending with .de or .com.");
-      stop; // Stop the function if the email is not valid
+      return; // Stop the function if the email is not valid
   }
 
+  // Check for a valid phone number format (example: allow only digits and +, space, hyphen)
+  if (!isValidPhoneNumber(contactPhone)) {
+      alert("Please enter a valid phone number.");
+      return; // Stop the function if the phone number is not valid
+  }
+
+  // If all validations pass, create the contact data
   let contactData = {
       name: contactName,
       email: contactEmail,
@@ -125,17 +146,19 @@ async function submitContact() {
       emblem: generateEmblem(contactName)
   };
 
+  // Add contact data to Firebase
   await addContactToFirebase(contactData);
 
+  // Clear the input fields
   document.getElementById("name-input").value = "";
   document.getElementById("email-input").value = "";
   document.getElementById("phone-input").value = "";
 
+  // Close the modal and reload contacts
   closeModal();
   await loadContacts();
   displayContacts();
 }
-
 
 
 
@@ -314,15 +337,7 @@ async function updateContactInFirebase(contactId, updatedContactData) {
   }
 }
 
-async function deleteContact(contactId) {
-  if (confirm("Do you really want to delete this contact?")) {
-    let success = await deleteContactFromFirebase(contactId);
-    location.reload();
-    if (success) {
-      await location.reload();
-    }
-  }
-}
+
 document.addEventListener("DOMContentLoaded", async () => {
   await init();
   makeContactsClickable();
