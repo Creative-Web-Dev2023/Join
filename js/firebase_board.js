@@ -420,14 +420,21 @@ async function fetchTaskData(taskId) {
 }
 
 function generateSubtasksHtml(subtaskText, taskId) {
+    // Fallback, falls subtaskText null oder undefined ist
+    if (!subtaskText) {
+        return '<p>No subtasks available.</p>';
+    }
+
     const subtasks = Array.isArray(subtaskText) ? subtaskText : subtaskText.split(',').filter(subtask => subtask.trim() !== '');
     if (subtasks.length === 0) return '<p>No subtasks available.</p>';
+    
     return subtasks.map((subtask, index) => `
         <div class="subtask flex" onclick="toggleCheckbox(${index}, ${taskId})">
             <img src="/assets/img/img_add_task/checkbox.png" id="popup-subtask-${index}" name="subtask-${index}" style="height: 16px">
             <label for="popup-subtask-${index}">${subtask.trim()}</label>
         </div>`).join('');
 }
+
 
 function getHeaderBackgroundColor(userStoryText) {
     const colors = {
