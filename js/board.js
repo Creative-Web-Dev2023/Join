@@ -109,6 +109,7 @@ function showPopup() {
     const overlay = document.getElementById("overlay");
     overlay.style.display = "block";
     popup.classList.add("show");
+    document.body.style.overflowY = "hidden";
 }
 
 function hidePopup() {
@@ -118,6 +119,7 @@ function hidePopup() {
     setTimeout(function () {
         overlay.style.display = "none";
     }, 500);
+    document.body.style.overflowY = "scroll";
 }
 
 // Initialisiere die Event-Handler

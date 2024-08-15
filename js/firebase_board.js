@@ -394,6 +394,7 @@ async function openPopup(taskId) {
     const taskData = await fetchTaskData(taskId);
     currentTaskData = { taskId, ...taskData };
 
+    document.body.style.overflowY = "hidden";
     const assignedHtml = generateAssignedHtml2(taskData.assignedPeople);
     const subtasksHtml = generateSubtasksHtml(taskData.subtaskText, taskId);
     const priorityImage = getPriorityImage(taskData.priorityText);
@@ -519,9 +520,6 @@ function highlightAssignedPeople(assignedPeople) {
 }
 
 function setItemSelected(item) {
-    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-    console.log(item);
-    
     item.setAttribute('data-selected', 'true');
     const img = item.querySelector('.toggle-image');
     img.src = '/assets/img/img_add_task/checkedbox.png';
@@ -885,6 +883,7 @@ function closePopup() {
     const popup = document.getElementById('popup-tasks');
     const overlay = document.getElementById('overlay-task');
 
+    document.body.style.overflowY = "scroll";
     if (popup) {
         popup.style.display = 'none';
         popup.innerHTML = '';
