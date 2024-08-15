@@ -3,6 +3,11 @@ function init12() {
     loadBoard();
 }
 
+
+
+
+
+
 function createTaskElement(task, index) {
     const { category, title, description, subtask, assigned, priority } = task;
     const userStoryText = category;
@@ -154,6 +159,7 @@ function findColumnForTask(taskId, tasksPositions) {
         }
     }
 
+    console.error(`Task ID: ${taskId} not found in any column, defaulting to column 0`);
     return "0"; // Fallback auf Spalte 0 (To Do)
 }
 async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
@@ -172,7 +178,9 @@ async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
             throw new Error('Fehler beim Speichern des Zustands in Firebase');
         }
 
+        console.log(`Subtask ${subtaskIndex} status für Task ${taskId} wurde erfolgreich als ${isChecked} in Firebase gespeichert.`);
     } catch (error) {
+        console.error('Fehler beim Speichern des Checkbox-Zustands in Firebase:', error);
         throw error; // Fehler weiterwerfen, damit die obere Funktion den Fehler ebenfalls behandeln kann
     }
 }
@@ -195,10 +203,15 @@ async function processTaskWithSubtasks(task, index) {
 }
 
 async function updateProgressBarFromFirebase(taskId) {
+    console.log(`Updating progress bar for task ID: ${taskId}`);
 
     const savedStatuses = await getSavedStatusesFromFirebase(taskId);
+    console.log('Saved statuses:', savedStatuses);
+
     const totalSubtasks = savedStatuses.length;
     const completedCount = savedStatuses.filter(status => status === true).length;
+
+    console.log(`Total subtasks: ${totalSubtasks}, Completed: ${completedCount}`);
 
     updateProgressBarUI(taskId, completedCount, totalSubtasks);
     updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
@@ -207,6 +220,7 @@ async function updateProgressBarFromFirebase(taskId) {
 
 
 function showNoTasksMessage(container) {
+    console.log('No tasks available.');
     container.innerHTML = '<p>No tasks available.</p>';
 }
 
@@ -308,7 +322,9 @@ async function saveSubtaskProgress(taskId) {
             },
             body: JSON.stringify(subtaskStatuses)
         });
+        console.log(`Subtask statuses for task ${taskId} saved to Firebase.`);
     } catch (error) {
+        console.error('Error saving subtask statuses to Firebase:', error);
     }
 }
 
@@ -348,8 +364,11 @@ async function fetchTasks() {
     try {
         let response = await fetch(BASE_URL + 'tasks.json');
         let data = await response.json();
+        console.log('Tasks data:', data);
 
+        // Überprüfen, ob die Daten korrekt sind und Tasks existieren
         if (!data) {
+            console.error('No tasks data found');
             return [];
         }
 
@@ -361,8 +380,10 @@ async function fetchTasks() {
             };
         });
 
+        console.log('Formatted tasks:', tasks);
         return tasks;
     } catch (error) {
+        console.error('Error fetching tasks:', error);
         return [];
     }
 }
@@ -399,21 +420,14 @@ async function fetchTaskData(taskId) {
 }
 
 function generateSubtasksHtml(subtaskText, taskId) {
-    // Fallback, falls subtaskText null oder undefined ist
-    if (!subtaskText) {
-        return '<p>No subtasks available.</p>';
-    }
-
     const subtasks = Array.isArray(subtaskText) ? subtaskText : subtaskText.split(',').filter(subtask => subtask.trim() !== '');
     if (subtasks.length === 0) return '<p>No subtasks available.</p>';
-    
     return subtasks.map((subtask, index) => `
         <div class="subtask flex" onclick="toggleCheckbox(${index}, ${taskId})">
             <img src="/assets/img/img_add_task/checkbox.png" id="popup-subtask-${index}" name="subtask-${index}" style="height: 16px">
             <label for="popup-subtask-${index}">${subtask.trim()}</label>
         </div>`).join('');
 }
-
 
 function getHeaderBackgroundColor(userStoryText) {
     const colors = {
@@ -491,6 +505,8 @@ function resetDropdownItems() {
 
 function highlightAssignedPeople(assignedPeople) {
     if (!assignedPeople || assignedPeople.length === 0) {
+        // No one is assigned, so just return or handle accordingly
+        console.log('No one assigned to this task.');
         return;
     }
 
@@ -503,6 +519,9 @@ function highlightAssignedPeople(assignedPeople) {
 }
 
 function setItemSelected(item) {
+    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    console.log(item);
+    
     item.setAttribute('data-selected', 'true');
     const img = item.querySelector('.toggle-image');
     img.src = '/assets/img/img_add_task/checkedbox.png';
@@ -560,6 +579,7 @@ function populateSubtaskList(taskId, subtasks) {
 
 function addSubtaskInputListener(taskId, index) {
     const subtaskElement = document.querySelector(`#subtask-${index} .subtask`);
+    subtaskElement.addEventListener('input', () => updateSubtaskInLocalStorage(taskId, index, subtaskElement.textContent));
 }
 
 function updateSubtasksInFirebase(taskId) {
@@ -568,6 +588,12 @@ function updateSubtasksInFirebase(taskId) {
     const combinedSubtasks = newSubtasks.filter(subtask => subtask.trim() !== '');
 
     putData(`tasks/task${taskId}/subtask`, combinedSubtasks.join(','))
+        .then(() => {
+            console.log('Subtasks updated in Firebase.');
+        })
+        .catch(error => {
+            console.error('Error updating subtasks in Firebase:', error);
+        });
 }
 
 function addSubtasks(taskId) {
@@ -607,6 +633,11 @@ function createSubtaskElement(index, subtaskText) {
     return subtaskItem;
 }
 
+function addInputListener(taskId, index, subtaskItem) {
+    const subtaskElement = subtaskItem.querySelector('.subtask');
+    subtaskElement.addEventListener('input', () => updateSubtaskInLocalStorage(taskId, index, subtaskElement.textContent));
+}
+
 function clearSubtaskInput() {
     document.getElementById('subtask-input').value = '';
 }
@@ -625,11 +656,13 @@ function removeSubtasks(index) {
 
 
 async function deleteSubTaskFB(path, subtaskToDelete) {
+    console.log("Path:", path);
 
     let taskResponse = await fetch(BASE_URL + path + ".json");
     let taskData = await taskResponse.json();
 
     if (!taskData || !taskData.subtask) {
+        console.log("No subtasks found or invalid path.");
         return;
     }
 
@@ -638,6 +671,7 @@ async function deleteSubTaskFB(path, subtaskToDelete) {
     let updatedSubtasks = subtasks.filter(subtask => subtask.trim() !== subtaskToDelete.trim());
 
     if (updatedSubtasks.length === subtasks.length) {
+        console.log("Subtask not found.");
         return;
     }
 
@@ -709,6 +743,7 @@ function saveTaskToFb(taskId, taskData) {
     putData(`tasks/task${taskId}`, taskData)
         .then(() => window.location.href = '/html/board.html')
         .catch(error => {
+            console.error('Error updating task:', error);
             alert('Error updating task. Please try again later.');
         });
 }
@@ -717,8 +752,10 @@ async function dateFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let dueDate = await response.json();
+        console.log(dueDate);
         return dueDate;
     } catch (error) {
+        console.error('Error fetching duedate:', error);
         return 'Error loading duedate';
     }
 }
@@ -727,6 +764,7 @@ async function subtaskFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let subtask = await response.json();
+        console.log(subtask);
         return subtask;
     } catch (error) {
         console.error('Error fetching subtask:', error);
@@ -738,8 +776,10 @@ async function descriptionFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let description = await response.json();
+        console.log(description);
         return description;
     } catch (error) {
+        console.error('Error fetching description:', error);
         return 'Error loading description';
     }
 }
@@ -748,8 +788,10 @@ async function title(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let title = await response.json();
+        console.log(title);
         return title;
     } catch (error) {
+        console.error('Error fetching title:', error);
         return 'Error loading title';
     }
 }
@@ -758,6 +800,7 @@ async function userStory(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let userStory = await response.json();
+        console.log(userStory);
         return userStory;
     } catch (error) {
         console.error('Error fetching user story:', error);
@@ -769,6 +812,7 @@ async function assignedFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let assigned = await response.json();
+        console.log(assigned);
         return assigned;
     } catch (error) {
         console.error('Error fetching assigned people:', error);
@@ -780,6 +824,7 @@ async function priorityFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let priority = await response.json();
+        console.log(priority);
         return priority;
     } catch (error) {
         console.error('Error fetching priority:', error);
@@ -866,6 +911,22 @@ function filterTasks() {
             taskElement.style.display = 'none';
         }
     });
+}
+
+function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
+    const savedStatuses = JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
+
+    while (savedStatuses.length <= subtaskIndex) {
+        savedStatuses.push(false);
+    }
+
+    const existingSubtasks = JSON.parse(localStorage.getItem(`task-${taskId}-subtask-texts`)) || [];
+    existingSubtasks[subtaskIndex] = newText.trim();
+    localStorage.setItem(`task-${taskId}-subtask-texts`, JSON.stringify(existingSubtasks));
+
+    console.log(`Subtask ${subtaskIndex} updated to: ${newText}`);
+
+    updateSubtasksInFirebase(taskId);
 }
 
 document.getElementById('findTask').addEventListener('input', filterTasks);
