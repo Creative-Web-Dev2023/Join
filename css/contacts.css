@@ -3,12 +3,6 @@
   --secondarycolor: #29abe2;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 body {
   overflow: hidden;
@@ -47,7 +41,7 @@ color: white;
 }
 main {
   padding-left: 232px !important;
-  padding-top: 76px !important;
+  padding-top: 116px !important;
   display: flex;
 }
 
@@ -74,7 +68,7 @@ main h2 {
 .contacts-frame {
   background-color: white;
   width: 456px;
-  height: calc(100vh - 96px);
+  height: calc(100vh - 180px);
   box-shadow: 4px 0px 6px 0px #00000014;
   padding: 32px 24px 32px 48px;
   overflow-y: scroll;

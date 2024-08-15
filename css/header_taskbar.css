@@ -1,5 +1,5 @@
 body {
-    margin: 0;
+    margin: 0 !important;
     height: 100vh;
     font-family: 'Inter', sans-serif;
 }
@@ -31,10 +31,11 @@ body {
 
 .eins p {
     font-family: 'Inter', sans-serif;
-    font-size: 20px;
+    font-size: 20px !important;
     font-weight: 400;
     line-height: 24px;
     text-align: left;
+    width: 320px !important;
 }
 
 .zwei {
