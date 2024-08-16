@@ -100,17 +100,16 @@ li {
   margin-right: 50px;
 }
 
-@media (max-width: 1170px) {
+@media (max-width: 1060px) {
   main {
     padding-left: 2%px;
     padding-top: 4%;
+    padding: 85px 32px;
   }
 }
 
 @media (max-width: 940px) {
-  main {
-    padding: 85px 32px;
-  }
+
 
   main h1 {
     font-size: 47px !important;

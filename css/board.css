@@ -91,6 +91,16 @@ body {
     margin-right: 30px;
 }
 
+.einhundert {
+    height: 100%;
+}
+
+@media(max-width: 1060px) {
+    .einhundert {
+        height: 67px !important;
+    }
+}
+
 .add-task-button:hover {
     background-color: #29abe2;
     /* Hintergrundfarbe beim Hover */
@@ -114,6 +124,7 @@ body {
 .kanban-board {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .kanban-column {

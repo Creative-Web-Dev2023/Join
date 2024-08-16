@@ -1,1048 +1,1220 @@
+document.getElementById("findTask").addEventListener("input", filterTasks);
+
+document
+  .getElementById("findTaskResponsive")
+  .addEventListener("input", filterTaskss);
+
+document.querySelectorAll(".prio-button").forEach(function (button) {
+  button.addEventListener("mouseover", handleMouseOver);
+  button.addEventListener("mouseout", handleMouseOut);
+  button.addEventListener("click", handleClick);
+});
+
+function addTaskListeners(taskElement, index) {
+  taskElement.addEventListener("click", () => openPopup(index + 1));
+  taskElement.addEventListener("dragstart", drag);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const columns = document.querySelectorAll(".kanban-column .content");
+
+  columns.forEach((column) => {
+    const observer = new MutationObserver(() => {
+      const tasks = column.querySelectorAll(".task");
+      tasks.forEach((task) => {
+        const taskId = task.id.replace("task", "");
+        updateProgressBarFromFirebase(taskId);
+      });
+    });
+    observer.observe(column, { childList: true });
+    const tasks = column.querySelectorAll(".task");
+    tasks.forEach((task) => {
+      const taskId = task.id.replace("task", "");
+      updateProgressBarFromFirebase(taskId);
+    });
+  });
+});
+
+async function openEdit(taskId) {
+  await selctedAssignees(taskId);
+  const taskData = await fetchTaskData(taskId);
+  const assignedHtml = generateAssignedHtml(taskData.assignedPeople);
+
+  displayEditPopup(taskId, taskData, assignedHtml);
+  loadSubtasksIntoEditForm(taskId, taskData.subtaskText);
+
+  document.querySelectorAll(".prio-button").forEach(function (button) {
+    button.addEventListener("mouseover", handleMouseOver);
+    button.addEventListener("mouseout", handleMouseOut);
+    button.addEventListener("click", handleClick);
+  });
+}
+
+function addInputListener(taskId, index, subtaskItem) {
+  const subtaskElement = subtaskItem.querySelector(".subtask");
+  subtaskElement.addEventListener("input", () =>
+    updateSubtaskInLocalStorage(taskId, index, subtaskElement.textContent)
+  );
+}
+
+function addSubtaskInputListener(taskId, index) {
+  const subtaskElement = document.querySelector(`#subtask-${index} .subtask`);
+  subtaskElement.addEventListener("input", () =>
+    updateSubtaskInLocalStorage(taskId, index, subtaskElement.textContent)
+  );
+}
+
 function init12() {
-    getInfo();
-    loadBoard();
+  getInfo();
+  loadBoard();
 }
 
 function createTaskElement(task, index) {
-    const { category, title, description, subtask, assigned, priority } = task;
-    const userStoryText = category;
-    const titleText = title || 'Title';
-    const descriptionText = description || 'Description';
-    const subtasks = subtask ? subtask.split(',').filter(st => st.trim() !== '') : [];
-    const subtaskCount = subtasks.length;
-    const priorityImage = getPriorityImage(priority);
-    const taskElement = createTaskDiv(index);
-    taskElement.innerHTML = HtmlTaskElement(
-        getHeaderColor(userStoryText),
-        userStoryText, titleText, descriptionText,
-        subtaskCount ? HtmlProgressBar(index, subtaskCount) : '',
-        generateAssignedHtml(assigned || []),
-        priorityImage
-    );
+  const { category, title, description, subtask, assigned, priority } = task;
+  const taskElement = createTaskDiv(index);
+  const taskContent = generateTaskContent(
+    category,
+    title,
+    description,
+    subtask,
+    assigned,
+    priority,
+    index
+  );
 
-    addTaskListeners(taskElement, index);
-    return taskElement;
+  taskElement.innerHTML = taskContent;
+  addTaskListeners(taskElement, index);
+
+  return taskElement;
 }
 
-document.querySelectorAll('.prio-button').forEach(function (button) {
-    button.addEventListener('mouseover', handleMouseOver);
-    button.addEventListener('mouseout', handleMouseOut);
-    button.addEventListener('click', handleClick);
-});
+function generateTaskContent(
+  category,
+  title,
+  description,
+  subtask,
+  assigned,
+  priority,
+  index
+) {
+  const userStoryText = category;
+  const titleText = title || "Title";
+  const descriptionText = description || "Description";
+  const subtasks = parseSubtasks(subtask);
+  const subtaskCount = subtasks.length;
+  const priorityImage = getPriorityImage(priority);
+
+  return HtmlTaskElement(
+    getHeaderColor(userStoryText),
+    userStoryText,
+    titleText,
+    descriptionText,
+    subtaskCount ? HtmlProgressBar(index, subtaskCount) : "",
+    generateAssignedHtml(assigned || []),
+    priorityImage
+  );
+}
+
+function parseSubtasks(subtask) {
+  return subtask ? subtask.split(",").filter((st) => st.trim() !== "") : [];
+}
 
 function handleMouseOver() {
-    if (!this.classList.contains('clicked')) {
-        const hoverSrc = this.src.replace('_standart', '_hover');
-        this.src = hoverSrc;
-    }
+  if (!this.classList.contains("clicked")) {
+    const hoverSrc = this.src.replace("_standart", "_hover");
+    this.src = hoverSrc;
+  }
 }
 
 function handleMouseOut() {
-    if (!this.classList.contains('clicked')) {
-        const standartSrc = this.src.replace('_hover', '_standart');
-        this.src = standartSrc;
-    }
+  if (!this.classList.contains("clicked")) {
+    const standartSrc = this.src.replace("_hover", "_standart");
+    this.src = standartSrc;
+  }
 }
 
 function handleClick() {
-    document.querySelectorAll('.prio-button').forEach(function (btn) {
-        if (btn !== this) {
-            btn.classList.remove('clicked');
-            if (btn.src.includes('_clicked')) {
-                btn.src = btn.src.replace('_clicked', '_standart');
-            }
-        }
-    }, this);
-
-    this.classList.add('clicked');
-    if (this.src.includes('_hover') || this.src.includes('_standart')) {
-        this.src = this.src.replace(/_hover|_standart/, '_clicked');
+  document.querySelectorAll(".prio-button").forEach(function (btn) {
+    if (btn !== this) {
+      btn.classList.remove("clicked");
+      if (btn.src.includes("_clicked")) {
+        btn.src = btn.src.replace("_clicked", "_standart");
+      }
     }
+  }, this);
+
+  this.classList.add("clicked");
+  if (this.src.includes("_hover") || this.src.includes("_standart")) {
+    this.src = this.src.replace(/_hover|_standart/, "_clicked");
+  }
 }
 
-
 function getPriorityImage(priority) {
-    const priorities = {
-        'urgent': '/assets/img/img_board/urgent.png',
-        'medium': '/assets/img/img_board/medium.png',
-        'low': '/assets/img/img_board/low.png'
-    };
-    return priorities[priority?.toLowerCase()] || '/assets/img/img_board/default.png';
+  const priorities = {
+    urgent: "/assets/img/img_board/urgent.png",
+    medium: "/assets/img/img_board/medium.png",
+    low: "/assets/img/img_board/low.png",
+  };
+  return (
+    priorities[priority?.toLowerCase()] || "/assets/img/img_board/default.png"
+  );
 }
 
 function createTaskDiv(index) {
-    const taskDiv = document.createElement('div');
-    taskDiv.className = 'task';
-    taskDiv.draggable = true;
-    taskDiv.id = `task${index + 1}`;
-    return taskDiv;
+  const taskDiv = document.createElement("div");
+  taskDiv.className = "task";
+  taskDiv.draggable = true;
+  taskDiv.id = `task${index + 1}`;
+  return taskDiv;
 }
 
 function getHeaderColor(userStoryText) {
-    const colors = {
-        'Technical Task': '#1FD7C1',
-        'User Story': '#0038FF'
-    };
-    return colors[userStoryText] || '#FFF';
+  const colors = {
+    "Technical Task": "#1FD7C1",
+    "User Story": "#0038FF",
+  };
+  return colors[userStoryText] || "#FFF";
 }
-
-function addTaskListeners(taskElement, index) {
-    taskElement.addEventListener('click', () => openPopup(index + 1));
-    taskElement.addEventListener('dragstart', drag);
-}
-
 
 function generateAssignedHtml(assignedPeople) {
-    return assignedPeople.map(person => {
-        const initials = person.name.split(' ').map(name => name[0]).join('');
-        return `
+  return assignedPeople
+    .map((person) => {
+      const initials = person.name
+        .split(" ")
+        .map((name) => name[0])
+        .join("");
+      return `
             <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
                 ${initials}
             </span>
         `;
-    }).join('');
+    })
+    .join("");
 }
 
 async function loadBoard() {
-    const tasks = await fetchTasks();
+  const tasks = await fetchTasks();
+  if (!tasks || tasks.length === 0) return;
 
-    if (!tasks || tasks.length === 0) {
-        return;
+  const tasksPositions = await fetchTasksPositions();
+  const columnMapping = getColumnMapping();
+
+  for (let index = 0; index < tasks.length; index++) {
+    const task = tasks[index];
+    await processTask3(task, index, tasksPositions, columnMapping);
+  }
+
+  saveTasks();
+}
+
+function getColumnMapping() {
+  return {
+    0: "content-todo",
+    1: "content-inprogress",
+    2: "content-awaitfeedback",
+    3: "content-done",
+  };
+}
+
+async function processTask3(task, index, tasksPositions, columnMapping) {
+  const taskElement = createTaskElement(task, index);
+  const columnId = findColumnForTask(task.id, tasksPositions);
+  const columnContentId = columnMapping[columnId];
+
+  appendTaskToColumn(taskElement, columnContentId);
+  await updateProgressBarFromFirebase(task.id);
+}
+
+function appendTaskToColumn(taskElement, columnContentId) {
+  if (columnContentId) {
+    const columnContent = document.getElementById(columnContentId);
+    if (columnContent) {
+      columnContent.appendChild(taskElement);
+    } else {
+      console.error(
+        `Content element not found for column ID: ${columnContentId}`
+      );
     }
-
-    const tasksPositions = await fetchTasksPositions();
-
-    const columnMapping = {
-        "0": "content-todo",
-        "1": "content-inprogress",
-        "2": "content-awaitfeedback",
-        "3": "content-done"
-    };
-
-    for (let index = 0; index < tasks.length; index++) {
-        const task = tasks[index];
-        const taskElement = createTaskElement(task, index);
-        const columnId = findColumnForTask(task.id, tasksPositions);
-
-        
-        const columnContentId = columnMapping[columnId];
-        if (columnContentId) {
-            const columnContent = document.getElementById(columnContentId);
-            if (columnContent) {
-                columnContent.appendChild(taskElement);
-            } else {
-                console.error(`Content element not found for column ID: ${columnContentId}`);
-            }
-        } else {
-            console.error(`No mapping found for column ID: ${columnId}`);
-        }
-
-        await updateProgressBarFromFirebase(task.id);  
-    }
-
-    
-    saveTasks();
+  } else {
+    console.error(`No mapping found for column ID: ${columnContentId}`);
+  }
 }
 
 async function fetchTasksPositions() {
-    const response = await fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/.json');
-    return await response.json();
+  const response = await fetch(
+    "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/.json"
+  );
+  return await response.json();
 }
 
 function findColumnForTask(taskId, tasksPositions) {
-    
-    if (!tasksPositions || Object.keys(tasksPositions).length === 0) {
-        console.error(`No task positions found, defaulting task ${taskId} to column 0`);
-        return "0"; 
-    }
+  if (!tasksPositions || Object.keys(tasksPositions).length === 0) {
+    console.error(
+      `No task positions found, defaulting task ${taskId} to column 0`
+    );
+    return "0";
+  }
 
-    
-    for (const [columnKey, taskIds] of Object.entries(tasksPositions)) {
-        if (taskIds.includes(taskId)) {
-            return columnKey.replace('column', ''); 
-        }
+  for (const [columnKey, taskIds] of Object.entries(tasksPositions)) {
+    if (taskIds.includes(taskId)) {
+      return columnKey.replace("column", "");
     }
-
-    console.error(`Task ID: ${taskId} not found in any column, defaulting to column 0`);
-    return "0"; 
+  }
+  return "0";
 }
 
 async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
-    const firebasePath = `tasks/task${taskId}/subtaskStatuses/${subtaskIndex}`;
+  const firebasePath = generateFirebasePath(taskId, subtaskIndex);
 
-    try {
-        const response = await fetch(BASE_URL + firebasePath + ".json", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(isChecked) 
-        });
-
-        if (!response.ok) {
-            throw new Error('Fehler beim Speichern des Zustands in Firebase');
-        }
-
-    } catch (error) {
-        console.error('Fehler beim Speichern des Checkbox-Zustands in Firebase:', error);
-        throw error; 
-    }
+  try {
+    const response = await sendCheckboxStateToFirebase(firebasePath, isChecked);
+    handleResponseStatus(response);
+  } catch (error) {
+    handleError(error);
+    throw error;
+  }
 }
 
+function generateFirebasePath(taskId, subtaskIndex) {
+  return `tasks/task${taskId}/subtaskStatuses/${subtaskIndex}.json`;
+}
+
+async function sendCheckboxStateToFirebase(firebasePath, isChecked) {
+  return await fetch(BASE_URL + firebasePath, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(isChecked),
+  });
+}
+
+function handleResponseStatus(response) {
+  if (!response.ok) {
+    throw new Error("Fehler beim Speichern des Zustands in Firebase");
+  }
+}
+
+function handleError(error) {
+  console.error(
+    "Fehler beim Speichern des Checkbox-Zustands in Firebase:",
+    error
+  );
+}
 
 async function processTaskWithSubtasks(task, index) {
-    const taskElement = createTaskElement(task, index);
+  const taskElement = createTaskElement(task, index);
 
-    
-    const subtaskText = await subtaskFB(`tasks/task${task.id}/subtask`);
-    if (subtaskText) {
-        const subtasksContainer = document.createElement('div');
-        taskElement.appendChild(subtasksContainer);
+  const subtaskText = await subtaskFB(`tasks/task${task.id}/subtask`);
+  if (subtaskText) {
+    const subtasksContainer = document.createElement("div");
+    taskElement.appendChild(subtasksContainer);
 
-        
-        await updateProgressBarFromFirebase(task.id); 
-    }
+    await updateProgressBarFromFirebase(task.id);
+  }
 
-    return taskElement;
+  return taskElement;
 }
 
 async function updateProgressBarFromFirebase(taskId) {
-    const savedStatuses = await getSavedStatusesFromFirebase(taskId);
+  const savedStatuses = await getSavedStatusesFromFirebase(taskId);
 
-    const totalSubtasks = savedStatuses.length;
-    const completedCount = savedStatuses.filter(status => status === true).length;
+  const totalSubtasks = savedStatuses.length;
+  const completedCount = savedStatuses.filter(
+    (status) => status === true
+  ).length;
 
-    updateProgressBarUI(taskId, completedCount, totalSubtasks);
-    updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
+  updateProgressBarUI(taskId, completedCount, totalSubtasks);
+  updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
 }
 
-
-
 function showNoTasksMessage(container) {
-    container.innerHTML = '<p>No tasks available.</p>';
+  container.innerHTML = "<p>No tasks available.</p>";
 }
 
 function processTask(task, index, container) {
-    const taskElement = createTaskElement(task, index);
-    container.appendChild(taskElement);
-    loadSubtaskProgress(index + 1);
-    updateProgressBarFromFirebase(index + 1);
+  const taskElement = createTaskElement(task, index);
+  container.appendChild(taskElement);
+  loadSubtaskProgress(index + 1);
+  updateProgressBarFromFirebase(index + 1);
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const columns = document.querySelectorAll('.kanban-column .content');
-
-    columns.forEach(column => {
-        const observer = new MutationObserver(() => {
-            const tasks = column.querySelectorAll('.task');
-            tasks.forEach(task => {
-                const taskId = task.id.replace('task', ''); 
-                updateProgressBarFromFirebase(taskId); 
-            });
-        });
-
-        
-        observer.observe(column, { childList: true });
-
-        
-        const tasks = column.querySelectorAll('.task');
-        tasks.forEach(task => {
-            const taskId = task.id.replace('task', ''); 
-            updateProgressBarFromFirebase(taskId); 
-        });
-    });
-});
-
-
 
 function calculateSubtaskCounts(statuses) {
-    const completedCount = statuses.filter(status => status).length;
-    return { completedCount, totalSubtasks: statuses.length };
+  const completedCount = statuses.filter((status) => status).length;
+  return { completedCount, totalSubtasks: statuses.length };
 }
-
-
 
 function updateSubtaskCountElement(taskId, completedCount, totalSubtasks) {
-    const subtaskCountElement = document.getElementById(`subtask-count-${taskId}`);
-    if (subtaskCountElement) {
-        subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
-    }
+  const subtaskCountElement = document.getElementById(
+    `subtask-count-${taskId}`
+  );
+  if (subtaskCountElement) {
+    subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
+  }
 }
 
-
 function updateProgress(taskId) {
-    const subtaskImages = getSubtaskImages(taskId);
-    const { completedCount, totalSubtasks } = calculateSubtaskCompletion(subtaskImages);
+  const subtaskImages = getSubtaskImages(taskId);
+  const { completedCount, totalSubtasks } =
+    calculateSubtaskCompletion(subtaskImages);
 
-    updateProgressBarUI(taskId, completedCount, totalSubtasks);
-    updateSubtaskCountUI(taskId, completedCount, totalSubtasks);
+  updateProgressBarUI(taskId, completedCount, totalSubtasks);
+  updateSubtaskCountUI(taskId, completedCount, totalSubtasks);
 
-    saveSubtaskProgress(taskId, subtaskImages);
+  saveSubtaskProgress(taskId, subtaskImages);
 }
 
 function getSubtaskImages(taskId) {
-    return document.querySelectorAll(`#popup-task${taskId} .subtask img`);
+  return document.querySelectorAll(`#popup-task${taskId} .subtask img`);
 }
 
 function calculateSubtaskCompletion(subtaskImages) {
-    const completedCount = Array.from(subtaskImages).filter(img => img.src.includes('checkesbox.png')).length;
-    return { completedCount, totalSubtasks: subtaskImages.length };
+  const completedCount = Array.from(subtaskImages).filter((img) =>
+    img.src.includes("checkesbox.png")
+  ).length;
+  return { completedCount, totalSubtasks: subtaskImages.length };
 }
 
 function updateProgressBarUI(taskId, completedCount, totalSubtasks) {
-    const progressBar = document.getElementById(`progress-bar-${taskId}`);
-    if (progressBar) {
-        const progressPercentage = (completedCount / totalSubtasks) * 100;
-        progressBar.style.width = `${progressPercentage}%`;
-    }
+  const progressBar = document.getElementById(`progress-bar-${taskId}`);
+  if (progressBar) {
+    const progressPercentage = (completedCount / totalSubtasks) * 100;
+    progressBar.style.width = `${progressPercentage}%`;
+  }
 }
 
 function updateSubtaskCountUI(taskId, completedCount, totalSubtasks) {
-    const subtaskCountElement = document.getElementById(`subtask-count-${taskId}`);
-    if (subtaskCountElement) {
-        subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
-    }
+  const subtaskCountElement = document.getElementById(
+    `subtask-count-${taskId}`
+  );
+  if (subtaskCountElement) {
+    subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
+  }
 }
 
 async function saveSubtaskProgress(taskId) {
-    const subtaskImages = document.querySelectorAll(`#popup-task${taskId} .subtask img`);
-    const subtaskStatuses = Array.from(subtaskImages).map(img => img.src.includes('checkesbox.png'));
+  const subtaskStatuses = getSubtaskStatuses(taskId);
+  const firebasePath = generateFirebaseSubtaskPath(taskId);
 
-    
-    const firebasePath = `tasks/task${taskId}/subtaskStatuses`;
-
-    
-    try {
-        await fetch(BASE_URL + firebasePath + ".json", {
-            method: "PUT", 
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(subtaskStatuses)
-        });
-    } catch (error) {
-        console.error('Error saving subtask statuses to Firebase:', error);
-    }
+  try {
+    await sendSubtaskStatusesToFirebase(firebasePath, subtaskStatuses);
+  } catch (error) {
+    handleSaveError(error);
+  }
 }
 
+function getSubtaskStatuses(taskId) {
+  const subtaskImages = document.querySelectorAll(
+    `#popup-task${taskId} .subtask img`
+  );
+  return Array.from(subtaskImages).map((img) =>
+    img.src.includes("checkesbox.png")
+  );
+}
 
+function generateFirebaseSubtaskPath(taskId) {
+  return `tasks/task${taskId}/subtaskStatuses.json`;
+}
+
+async function sendSubtaskStatusesToFirebase(firebasePath, subtaskStatuses) {
+  await fetch(BASE_URL + firebasePath, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(subtaskStatuses),
+  });
+}
+
+function handleSaveError(error) {
+  console.error("Error saving subtask statuses to Firebase:", error);
+}
 
 async function loadSubtaskProgress(taskId) {
-    
-    const savedStatuses = await getSavedStatusesFromFirebase(taskId);
+  const savedStatuses = await getSavedStatusesFromFirebase(taskId);
 
-    
-    const subtaskImages = getSubtaskImages(taskId);
+  const subtaskImages = getSubtaskImages(taskId);
 
-    
-    if (!savedStatuses || savedStatuses.length === 0) {
+  if (!savedStatuses || savedStatuses.length === 0) {
+    const initialStatuses = Array(subtaskImages.length).fill(false);
 
-        
-        const initialStatuses = Array(subtaskImages.length).fill(false);
+    await saveSubtaskProgress(taskId, initialStatuses);
 
-        
-        await saveSubtaskProgress(taskId, initialStatuses);
+    applySavedStatuses(subtaskImages, initialStatuses);
+  } else {
+    applySavedStatuses(subtaskImages, savedStatuses);
+  }
 
-        
-        applySavedStatuses(subtaskImages, initialStatuses);
-    } else {
-        
-        applySavedStatuses(subtaskImages, savedStatuses);
-    }
-
-    
-    updateProgressBarFromFirebase(taskId);
+  updateProgressBarFromFirebase(taskId);
 }
 
-
-
-
 async function getSavedStatusesFromFirebase(taskId) {
-    const response = await fetch(BASE_URL + `tasks/task${taskId}/subtaskStatuses.json`);
-    const savedStatuses = await response.json();
-    return savedStatuses || []; 
+  const response = await fetch(
+    BASE_URL + `tasks/task${taskId}/subtaskStatuses.json`
+  );
+  const savedStatuses = await response.json();
+  return savedStatuses || [];
 }
 
 function applySavedStatuses(subtaskImages, savedStatuses) {
-    subtaskImages.forEach((img, index) => {
-        img.src = savedStatuses[index] ? '/assets/img/img_add_task/checkesbox.png' : '/assets/img/img_add_task/checkbox.png';
-    });
+  subtaskImages.forEach((img, index) => {
+    img.src = savedStatuses[index]
+      ? "/assets/img/img_add_task/checkesbox.png"
+      : "/assets/img/img_add_task/checkbox.png";
+  });
 }
 async function fetchTasks() {
-    try {
-        const response = await fetch(BASE_URL + 'tasks.json');
-        const data = await response.json();
+  try {
+    const response = await fetch(BASE_URL + "tasks.json");
+    const data = await response.json();
 
-        
-        if (!data) {
-            console.error('No tasks data found');
-            return [];
-        }
-
-        
-        const tasks = Object.keys(data).map(taskId => ({
-            id: taskId, 
-            ...data[taskId] 
-        }));
-
-        return tasks;
-    } catch (error) {
-        console.error('Error fetching tasks:', error);
-        return [];
+    if (!data) {
+      console.error("No tasks data found");
+      return [];
     }
+
+    const tasks = Object.keys(data).map((taskId) => ({
+      id: taskId,
+      ...data[taskId],
+    }));
+
+    return tasks;
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    return [];
+  }
 }
-
-
-
 
 async function openPopup(taskId) {
-    const taskData = await fetchTaskData(taskId);
-    currentTaskData = { taskId, ...taskData };
+  const taskData = await fetchTaskData(taskId);
+  currentTaskData = { taskId, ...taskData };
 
-    document.body.style.overflowY = "hidden";
-    const assignedHtml = generateAssignedHtml2(taskData.assignedPeople);
-    const subtasksHtml = generateSubtasksHtml(taskData.subtaskText, taskId);
-    const priorityImage = getPriorityImage(taskData.priorityText);
-    const headerBackgroundColor = getHeaderBackgroundColor(taskData.userStoryText);
+  document.body.style.overflowY = "hidden";
+  const assignedHtml = generateAssignedHtml2(taskData.assignedPeople);
+  const subtasksHtml = generateSubtasksHtml(taskData.subtaskText, taskId);
+  const priorityImage = getPriorityImage(taskData.priorityText);
+  const headerBackgroundColor = getHeaderBackgroundColor(
+    taskData.userStoryText
+  );
 
-    displayPopup(taskId, headerBackgroundColor, taskData, priorityImage, assignedHtml, subtasksHtml);
+  displayPopup(
+    taskId,
+    headerBackgroundColor,
+    taskData,
+    priorityImage,
+    assignedHtml,
+    subtasksHtml
+  );
 
-    
-    await loadSubtaskProgress(taskId);
+  await loadSubtaskProgress(taskId);
 }
 
-
 async function fetchTaskData(taskId) {
-    const [userStoryText, titleText, dueDate, descriptionText, subtaskText, priorityText, assignedPeople] = await Promise.all([
-        userStory(`tasks/task${taskId}/category`),
-        title(`tasks/task${taskId}/title`),
-        dateFB(`tasks/task${taskId}/date`),
-        descriptionFB(`tasks/task${taskId}/description`),
-        subtaskFB(`tasks/task${taskId}/subtask`),
-        priorityFB(`tasks/task${taskId}/priority`),
-        assignedFB(`tasks/task${taskId}/assigned`)
-    ]);
-    return { userStoryText, titleText, dueDate, descriptionText, subtaskText, priorityText, assignedPeople: assignedPeople || [] };
+  const [
+    userStoryText,
+    titleText,
+    dueDate,
+    descriptionText,
+    subtaskText,
+    priorityText,
+    assignedPeople,
+  ] = await Promise.all([
+    userStory(`tasks/task${taskId}/category`),
+    title(`tasks/task${taskId}/title`),
+    dateFB(`tasks/task${taskId}/date`),
+    descriptionFB(`tasks/task${taskId}/description`),
+    subtaskFB(`tasks/task${taskId}/subtask`),
+    priorityFB(`tasks/task${taskId}/priority`),
+    assignedFB(`tasks/task${taskId}/assigned`),
+  ]);
+  return {
+    userStoryText,
+    titleText,
+    dueDate,
+    descriptionText,
+    subtaskText,
+    priorityText,
+    assignedPeople: assignedPeople || [],
+  };
 }
 
 function generateSubtasksHtml(subtaskText, taskId) {
-    const subtasks = Array.isArray(subtaskText) ? subtaskText : subtaskText.split(',').filter(subtask => subtask.trim() !== '');
-    if (subtasks.length === 0) return '<p>No subtasks available.</p>';
-    return subtasks.map((subtask, index) => `
+  const subtasks = Array.isArray(subtaskText)
+    ? subtaskText
+    : subtaskText.split(",").filter((subtask) => subtask.trim() !== "");
+  if (subtasks.length === 0) return "<p>No subtasks available.</p>";
+  return subtasks
+    .map(
+      (subtask, index) => `
         <div class="subtask flex" onclick="toggleCheckbox(${index}, ${taskId})">
             <img src="/assets/img/img_add_task/checkbox.png" id="popup-subtask-${index}" name="subtask-${index}" style="height: 16px">
             <label for="popup-subtask-${index}">${subtask.trim()}</label>
-        </div>`).join('');
+        </div>`
+    )
+    .join("");
 }
 
 function getHeaderBackgroundColor(userStoryText) {
-    const colors = {
-        'Technical Task': '#1FD7C1',
-        'User Story': '#0038FF'
-    };
-    return colors[userStoryText] || '#FFF';
+  const colors = {
+    "Technical Task": "#1FD7C1",
+    "User Story": "#0038FF",
+  };
+  return colors[userStoryText] || "#FFF";
 }
 
-function displayPopup(taskId, headerBackgroundColor, taskData, priorityImage, assignedHtml, subtasksHtml) {
-    const popup = document.getElementById('popup-tasks');
-    popup.style.display = 'flex';
-    popup.innerHTML = HtmlPopup(
-        taskId, headerBackgroundColor,
-        taskData.userStoryText, taskData.titleText, taskData.descriptionText,
-        taskData.dueDate, taskData.priorityText, priorityImage,
-        assignedHtml, subtasksHtml
-    );
+function displayPopup(
+  taskId,
+  headerBackgroundColor,
+  taskData,
+  priorityImage,
+  assignedHtml,
+  subtasksHtml
+) {
+  const popup = document.getElementById("popup-tasks");
+  popup.style.display = "flex";
+  popup.innerHTML = HtmlPopup(
+    taskId,
+    headerBackgroundColor,
+    taskData.userStoryText,
+    taskData.titleText,
+    taskData.descriptionText,
+    taskData.dueDate,
+    taskData.priorityText,
+    priorityImage,
+    assignedHtml,
+    subtasksHtml
+  );
 }
 function generateAssignedHtml2(assignedPeople) {
-    if (assignedPeople.length === 0) return '<p>No one assigned</p>';
-    return assignedPeople.map(person => {
-        const initials = person.name.split(' ').map(name => name[0]).join('');
-        return `
+  if (assignedPeople.length === 0) return "<p>No one assigned</p>";
+  return assignedPeople
+    .map((person) => {
+      const initials = person.name
+        .split(" ")
+        .map((name) => name[0])
+        .join("");
+      return `
         <div>
             <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; text-align: center; color: #fff;">
                 ${initials}
             </span>
             <p>${person.name}<p>
         </div>`;
-    }).join('');
+    })
+    .join("");
 }
 
-
-let isSaving = false; 
+let isSaving = false;
 
 async function toggleCheckbox(index, taskId) {
-    if (isSaving) return; 
+  if (isSaving) return;
 
-    isSaving = true; 
+  isSaving = true;
 
-    const imgElement = document.getElementById(`popup-subtask-${index}`);
-    const isChecked = imgElement.src.includes('checkbox.png'); 
+  const imgElement = document.getElementById(`popup-subtask-${index}`);
+  const isChecked = imgElement.src.includes("checkbox.png");
 
-    
-    imgElement.src = isChecked ? '/assets/img/img_add_task/checkesbox.png' : '/assets/img/img_add_task/checkbox.png';
+  imgElement.src = isChecked
+    ? "/assets/img/img_add_task/checkesbox.png"
+    : "/assets/img/img_add_task/checkbox.png";
 
-    
-    await saveCheckboxState(taskId, index, !isChecked);
+  await saveCheckboxState(taskId, index, !isChecked);
 
-    
-    updateProgress(taskId);
+  updateProgress(taskId);
 
-    isSaving = false; 
+  isSaving = false;
 }
 
-
-
 async function selctedAssignees(taskId) {
-    const assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
-    resetDropdownItems();
-    highlightAssignedPeople(assignedPeople);
+  const assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
+  resetDropdownItems();
+  highlightAssignedPeople(assignedPeople);
 }
 
 function resetDropdownItems() {
-    document.querySelectorAll('.dropdown-item').forEach(item => {
-        item.setAttribute('data-selected', 'false');
-        const img = item.querySelector('.toggle-image');
-        img.src = '/assets/img/img_add_task/checkbox.png';
-        img.alt = 'Unselected';
-        item.style.backgroundColor = '';
-        item.style.color = '';
-    });
+  document.querySelectorAll(".dropdown-item").forEach((item) => {
+    item.setAttribute("data-selected", "false");
+    const img = item.querySelector(".toggle-image");
+    img.src = "/assets/img/img_add_task/checkbox.png";
+    img.alt = "Unselected";
+    item.style.backgroundColor = "";
+    item.style.color = "";
+  });
 }
 
 function highlightAssignedPeople(assignedPeople) {
-    if (!assignedPeople || assignedPeople.length === 0) {
-        return;
-    }
+  if (!assignedPeople || assignedPeople.length === 0) {
+    return;
+  }
 
-    assignedPeople.forEach(person => {
-        const dropdownItem = document.querySelector(`.dropdown-item[data-name="${person.name}"]`);
-        if (dropdownItem) {
-            setItemSelected(dropdownItem);
-        }
-    });
+  assignedPeople.forEach((person) => {
+    const dropdownItem = document.querySelector(
+      `.dropdown-item[data-name="${person.name}"]`
+    );
+    if (dropdownItem) {
+      setItemSelected(dropdownItem);
+    }
+  });
 }
 
 function setItemSelected(item) {
-    item.setAttribute('data-selected', 'true');
-    const img = item.querySelector('.toggle-image');
-    img.src = '/assets/img/img_add_task/checkedbox.png';
-    img.alt = 'Selected';
-    item.style.backgroundColor = '#2A3647';
-    item.style.color = 'white';
+  item.setAttribute("data-selected", "true");
+  const img = item.querySelector(".toggle-image");
+  img.src = "/assets/img/img_add_task/checkedbox.png";
+  img.alt = "Selected";
+  item.style.backgroundColor = "#2A3647";
+  item.style.color = "white";
 }
-
-
-async function openEdit(taskId) {
-    await selctedAssignees(taskId);
-    const taskData = await fetchTaskData(taskId);
-    const assignedHtml = generateAssignedHtml(taskData.assignedPeople);
-
-    displayEditPopup(taskId, taskData, assignedHtml);
-    loadSubtasksIntoEditForm(taskId, taskData.subtaskText);
-
-
-
-    
-    document.querySelectorAll('.prio-button').forEach(function (button) {
-        button.addEventListener('mouseover', handleMouseOver);
-        button.addEventListener('mouseout', handleMouseOut);
-        button.addEventListener('click', handleClick);
-    });
-}
-
 
 function displayEditPopup(taskId, taskData, assignedHtml) {
-    document.getElementById(`popup-task${taskId}`).style.height = '80%';
-    const edit = document.getElementById(`popup-task${taskId}`);
-    edit.innerHTML = HtmlEdit(taskData.titleText, taskData.descriptionText, taskId, assignedHtml, taskData.dueDate, taskData.priorityText, taskData.userStoryText);
+  document.getElementById(`popup-task${taskId}`).style.height = "80%";
+  const edit = document.getElementById(`popup-task${taskId}`);
+  edit.innerHTML = HtmlEdit(
+    taskData.titleText,
+    taskData.descriptionText,
+    taskId,
+    assignedHtml,
+    taskData.dueDate,
+    taskData.priorityText,
+    taskData.userStoryText
+  );
 }
 
 function loadSubtasksIntoEditForm(taskId, subtaskText) {
-    if (typeof subtaskText === 'string') {
-        const subtasks = subtaskText.split(',').filter(subtask => subtask.trim() !== '');
-        populateSubtaskList(taskId, subtasks);
-    } else {
-        console.error('subtaskText is not a string:', subtaskText);
-    }
+  if (typeof subtaskText === "string") {
+    const subtasks = subtaskText
+      .split(",")
+      .filter((subtask) => subtask.trim() !== "");
+    populateSubtaskList(taskId, subtasks);
+  } else {
+    console.error("subtaskText is not a string:", subtaskText);
+  }
 }
 
 function populateSubtaskList(taskId, subtasks) {
-    const subtaskList = document.getElementById('subtask-list');
-    subtaskList.innerHTML = subtasks.map((subtask, index) => `
+  const subtaskList = document.getElementById("subtask-list");
+  subtaskList.innerHTML = subtasks
+    .map(
+      (subtask, index) => `
         <div id="subtask-${index}" style="display: flex; align-items: center;">
             <p class="subtask" contenteditable="true" style="flex-grow: 1;">${subtask.trim()}</p>
             <img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtasks(${index})">
         </div>
-    `).join('');
+    `
+    )
+    .join("");
 
-    subtasks.forEach((_, index) => addSubtaskInputListener(taskId, index));
-}
-
-function addSubtaskInputListener(taskId, index) {
-    const subtaskElement = document.querySelector(`#subtask-${index} .subtask`);
-    subtaskElement.addEventListener('input', () => updateSubtaskInLocalStorage(taskId, index, subtaskElement.textContent));
+  subtasks.forEach((_, index) => addSubtaskInputListener(taskId, index));
 }
 
 function updateSubtasksInFirebase(taskId) {
-    const newSubtasks = Array.from(document.querySelectorAll('#subtask-list .subtask')).map(p => p.textContent.trim());
+  const newSubtasks = Array.from(
+    document.querySelectorAll("#subtask-list .subtask")
+  ).map((p) => p.textContent.trim());
 
-    const combinedSubtasks = newSubtasks.filter(subtask => subtask.trim() !== '');
+  const combinedSubtasks = newSubtasks.filter(
+    (subtask) => subtask.trim() !== ""
+  );
 
-    putData(`tasks/task${taskId}/subtask`, combinedSubtasks.join(','))
-        .catch(error => {
-            console.error('Error updating subtasks in Firebase:', error);
-        });
+  putData(`tasks/task${taskId}/subtask`, combinedSubtasks.join(",")).catch(
+    (error) => {
+      console.error("Error updating subtasks in Firebase:", error);
+    }
+  );
 }
 
 function addSubtasks(taskId) {
-    const subtaskText = getSubtaskInputValue();
-    if (!subtaskText) return;
+  const subtaskText = getSubtaskInputValue();
+  if (!subtaskText) return;
 
-    const index = appendSubtaskToList(taskId, subtaskText);
-    clearSubtaskInput();
-    updateSubtasksInFirebase(taskId);
+  const index = appendSubtaskToList(taskId, subtaskText);
+  clearSubtaskInput();
+  updateSubtasksInFirebase(taskId);
 
-    
-    updateProgress(taskId);  
+  updateProgress(taskId);
 }
 
-
 function getSubtaskInputValue() {
-    const input = document.getElementById('subtask-input');
-    return input.value.trim();
+  const input = document.getElementById("subtask-input");
+  return input.value.trim();
 }
 
 function appendSubtaskToList(taskId, subtaskText) {
-    const subtaskList = document.getElementById('subtask-list');
-    const index = subtaskList.children.length;
+  const subtaskList = document.getElementById("subtask-list");
+  const index = subtaskList.children.length;
 
-    const subtaskItem = createSubtaskElement(index, subtaskText);
-    addInputListener(taskId, index, subtaskItem);
+  const subtaskItem = createSubtaskElement(index, subtaskText);
+  addInputListener(taskId, index, subtaskItem);
 
-    subtaskList.appendChild(subtaskItem);
-    return index;
+  subtaskList.appendChild(subtaskItem);
+  return index;
 }
 
 function createSubtaskElement(index, subtaskText) {
-    const subtaskItem = document.createElement('div');
-    subtaskItem.id = `subtask-${index}`;
-    subtaskItem.style.display = 'flex';
-    subtaskItem.style.alignItems = 'center';
-    subtaskItem.innerHTML = `
+  const subtaskItem = document.createElement("div");
+  subtaskItem.id = `subtask-${index}`;
+  subtaskItem.style.display = "flex";
+  subtaskItem.style.alignItems = "center";
+  subtaskItem.innerHTML = `
         <p class="subtask" contenteditable="true" style="flex-grow: 1;">${subtaskText}</p>
         <img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtasks(${index})">
     `;
-    return subtaskItem;
-}
-
-function addInputListener(taskId, index, subtaskItem) {
-    const subtaskElement = subtaskItem.querySelector('.subtask');
-    subtaskElement.addEventListener('input', () => updateSubtaskInLocalStorage(taskId, index, subtaskElement.textContent));
+  return subtaskItem;
 }
 
 function clearSubtaskInput() {
-    document.getElementById('subtask-input').value = '';
+  document.getElementById("subtask-input").value = "";
 }
-
-
 
 function removeSubtasks(index) {
-    const subtaskElement = document.getElementById(`subtask-${index}`);
-    const subtaskText = subtaskElement.querySelector('.subtask').textContent;
+  const subtaskElement = document.getElementById(`subtask-${index}`);
+  const subtaskText = subtaskElement.querySelector(".subtask").textContent;
 
-    if (subtaskElement) {
-        subtaskElement.remove();
-        deleteSubTaskFB(`tasks/task${currentTaskData.taskId}`, subtaskText);
-    }
+  if (subtaskElement) {
+    subtaskElement.remove();
+    deleteSubTaskFB(`tasks/task${currentTaskData.taskId}`, subtaskText);
+  }
 }
-
 
 async function deleteSubTaskFB(path, subtaskToDelete) {
+  const taskData = await fetchTaskDataFromFirebase(path);
+  if (!isValidTaskData(taskData)) return;
 
-    let taskResponse = await fetch(BASE_URL + path + ".json");
-    let taskData = await taskResponse.json();
+  const updatedSubtasks = removeSubtask(taskData.subtask, subtaskToDelete);
+  if (updatedSubtasks === taskData.subtask) return;
 
-    if (!taskData || !taskData.subtask) {
-        return;
-    }
-
-    let subtasks = taskData.subtask.split(',');
-
-    let updatedSubtasks = subtasks.filter(subtask => subtask.trim() !== subtaskToDelete.trim());
-
-    if (updatedSubtasks.length === subtasks.length) {
-        return;
-    }
-
-    let updatedSubtaskString = updatedSubtasks.join(',');
-
-    let updateResponse = await fetch(BASE_URL + path + ".json", {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ subtask: updatedSubtaskString })
-    });
-
-    return await updateResponse.json();
+  return await updateSubtasksInFirebase2(path, updatedSubtasks);
 }
+
+async function fetchTaskDataFromFirebase(path) {
+  const response = await fetch(BASE_URL + path + ".json");
+  return await response.json();
+}
+
+function isValidTaskData(taskData) {
+  return taskData && taskData.subtask;
+}
+
+function removeSubtask(subtasksString, subtaskToDelete) {
+  const subtasks = subtasksString.split(",");
+  return subtasks
+    .filter((subtask) => subtask.trim() !== subtaskToDelete.trim())
+    .join(",");
+}
+
+async function updateSubtasksInFirebase2(path, updatedSubtasks) {
+  const response = await fetch(BASE_URL + path + ".json", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ subtask: updatedSubtasks }),
+  });
+
+  return await response.json();
+}
+
 function filterSubtasks(subtaskString, subtaskToDelete) {
-    return subtaskString.split(',').filter(subtask => subtask.trim() !== subtaskToDelete.trim());
+  return subtaskString
+    .split(",")
+    .filter((subtask) => subtask.trim() !== subtaskToDelete.trim());
 }
 
 async function updateSubtasks(path, updatedSubtaskString) {
-    const response = await fetch(BASE_URL + path + ".json", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subtask: updatedSubtaskString })
-    });
-    return await response.json();
+  const response = await fetch(BASE_URL + path + ".json", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ subtask: updatedSubtaskString }),
+  });
+  return await response.json();
 }
-
-
 
 function putOnFb(taskId) {
-    const taskData = collectTaskData();
-    if (!validateTaskData(taskData)) return;
-
-    const newSubtasks = collectNewSubtasks();
-    const subtaskStatuses = newSubtasks.map(() => false);  
-
-    
-    taskData.subtask = newSubtasks.join(',');
-    taskData.subtaskStatuses = subtaskStatuses;
-
-    
-    saveTaskToFb(taskId, taskData)
-        .then(() => {
-            
-            addToColumn0(taskId);
-        })
-
-    window.location.href = "/html/board.html";
+  const taskData = collectTaskData();
+  if (!validateTaskData(taskData)) return;
+  const newSubtasks = collectNewSubtasks();
+  const subtaskStatuses = newSubtasks.map(() => false);
+  taskData.subtask = newSubtasks.join(",");
+  taskData.subtaskStatuses = subtaskStatuses;
+  saveTaskToFb(taskId, taskData).then(() => {
+    addToColumn0(taskId);
+  });
+  window.location.href = "/html/board.html";
 }
 
-
 function addToColumn0(taskId) {
-    
-    fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json')
-        .then(response => response.json())
-        .then(column0Tasks => {
-            
-            if (!Array.isArray(column0Tasks)) {
-                column0Tasks = [];
-            }
+  fetchColumn0Tasks()
+    .then((column0Tasks) => updateColumn0Tasks(column0Tasks, taskId))
+    .catch(handleAddToColumnError);
+}
 
-            
-            column0Tasks.push(`task${taskId}`);
+async function fetchColumn0Tasks() {
+  const response = await fetch(
+    "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json"
+  );
+  const column0Tasks = await response.json();
+  return Array.isArray(column0Tasks) ? column0Tasks : [];
+}
 
-            
-            return fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(column0Tasks),
-            });
-        })
-        .then(response => response.json())
+async function updateColumn0Tasks(column0Tasks, taskId) {
+  column0Tasks.push(`task${taskId}`);
+  const response = await fetch(
+    "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json",
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(column0Tasks),
+    }
+  );
+  return await response.json();
+}
 
-        .catch(error => {
-            console.error('Fehler beim Hinzufügen der Task zu column0:', error);
-        });
+function handleAddToColumnError(error) {
+  console.error("Fehler beim Hinzufügen der Task zu column0:", error);
 }
 
 function collectTaskData() {
-    return {
-        title: document.getElementById('title-input').value,
-        description: document.getElementById('description-input').value,
-        date: document.getElementById('date').value,
-        category: document.getElementById('category').value,
-        priority: document.querySelector('.prio-button.clicked')?.alt || '', 
-        assigned: getSelectedContacts()  
-    };
+  return {
+    title: document.getElementById("title-input").value,
+    description: document.getElementById("description-input").value,
+    date: document.getElementById("date").value,
+    category: document.getElementById("category").value,
+    priority: document.querySelector(".prio-button.clicked")?.alt || "",
+    assigned: getSelectedContacts(),
+  };
 }
 function validateTaskData({ title, date, category }) {
-    return title && date && category;
+  return title && date && category;
 }
 
 function collectNewSubtasks() {
-    return Array.from(document.querySelectorAll('#subtask-list .subtask')).map(p => p.textContent.trim());
+  return Array.from(document.querySelectorAll("#subtask-list .subtask")).map(
+    (p) => p.textContent.trim()
+  );
 }
 
 function mergeAndSaveSubtasks(taskId, newSubtasks, taskData) {
-    subtaskFB(`tasks/task${taskId}/subtask`).then(existingSubtasks => {
-        const existingSubtaskArray = Array.isArray(existingSubtasks) ? existingSubtasks : existingSubtasks.split(',').filter(subtask => subtask.trim() !== '');
-        const combinedSubtasks = [...newSubtasks, ...existingSubtaskArray].filter((subtask, index, self) => self.indexOf(subtask) === index);
-
-        taskData.subtask = combinedSubtasks.join(',');
-        taskData.assigned = getSelectedContacts();
-
-        saveTaskToFb(taskId, taskData);
-    }).catch(console.error);
+  subtaskFB(`tasks/task${taskId}/subtask`)
+    .then((existingSubtasks) => {
+      const existingSubtaskArray = Array.isArray(existingSubtasks)
+        ? existingSubtasks
+        : existingSubtasks
+            .split(",")
+            .filter((subtask) => subtask.trim() !== "");
+      const combinedSubtasks = [...newSubtasks, ...existingSubtaskArray].filter(
+        (subtask, index, self) => self.indexOf(subtask) === index
+      );
+      taskData.subtask = combinedSubtasks.join(",");
+      taskData.assigned = getSelectedContacts();
+      saveTaskToFb(taskId, taskData);
+    })
+    .catch(console.error);
 }
 
 function saveTaskToFb(taskId, taskData) {
-    putData(`tasks/task${taskId}`, taskData)
-        .then(() => window.location.href = '/html/board.html')
-        .catch(error => {
-            console.error('Error updating task:', error);
-        });
-}
-
-async function dateFB(path = "") {
-    try {
-        let response = await fetch(BASE_URL + path + ".json");
-        let dueDate = await response.json();
-        return dueDate;
-    } catch (error) {
-        console.error('Error fetching duedate:', error);
-        return 'Error loading duedate';
-    }
-}
-
-async function subtaskFB(path = "") {
-    try {
-        let response = await fetch(BASE_URL + path + ".json");
-        let subtask = await response.json();
-        return subtask;
-    } catch (error) {
-        console.error('Error fetching subtask:', error);
-        return [];
-    }
-}
-
-async function descriptionFB(path = "") {
-    try {
-        let response = await fetch(BASE_URL + path + ".json");
-        let description = await response.json();
-        return description;
-    } catch (error) {
-        console.error('Error fetching description:', error);
-        return 'Error loading description';
-    }
-}
-
-async function title(path = "") {
-    try {
-        let response = await fetch(BASE_URL + path + ".json");
-        let title = await response.json();
-        return title;
-    } catch (error) {
-        console.error('Error fetching title:', error);
-        return 'Error loading title';
-    }
-}
-
-async function userStory(path = "") {
-    try {
-        let response = await fetch(BASE_URL + path + ".json");
-        let userStory = await response.json();
-        return userStory;
-    } catch (error) {
-        console.error('Error fetching user story:', error);
-        return 'Error loading user story';
-    }
-}
-
-async function assignedFB(path = "") {
-    try {
-        let response = await fetch(BASE_URL + path + ".json");
-        let assigned = await response.json();
-        return assigned;
-    } catch (error) {
-        console.error('Error fetching assigned people:', error);
-        return [];
-    }
-}
-
-async function priorityFB(path = "") {
-    try {
-        let response = await fetch(BASE_URL + path + ".json");
-        let priority = await response.json();
-        return priority;
-    } catch (error) {
-        console.error('Error fetching priority:', error);
-        return 'Error loading priority';
-    }
-}
-
-function move() {
-    if (i == 0) {
-        i = 1;
-        var elem = document.getElementById("myBar");
-        var width = 10;
-        var id = setInterval(frame, 10);
-        function frame() {
-            if (width >= 100) {
-                clearInterval(id);
-                i = 0;
-            } else {
-                width++;
-                elem.style.width = width + "%";
-                elem.innerHTML = width + "%";
-            }
-        }
-    }
-}
-async function deleteTask(taskId) {
-    try {
-        
-        const taskPath = `${BASE_URL}tasks/task${taskId}.json`;
-        const deleteResponse = await fetch(taskPath, {
-            method: 'DELETE',
-        });
-
-        if (!deleteResponse.ok) {
-            throw new Error(`Error deleting task ${taskId}`);
-        }
-
-
-        
-        const tasksResponse = await fetch(`${BASE_URL}tasks.json`);
-        const tasksData = await tasksResponse.json();
-
-        if (!tasksData) {
-            console.error('No tasks found in Firebase.');
-            return;
-        }
-
-        
-        let remainingTasks = [];
-        Object.keys(tasksData).forEach((key) => {
-            remainingTasks.push({
-                id: key,
-                data: tasksData[key],
-            });
-        });
-
-        
-        remainingTasks.sort((a, b) => {
-            const taskANumber = parseInt(a.id.replace('task', ''), 10);
-            const taskBNumber = parseInt(b.id.replace('task', ''), 10);
-            return taskANumber - taskBNumber;
-        });
-
-        
-        const renumberedTasks = {};
-        remainingTasks.forEach((task, index) => {
-            const newTaskId = `task${index + 1}`;
-            renumberedTasks[newTaskId] = task.data;  
-        });
-
-        
-        await fetch(`${BASE_URL}tasks.json`, {
-            method: 'DELETE',
-        });
-
-        
-        await fetch(`${BASE_URL}tasks.json`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(renumberedTasks),
-        });
-
-        closePopup();
-        window.location.href = "../html/board.html";
-
-    } catch (error) {
-        console.error('Error deleting and renumbering tasks:', error);
-    }
-}
-
-
-async function updateTaskPositionsAfterDeletion(taskId) {
-    try {
-        
-        const response = await fetch(BASE_URL + 'tasksPositions.json');
-        const tasksPositions = await response.json();
-
-        
-        Object.keys(tasksPositions).forEach(columnKey => {
-            tasksPositions[columnKey] = tasksPositions[columnKey].filter(id => id !== `task${taskId}`);
-        });
-
-        
-        await fetch(BASE_URL + 'tasksPositions.json', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(tasksPositions),
-        });
-
-    } catch (error) {
-        console.error('Error updating task positions:', error);
-    }
-}
-
-
-
-async function deleteData(path = "") {
-    try {
-        let response = await fetch(BASE_URL + path + ".json", {
-            method: "DELETE",
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        return response.json();
-    } catch (error) {
-        console.error('Error deleting data:', error);
-        return null;
-    }
-}
-
-function closePopup() {
-    const popup = document.getElementById('popup-tasks');
-    const overlay = document.getElementById('overlay-task');
-
-    document.body.style.overflowY = "scroll";
-    if (popup) {
-        popup.style.display = 'none';
-        popup.innerHTML = '';
-    }
-
-    if (overlay) {
-        overlay.style.display = 'none';
-    }
-
-    currentTaskData = {};
-}
-
-function filterTasks() {
-    const searchTerm = document.getElementById('findTask').value.toLowerCase();
-    const taskElements = document.querySelectorAll('.task');
-
-    taskElements.forEach(taskElement => {
-        const titleText = taskElement.querySelector('h3').textContent.toLowerCase();
-        const descriptionText = taskElement.querySelector('p').textContent.toLowerCase();
-
-        if (titleText.includes(searchTerm) || descriptionText.includes(searchTerm)) {
-            taskElement.style.display = '';
-        } else {
-            taskElement.style.display = 'none';
-        }
+  putData(`tasks/task${taskId}`, taskData)
+    .then(() => (window.location.href = "/html/board.html"))
+    .catch((error) => {
+      console.error("Error updating task:", error);
     });
 }
 
-function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
-    const savedStatuses = JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
-
-    while (savedStatuses.length <= subtaskIndex) {
-        savedStatuses.push(false);
-    }
-
-    const existingSubtasks = JSON.parse(localStorage.getItem(`task-${taskId}-subtask-texts`)) || [];
-    existingSubtasks[subtaskIndex] = newText.trim();
-    localStorage.setItem(`task-${taskId}-subtask-texts`, JSON.stringify(existingSubtasks));
-
-
-    updateSubtasksInFirebase(taskId);
+async function dateFB(path = "") {
+  try {
+    let response = await fetch(BASE_URL + path + ".json");
+    let dueDate = await response.json();
+    return dueDate;
+  } catch (error) {
+    console.error("Error fetching duedate:", error);
+    return "Error loading duedate";
+  }
 }
 
-document.getElementById('findTask').addEventListener('input', filterTasks);
+async function subtaskFB(path = "") {
+  try {
+    let response = await fetch(BASE_URL + path + ".json");
+    let subtask = await response.json();
+    return subtask;
+  } catch (error) {
+    console.error("Error fetching subtask:", error);
+    return [];
+  }
+}
+
+async function descriptionFB(path = "") {
+  try {
+    let response = await fetch(BASE_URL + path + ".json");
+    let description = await response.json();
+    return description;
+  } catch (error) {
+    console.error("Error fetching description:", error);
+    return "Error loading description";
+  }
+}
+
+async function title(path = "") {
+  try {
+    let response = await fetch(BASE_URL + path + ".json");
+    let title = await response.json();
+    return title;
+  } catch (error) {
+    console.error("Error fetching title:", error);
+    return "Error loading title";
+  }
+}
+
+async function userStory(path = "") {
+  try {
+    let response = await fetch(BASE_URL + path + ".json");
+    let userStory = await response.json();
+    return userStory;
+  } catch (error) {
+    console.error("Error fetching user story:", error);
+    return "Error loading user story";
+  }
+}
+
+async function assignedFB(path = "") {
+  try {
+    let response = await fetch(BASE_URL + path + ".json");
+    let assigned = await response.json();
+    return assigned;
+  } catch (error) {
+    console.error("Error fetching assigned people:", error);
+    return [];
+  }
+}
+
+async function priorityFB(path = "") {
+  try {
+    let response = await fetch(BASE_URL + path + ".json");
+    let priority = await response.json();
+    return priority;
+  } catch (error) {
+    console.error("Error fetching priority:", error);
+    return "Error loading priority";
+  }
+}
+
+function move() {
+  if (i == 0) {
+    i = 1;
+    var elem = document.getElementById("myBar");
+    var width = 10;
+    var id = setInterval(frame, 10);
+    function frame() {
+      if (width >= 100) {
+        clearInterval(id);
+        i = 0;
+      } else {
+        width++;
+        elem.style.width = width + "%";
+        elem.innerHTML = width + "%";
+      }
+    }
+  }
+}
+async function deleteTask(taskId) {
+  try {
+    await deleteTaskFromFirebase(taskId);
+    const remainingTasks = await fetchRemainingTasks();
+
+    if (!remainingTasks.length) {
+      console.error("No tasks found in Firebase.");
+      return;
+    }
+
+    const renumberedTasks = renumberTasks(remainingTasks);
+    await updateTasksInFirebase(renumberedTasks);
+
+    closePopupAndReload();
+  } catch (error) {
+    handleError2(error);
+  }
+}
+
+async function deleteTaskFromFirebase(taskId) {
+  const taskPath = `${BASE_URL}tasks/task${taskId}.json`;
+  const response = await fetch(taskPath, { method: "DELETE" });
+  if (!response.ok) {
+    throw new Error(`Error deleting task ${taskId}`);
+  }
+}
+
+async function fetchRemainingTasks() {
+  const response = await fetch(`${BASE_URL}tasks.json`);
+  const tasksData = await response.json();
+  if (!tasksData) return [];
+
+  return Object.keys(tasksData).map((key) => ({
+    id: key,
+    data: tasksData[key],
+  }));
+}
+
+function renumberTasks(tasks) {
+  return tasks
+    .sort(
+      (a, b) =>
+        parseInt(a.id.replace("task", "")) - parseInt(b.id.replace("task", ""))
+    )
+    .reduce((renumberedTasks, task, index) => {
+      renumberedTasks[`task${index + 1}`] = task.data;
+      return renumberedTasks;
+    }, {});
+}
+
+async function updateTasksInFirebase(renumberedTasks) {
+  await fetch(`${BASE_URL}tasks.json`, { method: "DELETE" });
+  await fetch(`${BASE_URL}tasks.json`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(renumberedTasks),
+  });
+}
+
+function closePopupAndReload() {
+  closePopup();
+  window.location.href = "../html/board.html";
+}
+
+function handleError2(error) {
+  console.error("Error deleting and renumbering tasks:", error);
+}
+
+async function updateTaskPositionsAfterDeletion(taskId) {
+  try {
+    const tasksPositions = await fetchTaskPositions();
+    const updatedPositions = removeTaskFromPositions(tasksPositions, taskId);
+    await updateFirebaseTaskPositions(updatedPositions);
+  } catch (error) {
+    handleTaskPositionError(error);
+  }
+}
+
+async function fetchTaskPositions() {
+  const response = await fetch(BASE_URL + "tasksPositions.json");
+  return await response.json();
+}
+
+function removeTaskFromPositions(tasksPositions, taskId) {
+  Object.keys(tasksPositions).forEach((columnKey) => {
+    tasksPositions[columnKey] = tasksPositions[columnKey].filter(
+      (id) => id !== `task${taskId}`
+    );
+  });
+  return tasksPositions;
+}
+
+async function updateFirebaseTaskPositions(updatedPositions) {
+  await fetch(BASE_URL + "tasksPositions.json", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updatedPositions),
+  });
+}
+
+function handleTaskPositionError(error) {
+  console.error("Error updating task positions:", error);
+}
+
+async function deleteData(path = "") {
+  try {
+    let response = await fetch(BASE_URL + path + ".json", {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("Error deleting data:", error);
+    return null;
+  }
+}
+
+function closePopup() {
+  const popup = document.getElementById("popup-tasks");
+  const overlay = document.getElementById("overlay-task");
+
+  document.body.style.overflowY = "scroll";
+  if (popup) {
+    popup.style.display = "none";
+    popup.innerHTML = "";
+  }
+
+  if (overlay) {
+    overlay.style.display = "none";
+  }
+
+  currentTaskData = {};
+}
+
+function filterTaskss() {
+  const searchTerm = document
+    .getElementById("findTaskResponsive")
+    .value.toLowerCase();
+  const taskElements = document.querySelectorAll(".task");
+
+  taskElements.forEach((taskElement) => {
+    const titleText = taskElement.querySelector("h3").textContent.toLowerCase();
+    const descriptionText = taskElement
+      .querySelector("p")
+      .textContent.toLowerCase();
+
+    if (
+      titleText.includes(searchTerm) ||
+      descriptionText.includes(searchTerm)
+    ) {
+      taskElement.style.display = "";
+    } else {
+      taskElement.style.display = "none";
+    }
+  });
+}
+
+function filterTasks() {
+  const searchTerm = document.getElementById("findTask").value.toLowerCase();
+  const taskElements = document.querySelectorAll(".task");
+
+  taskElements.forEach((taskElement) => {
+    const titleText = taskElement.querySelector("h3").textContent.toLowerCase();
+    const descriptionText = taskElement
+      .querySelector("p")
+      .textContent.toLowerCase();
+
+    if (
+      titleText.includes(searchTerm) ||
+      descriptionText.includes(searchTerm)
+    ) {
+      taskElement.style.display = "";
+    } else {
+      taskElement.style.display = "none";
+    }
+  });
+}
+
+function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
+  const savedStatuses =
+    JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
+
+  while (savedStatuses.length <= subtaskIndex) {
+    savedStatuses.push(false);
+  }
+
+  const existingSubtasks =
+    JSON.parse(localStorage.getItem(`task-${taskId}-subtask-texts`)) || [];
+  existingSubtasks[subtaskIndex] = newText.trim();
+  localStorage.setItem(
+    `task-${taskId}-subtask-texts`,
+    JSON.stringify(existingSubtasks)
+  );
+
+  updateSubtasksInFirebase(taskId);
+}
