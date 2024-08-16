@@ -54,7 +54,7 @@ main h2 {
 }
 
 .information-text {
-  max-width: 1014px;
+  max-width: 100%;
   margin-bottom: 50px;
   padding-bottom: 80px;
 }
