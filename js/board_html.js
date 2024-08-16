@@ -76,11 +76,11 @@ function HtmlPopup(taskId, headerBackgroundColor, userStoryText, titleText, desc
             <p>${descriptionText}</p>
             <div class="flex">
                 <p class="hardfont">Due date:</p>
-                <p class="reactivefont">${dueDate}</p>
+                <p class="reactivefonts">${dueDate}</p>
             </div>
             <div class="flex">
                 <p class="hardfont">Priority:</p>
-                <p class="reactivefont">${priorityText} <img src="${priorityImage}" style="width: 15px; height: 15px;"></p>
+                <p class="reactivefonts">${priorityText} <img src="${priorityImage}" style="width: 15px; height: 15px;"></p>
             </div>
             <p class="hardfont">Assigned To:</p>
             <div class="assigned-popup-split2">
