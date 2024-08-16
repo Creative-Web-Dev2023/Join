@@ -141,6 +141,9 @@ async function loadBoard() {
         // Update the progress bar and the checkbox UI after loading each task
         updateProgress(task.id);
     });
+
+    // Call the existing saveTasks function to update Firebase with task positions
+    saveTasks();
 }
 
 
