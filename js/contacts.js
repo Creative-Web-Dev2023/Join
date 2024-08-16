@@ -7,7 +7,6 @@
 function openModal(isEditMode = false, contact = null) {
   CreateSvg();
   resetSubmitButton();
-
   if (isEditMode && contact) {
     populateEditMode(contact);
     configureSubmitButtonForUpdate(contact);
@@ -15,7 +14,6 @@ function openModal(isEditMode = false, contact = null) {
     resetForm();
     configureSubmitButtonForCreate();
   }
-
   showContactModal();
 }
 
@@ -49,8 +47,7 @@ function populateEditMode(contact) {
 function configureSubmitButtonForUpdate(contact) {
   const submitButton = document.getElementById("submit-button");
   submitButton.textContent = "Update contact";
-
-  submitButton.addEventListener("click", function updateContact(event) {
+  submitButton.addEventListener("click", function (event) {
     event.preventDefault();
     const updatedContactData = gatherUpdatedContactData(contact);
     updateContactInFirebase(contact.id, updatedContactData).then(() => {
@@ -104,6 +101,27 @@ function showContactModal() {
 }
 
 /**
+ * Handles the contact update by sending the updated data to Firebase.
+ *
+ * @async
+ * @param {Event} event - The event triggered by the submit button.
+ */
+async function updateContact(event) {
+  event.preventDefault();
+  let updatedContactData = {
+    name: document.getElementById("name-input").value,
+    email: document.getElementById("email-input").value,
+    phone: document.getElementById("phone-input").value,
+    color: contact.color || generateRandomColor(),
+    emblem: generateEmblem(document.getElementById("name-input").value),
+  };
+  await updateContactInFirebase(contact.id, updatedContactData);
+  closeModal();
+  await loadContacts();
+  displayContacts();
+}
+
+/**
  * Opens the edit modal for a contact, populates the form, and configures the submit button for updating.
  *
  * @param {Object} contact - The contact to be edited.
@@ -113,11 +131,10 @@ function openEditContactModal(contact) {
   configureSubmitButton(contact);
   showEditContactModal();
 }
-
 /**
- * Prepares the edit modal by populating the contact data and adjusting the display for editing.
+ * Prepares the contact modal for editing by populating the form fields with the contact's data.
  *
- * @param {Object} contact - The contact data to populate in the form.
+ * @param {Object} contact - The contact data to be edited.
  */
 function prepareEditModal(contact) {
   contactLogo(contact);
@@ -130,9 +147,9 @@ function prepareEditModal(contact) {
 }
 
 /**
- * Configures the submit button for updating a contact and validates the form.
+ * Configures the submit button to update the contact when clicked.
  *
- * @param {Object} contact - The contact being updated.
+ * @param {Object} contact - The contact to be updated.
  */
 function configureSubmitButton(contact) {
   const submitButton = document.getElementById("submit-button");
@@ -152,7 +169,45 @@ function configureSubmitButton(contact) {
 }
 
 /**
- * Closes the contact modal.
+ * Gathers the updated contact data from the form fields.
+ *
+ * @param {Object} contact - The original contact data.
+ * @return {Object} - The updated contact data.
+ */
+function gatherUpdatedContactData(contact) {
+  return {
+    name: document.getElementById("name-input").value,
+    email: document.getElementById("email-input").value,
+    phone: document.getElementById("phone-input").value,
+    color: contact.color || generateRandomColor(),
+    emblem: generateEmblem(document.getElementById("name-input").value),
+  };
+}
+
+/**
+ * Displays the edit contact modal by setting its display property to "block".
+ */
+function showEditContactModal() {
+  document.getElementById("contact-modal").style.display = "block";
+}
+
+/**
+ * Refreshes the contact list by loading contacts from Firebase and displaying them.
+ */
+async function refreshContacts() {
+  await loadContacts();
+  displayContacts();
+}
+
+/**
+ * Closes the contact modal by hiding it.
+ */
+function closeModal2() {
+  document.getElementById("contact-modal").style.display = "none";
+}
+
+/**
+ * Closes the contact modal and redirects to the contacts page.
  */
 function closeModal() {
   document.getElementById("contact-modal").style.display = "none";
@@ -160,7 +215,18 @@ function closeModal() {
 }
 
 /**
- * Validates the form inputs for correctness.
+ * Validates a phone number by matching it against a regex pattern.
+ *
+ * @param {string} phone - The phone number to validate.
+ * @return {boolean} - Returns true if the phone number is valid, otherwise false.
+ */
+function isValidPhoneNumber(phone) {
+  const phonePattern = /^[0-9+\s-()]+$/;
+  return phonePattern.test(phone);
+}
+
+/**
+ * Validates the form inputs for correctness and completeness.
  *
  * @return {boolean} - Returns true if the form is valid, otherwise false.
  */
@@ -171,9 +237,9 @@ function validateForm() {
 }
 
 /**
- * Gathers the contact data from the form input fields.
+ * Gathers contact data from the form fields.
  *
- * @return {Object} - The contact data from the form.
+ * @return {Object} - The contact data from the form fields.
  */
 function gatherContactInputData2() {
   return {
@@ -184,20 +250,17 @@ function gatherContactInputData2() {
 }
 
 /**
- * Submits a new contact to Firebase, validates the form, and refreshes the contact list.
+ * Submits a new contact to Firebase after validation, and refreshes the contact list.
  *
  * @async
- * @param {Event} event - The submit event.
+ * @param {Event} event - The event triggered by the form submission.
  */
 async function submitContact(event) {
   event.preventDefault();
   clearInputErrors();
-
   const contactData = gatherContactInputData();
   const isValid = validateContactData(contactData);
-
   if (!isValid) return;
-
   await saveContact(contactData);
   resetContactForm();
   closeModal();
@@ -205,7 +268,22 @@ async function submitContact(event) {
 }
 
 /**
- * Clears any input errors from the form fields.
+ * Gathers contact data from the form fields for creating a new contact.
+ *
+ * @return {Object} - The contact data from the form fields.
+ */
+function gatherContactInputData() {
+  return {
+    name: document.getElementById("name-input").value.trim(),
+    email: document.getElementById("email-input").value.trim(),
+    phone: document.getElementById("phone-input").value.trim(),
+    color: generateRandomColor(),
+    emblem: generateEmblem(document.getElementById("name-input").value.trim()),
+  };
+}
+
+/**
+ * Clears any input error classes from the form fields.
  */
 function clearInputErrors() {
   document.getElementById("name-input").classList.remove("input-error");
@@ -214,29 +292,25 @@ function clearInputErrors() {
 }
 
 /**
- * Validates the contact data to ensure required fields are filled out correctly.
+ * Validates the contact data to ensure all required fields are correctly filled out.
  *
  * @param {Object} contactData - The contact data to validate.
  * @return {boolean} - Returns true if the contact data is valid, otherwise false.
  */
 function validateContactData(contactData) {
   let isValid = true;
-
   if (!contactData.name) {
     document.getElementById("name-input").classList.add("input-error");
     isValid = false;
   }
-
   if (!contactData.email || !isValidEmail(contactData.email)) {
     document.getElementById("email-input").classList.add("input-error");
     isValid = false;
   }
-
   if (!contactData.phone || !isValidPhoneNumber(contactData.phone)) {
     document.getElementById("phone-input").classList.add("input-error");
     isValid = false;
   }
-
   return isValid;
 }
 
@@ -251,20 +325,10 @@ async function saveContact(contactData) {
 }
 
 /**
- * Resets the contact form to its default state.
+ * Resets the contact form fields to their default values.
  */
 function resetContactForm() {
   document.getElementById("name-input").value = "";
   document.getElementById("email-input").value = "";
   document.getElementById("phone-input").value = "";
-}
-
-/**
- * Refreshes the contact list by reloading the contacts and displaying them.
- *
- * @async
- */
-async function refreshContacts() {
-  await loadContacts();
-  displayContacts();
 }
