@@ -142,7 +142,8 @@ input::placeholder {
 #successPopup {
     display: none;
     position: fixed;
-    bottom: -50px; /* Start hidden below the screen */
+    bottom: -50px;
+    /* Start hidden below the screen */
     left: 50%;
     transform: translateX(-50%);
     padding: 10px 20px;
@@ -151,9 +152,12 @@ input::placeholder {
     border: 2px solid #2a3647;
     border-radius: 15px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: bottom 0.5s ease; /* Change duration to 1.5 seconds */
-    font-family: Arial, sans-serif; /* Specify the font */
-    font-size: 14px; /* Adjust the font size */
+    transition: bottom 0.5s ease;
+    /* Change duration to 1.5 seconds */
+    font-family: Arial, sans-serif;
+    /* Specify the font */
+    font-size: 14px;
+    /* Adjust the font size */
     z-index: 99;
 }
 
@@ -322,6 +326,10 @@ select {
     .main-section {
         padding-top: 50px;
         padding-left: 0px;
+
+        h1 {
+            margin-top: 25px;
+        }
     }
 
     .format-sections {
@@ -481,14 +489,17 @@ span {
     justify-content: space-between;
     cursor: pointer;
 }
+
 .selected-contacts {
     display: flex;
-    gap: 10px; /* Space between circles */
-    margin-top: 10px; /* Space above the circles */
+    gap: 10px;
+    /* Space between circles */
+    margin-top: 10px;
+    /* Space above the circles */
     height: 50px;
-  }
-  
-  .contact-circle {
+}
+
+.contact-circle {
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -499,7 +510,8 @@ span {
     font-size: 12px;
     font-weight: bold;
     text-align: center;
-  }
+}
+
 .circle {
     width: 30px;
     height: 30px;
@@ -517,6 +529,7 @@ span {
     display: flex;
     align-items: center;
 }
+
 .subtask-container {
     margin-top: 10px;
     border-radius: 10px;
@@ -532,12 +545,14 @@ span {
 .img-for-subtask {
     width: 100%;
     padding: 10px;
-    padding-right: 40px; /* space for the button */
+    padding-right: 40px;
+    /* space for the button */
     box-sizing: border-box;
     background-image: url(/assets/img/img_add_task/add.png);
     background-repeat: no-repeat;
     background-position: right center;
-    background-size: 20px 20px; /* Adjust the size as needed */
+    background-size: 20px 20px;
+    /* Adjust the size as needed */
 }
 
 #add-subtask-btn {
@@ -548,7 +563,8 @@ span {
     border: none;
     background: transparent;
     cursor: pointer;
-    z-index: 1; /* Ensures it is above the input */
+    z-index: 1;
+    /* Ensures it is above the input */
 }
 
 .list {
@@ -574,22 +590,36 @@ span {
     width: 100%;
 }
 
+.subtask:hover {
+    border: 1px solid black;
+}
+
 #subtask-list {
     list-style-type: disc;
-    padding-left: 0px; 
+    padding-left: 0px;
     padding-top: 5px;
     margin: 0;
-    height: auto;
+    height: 140px;
+    overflow-y: scroll;
 }
+
+#subtask-list::-webkit-scrollbar {
+    display: none;
+}
+
 .selected-contacts {
     display: flex;
-    gap: 10px; /* Space between circles */
-    margin-top: 10px; /* Space above the circles */
-  }
-  .contact-circle {
+    gap: 10px;
+    /* Space between circles */
+    margin-top: 10px;
+    /* Space above the circles */
+}
+
+.contact-circle {
     width: 30px;
     height: 30px;
-    background-color: #2A3647; /* Default circle color, will be overridden */
+    background-color: #2A3647;
+    /* Default circle color, will be overridden */
     border-radius: 50%;
     color: white;
     display: flex;
@@ -598,4 +628,4 @@ span {
     font-size: 12px;
     font-weight: bold;
     text-align: center;
-  }
+}

@@ -157,7 +157,9 @@ function validateForm() {
   return isValid;  // Gibt true zurück, wenn alles gültig ist, ansonsten false
 }
 
-
+function closeModal2() {
+  document.getElementById("contact-modal").style.display = "none";
+}
 
 function closeModal() {
   document.getElementById("contact-modal").style.display = "none";
@@ -275,7 +277,7 @@ function makeContactsClickable() {
 function CreateSvg() {
   let logo = document.getElementById('contact-logo');
 
-  logo.innerHTML += `
+  logo.innerHTML = `
   <img class="svg-logo" src="../assets/img/img_contacts/contact_logo.svg">
   `;
 }
@@ -331,6 +333,13 @@ function showContactDetails(contact) {
               </div>
           </div>
       </div>
+      <div class="edit_contact" id="editContact" onclick="toggleMiniReg()">
+        <img class="hoverr" src="/assets/img/img_contacts/edit_contact.png" alt="">
+        <div class="miniReg" id="miniReg" style="display: none;">
+            <img class="edit_hoverr" src="/assets/img/img_contacts/mini_edit.png" onclick="openEditContactModal(${contactJsonString})" alt="">
+            <img class="delete_hoverr" src="/assets/img/img_contacts/mini_delete.png" onclick="deleteContact('${contact.id}')" alt="">
+      </div>          
+    </div>
   </div>
 
   `;
@@ -353,14 +362,16 @@ function showContactList() {
   backButtonElement.style.display = 'none';
 }
 
-function toggleMiniReg() {
-  var miniReg = document.getElementById('miniReg');
-  if (miniReg.style.display === "none") {
+function toggleMiniReg(element) {
+  const miniReg = document.getElementById(`miniReg`);
+  
+  if (miniReg.style.display === "none" || miniReg.style.display === "") {
       miniReg.style.display = "block";
   } else {
       miniReg.style.display = "none";
   }
 }
+
 
 // Event-Listener für den Zurück-Button
 document.getElementById("back-button").addEventListener('click', showContactList);

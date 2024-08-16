@@ -84,19 +84,11 @@ function displayContacts() {
     makeContactsClickable(); // Event-Listener hinzufügen
 }
 
-function changePNG() {
-    document.getElementById('addContact').style.display = 'none';
-    document.getElementById('editContact').style.display = 'block';
-}
 
-function changePNG2() {
-    document.getElementById('addContact').style.display = 'block';
-    document.getElementById('editContact').style.display = 'none';
-}
 
 function renderContactsHtml(contact) {
     return `
-    <div class="contact-field" id="contact-${contact.id}" onclick="makeContactsClickable(), changePNG()">
+    <div class="contact-field" id="contact-${contact.id}" onclick="makeContactsClickable()">
         <div>
             <div class="profile-content" style="background-color: ${contact.color}">
                 ${contact.firstInitial}${contact.secondInitial}
@@ -106,6 +98,9 @@ function renderContactsHtml(contact) {
             <div>${contact.name}</div>
             <div><a href="${contact.email}">${contact.email}</a></div>
         </div>
+    </div>
+    <div class="add_contact" id="addContact" onclick="openModal()">
+        <img class="hoverr" src="/assets/img/img_contacts/add_contact.png" alt="">
     </div>
     `;
 }

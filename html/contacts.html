@@ -79,7 +79,7 @@
                 <div class="add-contact-container">
                     <div class="add-contact-left-section">
                         <div class="add-contact-left-section-container">
-                            <div class="crossPNG" onclick="closeModal()" style="display: none;">
+                            <div class="crossPNG" onclick="closeModal2()" style="display: none; cursor: pointer;">
                                 <img src="/assets/img//img_login/cross.png" alt="">
                             </div>
                             <img class="add-contact-left-section-container-logo"
@@ -135,7 +135,7 @@
             </div>
         </div>
         <div id="contactPage" class="contact-page">
-            <div id="back-button" class="back-button" style="display: none;" onclick="changePNG2()">
+            <div id="back-button" class="back-button" style="display: none;"">
                 <img src="/assets/img/arrow_left.png" alt="">
             </div>
             <div class="contacts-header">
@@ -156,17 +156,6 @@
                     <!--  <img src="/assets/img"> -->
                 </div>
             </div>
-        </div>
-        <div class="add_contact" id="addContact" style="display: none;" onclick="openModal()">
-            <img class="hoverr" src="/assets/img/img_contacts/add_contact.png" alt="">
-        </div>
-        <div class="edit_contact" id="editContact" style="display: none;" onclick="toggleMiniReg()">
-            <img class="hoverr" src="/assets/img/img_contacts/edit_contact.png" alt="">
-            <div class="miniReg" id="miniReg">
-                <img class="edit_hoverr" src="/assets/img/img_contacts/mini_edit.png" onclick="editThis('${contact.id}')" alt="">
-                <img class="delete_hoverr" src="/assets/img/img_contacts/mini_delete.png" onclick="deleteThis('${contact.id}')" alt="">
-              </div>
-              
         </div>
     </main>
 

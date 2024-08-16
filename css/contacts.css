@@ -849,6 +849,7 @@ main h2 {
 
     .edit_contact {
       z-index: 999;
+      display: block !important;
       position: fixed;
       bottom: 96px;
       right: 15px;
@@ -932,6 +933,12 @@ main h2 {
   }
 }
 
+.add_contact {
+  display: none;
+}
+.edit_contact {
+  display: none;
+}
 .input-error {
   border: 2px solid red;
 }
