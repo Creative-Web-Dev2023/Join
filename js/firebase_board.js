@@ -906,36 +906,69 @@ function move() {
 }
 async function deleteTask(taskId) {
     try {
-        // Construct the correct path to delete the task from Firebase
+        // Step 1: Delete the task from Firebase
         const taskPath = `${BASE_URL}tasks/task${taskId}.json`;
-
-        console.log(taskPath);
-        
-        // Send DELETE request to Firebase
-        const response = await fetch(taskPath, {
+        const deleteResponse = await fetch(taskPath, {
             method: 'DELETE',
         });
 
-        // Check if the response was successful
-        if (!response.ok) {
+        if (!deleteResponse.ok) {
             throw new Error(`Error deleting task ${taskId}`);
         }
 
-        // Remove the task element from the UI
-        const taskElement = document.getElementById(`task${taskId}`);
-        if (taskElement) {
-            taskElement.remove();
+        console.log(`Task ${taskId} deleted successfully.`);
+
+        // Step 2: Fetch all remaining tasks
+        const tasksResponse = await fetch(`${BASE_URL}tasks.json`);
+        const tasksData = await tasksResponse.json();
+
+        if (!tasksData) {
+            console.error('No tasks found in Firebase.');
+            return;
         }
 
-        // Update task positions after deletion
-        await updateTaskPositionsAfterDeletion(taskId);
+        // Step 3: Create an array of remaining tasks
+        let remainingTasks = [];
+        Object.keys(tasksData).forEach((key) => {
+            remainingTasks.push({
+                id: key,
+                data: tasksData[key],
+            });
+        });
 
-        // Close the popup if it's open
+        // Step 4: Sort the tasks by their current task number (if not already sorted)
+        remainingTasks.sort((a, b) => {
+            const taskANumber = parseInt(a.id.replace('task', ''), 10);
+            const taskBNumber = parseInt(b.id.replace('task', ''), 10);
+            return taskANumber - taskBNumber;
+        });
+
+        // Step 5: Renumber the remaining tasks starting from task1
+        const renumberedTasks = {};
+        remainingTasks.forEach((task, index) => {
+            const newTaskId = `task${index + 1}`;
+            renumberedTasks[newTaskId] = task.data;  // Add the task data to the new task ID
+        });
+
+        // Step 6: Clear the tasks in Firebase (optional, to avoid conflicts)
+        await fetch(`${BASE_URL}tasks.json`, {
+            method: 'DELETE',
+        });
+
+        // Step 7: Save renumbered tasks back to Firebase
+        await fetch(`${BASE_URL}tasks.json`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(renumberedTasks),
+        });
+
         closePopup();
+        window.location.href = "../html/board.html";
 
-        console.log(`Task ${taskId} successfully deleted from Firebase and UI.`);
     } catch (error) {
-        console.error('Error deleting task:', error);
+        console.error('Error deleting and renumbering tasks:', error);
     }
 }
 
