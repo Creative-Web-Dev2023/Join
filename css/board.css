@@ -326,6 +326,9 @@ body {
     display: flex;
     align-items: center;
     height: 50px;
+    width: 80%;
+    overflow-x: scroll;
+    white-space: nowrap;
 }
 
 ::-webkit-scrollbar {
@@ -344,6 +347,7 @@ body {
     font-weight: bold;
     margin-right: -8px;
     border: 2px solid #2A3647;
+    flex: 0 0 auto;
 }
 
 /* POP UP TASK  */
@@ -515,6 +519,8 @@ body {
     flex-direction: column;
     align-items: start;
     padding-left: 15px;
+    max-height: 30vh;
+    overflow-y: scroll;
 
     div {
         display: flex;
@@ -734,6 +740,8 @@ body {
     text-align: left;
     color: #000;
     margin: 0px;
+    height: 10vh;
+    overflow-y: scroll;
 }
 
 /* Popup Styles */
