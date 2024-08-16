@@ -22,7 +22,7 @@ function openModal(isEditMode = false, contact = null) {
     // Füge den Update-Eventlistener hinzu
     submitButton.addEventListener('click', function updateContact(event) {
       event.preventDefault();
-      
+
       let updatedContactData = {
         name: document.getElementById("name-input").value,
         email: document.getElementById("email-input").value,
@@ -80,7 +80,7 @@ function openEditContactModal(contact) {
   contactLogo(contact);
 
   const submitButton = document.getElementById("submit-button");
-  
+
   // Entferne vorherige Eventlistener
   submitButton.removeEventListener('click', submitContact);
   submitButton.removeEventListener('click', updateContact);
@@ -98,7 +98,7 @@ function openEditContactModal(contact) {
   submitButton.textContent = "Update contact";
 
   // Eventlistener hinzufügen für das Aktualisieren
-  submitButton.addEventListener('click', async function(event) {
+  submitButton.addEventListener('click', async function (event) {
     event.preventDefault(); // Verhindere das Standardverhalten
 
     // Überprüfe die Validierung, bevor der Kontakt aktualisiert wird
@@ -259,16 +259,16 @@ async function addContactToFirebase(contactData) {
 
 function makeContactsClickable() {
   contacts.forEach((contact) => {
-      const contactElement = document.getElementById(`contact-${contact.id}`);
+    const contactElement = document.getElementById(`contact-${contact.id}`);
 
-      if (contactElement) {
-          contactElement.addEventListener("click", (event) => {
-              event.preventDefault();
-              showContactDetails(contact); // Show details and switch to the contact page
-          });
-      } else {
-          console.warn(`No element found for contact with ID: ${contact.id}`);
-      }
+    if (contactElement) {
+      contactElement.addEventListener("click", (event) => {
+        event.preventDefault();
+        showContactDetails(contact); // Show details and switch to the contact page
+      });
+    } else {
+      console.warn(`No element found for contact with ID: ${contact.id}`);
+    }
   });
 }
 
@@ -307,7 +307,7 @@ function showContactDetails(contact) {
           <div class="contact-name-big">
               <h2>${contact.name}</h2>
           </div>
-          <div class="contact-actions">
+          <div class="contact-actions" id="contact-actions">
               <div class="contact-functions" onclick='openEditContactModal(${contactJsonString})'>
                   <img class="contact-functions-icons" src="/assets/img/img_contacts/edit.png" alt="">Edit
               </div>
@@ -332,13 +332,14 @@ function showContactDetails(contact) {
           </div>
       </div>
   </div>
+
   `;
 
   // Im mobilen Modus die Contact Page anzeigen
   if (window.innerWidth <= 800) {
-      document.querySelector('.contacts-frame').style.display = 'none';
-      contactPageElement.style.display = 'block';
-      backButtonElement.style.display = 'block';
+    document.querySelector('.contacts-frame').style.display = 'none';
+    contactPageElement.style.display = 'block';
+    backButtonElement.style.display = 'block';
   }
 }
 
@@ -352,19 +353,28 @@ function showContactList() {
   backButtonElement.style.display = 'none';
 }
 
+function toggleMiniReg() {
+  var miniReg = document.getElementById('miniReg');
+  if (miniReg.style.display === "none") {
+      miniReg.style.display = "block";
+  } else {
+      miniReg.style.display = "none";
+  }
+}
+
 // Event-Listener für den Zurück-Button
 document.getElementById("back-button").addEventListener('click', showContactList);
 
 document.getElementById("submit-button").addEventListener("click", function (event) {
   const contactEmail = document.getElementById("email-input").value;
-  
+
   // Entferne vorherige Fehleranzeige
   document.getElementById("email-input").classList.remove("input-error");
 
   if (!isValidEmail(contactEmail)) {
-      document.getElementById("email-input").classList.add("input-error");
-      event.preventDefault(); // Verhindere das Absenden
-      return;
+    document.getElementById("email-input").classList.add("input-error");
+    event.preventDefault(); // Verhindere das Absenden
+    return;
   }
 
   // Wenn die E-Mail gültig ist, lasse das Formular abschicken
@@ -444,30 +454,30 @@ async function deleteContactFromFirebase(contactId) {
 
 let selectedContact = null;
 
-    function makeContactsClickable() {
-      contacts.forEach((contact) => {
-        const contactElement = document.getElementById(`contact-${contact.id}`);
+function makeContactsClickable() {
+  contacts.forEach((contact) => {
+    const contactElement = document.getElementById(`contact-${contact.id}`);
 
-        if (contactElement) {
-          contactElement.addEventListener("click", (event) => {
-            event.preventDefault();
-            
-            // Wenn bereits ein Kontakt ausgewählt wurde, entferne die Markierung
-            if (selectedContact) {
-              selectedContact.classList.remove("selected");
-            }
+    if (contactElement) {
+      contactElement.addEventListener("click", (event) => {
+        event.preventDefault();
 
-            // Markiere das aktuell geklickte Element
-            contactElement.classList.add("selected");
-
-            // Speichere das aktuell ausgewählte Element
-            selectedContact = contactElement;
-
-            // Optionale Funktion zum Anzeigen der Kontaktdetails
-            showContactDetails(contact);
-          });
-        } else {
-          console.warn(`No element found for contact with ID: ${contact.id}`);
+        // Wenn bereits ein Kontakt ausgewählt wurde, entferne die Markierung
+        if (selectedContact) {
+          selectedContact.classList.remove("selected");
         }
+
+        // Markiere das aktuell geklickte Element
+        contactElement.classList.add("selected");
+
+        // Speichere das aktuell ausgewählte Element
+        selectedContact = contactElement;
+
+        // Optionale Funktion zum Anzeigen der Kontaktdetails
+        showContactDetails(contact);
       });
+    } else {
+      console.warn(`No element found for contact with ID: ${contact.id}`);
     }
+  });
+}

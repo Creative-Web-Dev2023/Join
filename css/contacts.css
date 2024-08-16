@@ -5,7 +5,6 @@
 
 
 body {
-  overflow: hidden;
   margin: 0;
   font-family: "Inter";
   background-color: #f6f7f8;
@@ -43,7 +42,7 @@ body {
 
 main {
   padding-left: 232px !important;
-  padding-top: 116px !important;
+  padding-top: 138px !important;
   display: flex;
 }
 
@@ -70,10 +69,12 @@ main h2 {
 .contacts-frame {
   background-color: white;
   width: 456px;
-  height: calc(100vh - 180px);
+  height: calc(100vh - 139px);
   box-shadow: 4px 0px 6px 0px #00000014;
   padding: 32px 24px 32px 48px;
   overflow-y: scroll;
+  position: fixed;
+  z-index: 1;
 }
 
 .new-contact-button {
@@ -203,8 +204,11 @@ main h2 {
 }
 
 .contact-page {
-  margin-left: 65px;
-  margin-top: 98px;
+  margin-left: 53%;
+  margin-top: 32px;
+  overflow-y: auto !important;
+  left: 50%;
+  z-index: 0;
 }
 
 .contacts-header {
@@ -620,10 +624,6 @@ main h2 {
 
 @media (max-width: 1250px) {
 
-  .contact-page {
-    margin-left: 16px;
-    margin-top: 48px;
-  }
 
 
 
@@ -670,8 +670,19 @@ main h2 {
     padding-top: 130px;
   }
 
+  .crossPNG {
+    display: flex !important;
+    width: 98%;
+    height: 10%;
+    justify-content: end;
+  }
+
   .button-left {
     display: none;
+  }
+
+  .add-p-contact {
+    margin: 5px;
   }
 
   .contact-logo {
@@ -728,9 +739,11 @@ main h2 {
   .contacts-frame {
     width: 355px;
   }
-.add-contact-buttons {
-  margin: 0;
-}
+
+  .add-contact-buttons {
+    margin: 0;
+  }
+
   .contacts-border {
     transform: rotate(-90deg);
     order: 1;
@@ -754,16 +767,18 @@ main h2 {
   @media (max-width: 1060px) {
     main {
       padding-left: 0px !important;
+      padding-top: 81px !important;
     }
+
+    .contacts-frame {
+      height: calc(100vh - 226px);
+    }
+
   }
 
   @media (max-width: 940px) {
     main {
       padding: 80px 0px !important;
-    }
-
-    .contacts-frame {
-      padding-bottom: 80px;
     }
 
     main h1 {
@@ -773,19 +788,104 @@ main h2 {
 
   @media (max-width: 800px) {
 
+    .add_contact {
+      display: block !important;
+      z-index: 999;
+      position: fixed;
+      bottom: 96px;
+      right: 15px;
+
+      display: flex;
+      justify-content: end;
+
+      img {
+        height: 80px;
+        margin-right: 10px;
+      }
+    }
+
+    .contact-actions {
+      display: none;
+    }
+
+    .miniReg {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px;
+
+      position: absolute;
+      width: 116px;
+      height: 100px;
+      bottom: 0px;
+      right: 12px;
+      background: #FFFFFF;
+      box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 20px 20px 0px 20px;
+
+      img {
+        height: 45px !important;
+      }
+    }
+
+    .edit_hoverr:hover {
+      cursor: pointer;
+      content: url('/assets/img/img_contacts/edit_hover.png');
+    }
+
+    .delete_hoverr:hover {
+      cursor: pointer;
+      content: url('/assets/img/img_contacts/delete_hover.png');
+    }
+
+    .add_contact:hover {
+      height: 80px;
+      margin-right: 10px;
+      bottom: 96px;
+      right: 15px;
+      cursor: pointer;
+      content: url('/assets/img/img_contacts/add_contact_hover.png');
+    }
+
+    .edit_contact {
+      z-index: 999;
+      position: fixed;
+      bottom: 96px;
+      right: 15px;
+
+      display: flex;
+      justify-content: end;
+
+      img {
+        height: 80px;
+        margin-right: 10px;
+      }
+    }
+    
+
+    .hoverr:hover {
+      cursor: pointer;
+      content: url('/assets/img/img_contacts/edit_contact_hover.png');
+    }
+
+    .new-contact-button {
+      display: none;
+    }
 
     .contacts-frame {
       width: 100vw;
+      padding-left: 0px !important;
     }
 
     .contact-page {
       display: none;
+      margin-left: 15px;
+      margin-top: 32px;
     }
 
     .back-button {
       display: block;
-      background-color: var(--maincolor);
-      color: white;
+      background-color: #F6F7F8;
       border: none;
       padding: 10px;
       font-size: 16px;
@@ -807,9 +907,11 @@ main h2 {
     .modal-content {
       width: 320px;
     }
+
     .input-field {
       margin-bottom: 5%;
     }
+
     .add-contact-left-section-container {
       padding: 5px;
     }
@@ -817,10 +919,12 @@ main h2 {
     .create-p-contact {
       font-size: 20px;
     }
+
     .edit-p-contact {
       margin: 10px;
       font-size: 40px;
     }
+
     .add-p-contact {
       margin: 10px;
       font-size: 40px;

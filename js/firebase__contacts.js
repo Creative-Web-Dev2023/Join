@@ -84,9 +84,19 @@ function displayContacts() {
     makeContactsClickable(); // Event-Listener hinzufügen
 }
 
+function changePNG() {
+    document.getElementById('addContact').style.display = 'none';
+    document.getElementById('editContact').style.display = 'block';
+}
+
+function changePNG2() {
+    document.getElementById('addContact').style.display = 'block';
+    document.getElementById('editContact').style.display = 'none';
+}
+
 function renderContactsHtml(contact) {
     return `
-    <div class="contact-field" id="contact-${contact.id}" onclick="makeContactsClickable()">
+    <div class="contact-field" id="contact-${contact.id}" onclick="makeContactsClickable(), changePNG()">
         <div>
             <div class="profile-content" style="background-color: ${contact.color}">
                 ${contact.firstInitial}${contact.secondInitial}
@@ -100,6 +110,29 @@ function renderContactsHtml(contact) {
     `;
 }
 
+async function deleteThis(contactId) {
+  
+    // Call the deleteContactFromFirebase function to remove the contact
+    await deleteContactFromFirebase(contactId);
+  
+    // Reload contacts and update the UI
+    await loadContacts();
+    displayContacts();
+  }
+  
+  function editThis(contactId) {
+    // Find the contact to be edited by its ID
+    const contact = contacts.find(c => c.id === contactId);
+  
+    if (!contact) {
+      console.error("Contact not found for editing.");
+      return;
+    }
+  
+    // Open the modal in edit mode and pass the contact to be edited
+    openEditContactModal(contact);
+  }
+  
 async function getDataFromFirebase(path = '') {
     try {
         let response = await fetch(BASE_URL + path + '.json');
@@ -177,7 +210,6 @@ async function addContact() {
     document.getElementById('email').value = '';
     document.getElementById('phone').value = '';
 }
-
 
 async function deleteContact(contactId) {
     try {

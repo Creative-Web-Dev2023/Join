@@ -79,6 +79,9 @@
                 <div class="add-contact-container">
                     <div class="add-contact-left-section">
                         <div class="add-contact-left-section-container">
+                            <div class="crossPNG" onclick="closeModal()" style="display: none;">
+                                <img src="/assets/img//img_login/cross.png" alt="">
+                            </div>
                             <img class="add-contact-left-section-container-logo"
                                 src="/assets/img/img_login/join_logo_white.svg">
                             <p class="edit-p-contact" id="contactEdit">Edit contact</p>
@@ -88,10 +91,10 @@
                         </div>
                     </div>
                     <div class="add-contact-right-section">
-                        <div class="contact-logo" id="contact-logo"> 
-                            
+                        <div class="contact-logo" id="contact-logo">
+
                         </div>
-                        
+
                         <div class="add-contact-right-section-2">
                             <div class="close-button-container">
                                 <button id="close-modal-button">
@@ -132,7 +135,9 @@
             </div>
         </div>
         <div id="contactPage" class="contact-page">
-            <button id="back-button" class="back-button" style="display: none;">Back</button>
+            <div id="back-button" class="back-button" style="display: none;" onclick="changePNG2()">
+                <img src="/assets/img/arrow_left.png" alt="">
+            </div>
             <div class="contacts-header">
                 <h1>Contacts</h1>
                 <div class="contacts-border"></div>
@@ -148,9 +153,21 @@
             <div class="contact-action-details">
                 <div>
                     <img class="contact-action-logo" src="../assets/img/img_contacts/logo.png">
-                   <!--  <img src="/assets/img"> -->
+                    <!--  <img src="/assets/img"> -->
                 </div>
             </div>
+        </div>
+        <div class="add_contact" id="addContact" style="display: none;" onclick="openModal()">
+            <img class="hoverr" src="/assets/img/img_contacts/add_contact.png" alt="">
+        </div>
+        <div class="edit_contact" id="editContact" style="display: none;" onclick="toggleMiniReg()">
+            <img class="hoverr" src="/assets/img/img_contacts/edit_contact.png" alt="">
+            <div class="miniReg" id="miniReg">
+                <img class="edit_hoverr" src="/assets/img/img_contacts/mini_edit.png" onclick="editThis('${contact.id}')" alt="">
+                <img class="delete_hoverr" src="/assets/img/img_contacts/mini_delete.png" onclick="deleteThis('${contact.id}')" alt="">
+              </div>
+              
+        </div>
     </main>
 
     <script src="/js/firebase__contacts.js" defer></script>
