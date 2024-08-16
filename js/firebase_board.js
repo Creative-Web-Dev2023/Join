@@ -1,20 +1,27 @@
-document.getElementById("findTask").addEventListener("input", filterTasks);
-
-document
-  .getElementById("findTaskResponsive")
-  .addEventListener("input", filterTaskss);
-
+/**
+ * Adds mouseover, mouseout, and click event listeners to all priority buttons.
+ */
 document.querySelectorAll(".prio-button").forEach(function (button) {
   button.addEventListener("mouseover", handleMouseOver);
   button.addEventListener("mouseout", handleMouseOut);
   button.addEventListener("click", handleClick);
 });
 
+/**
+ * Adds event listeners for clicking and dragging tasks.
+ *
+ * @param {HTMLElement} taskElement - The task element to which the listeners are added.
+ * @param {number} index - The index of the task.
+ */
 function addTaskListeners(taskElement, index) {
   taskElement.addEventListener("click", () => openPopup(index + 1));
   taskElement.addEventListener("dragstart", drag);
 }
 
+/**
+ * Sets up MutationObservers for each kanban column to observe changes and update progress bars.
+ * Also updates the progress bars for existing tasks when the DOM is loaded.
+ */
 document.addEventListener("DOMContentLoaded", () => {
   const columns = document.querySelectorAll(".kanban-column .content");
 
@@ -27,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
     observer.observe(column, { childList: true });
+
     const tasks = column.querySelectorAll(".task");
     tasks.forEach((task) => {
       const taskId = task.id.replace("task", "");
@@ -35,6 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+/**
+ * Opens the task edit popup, fetches the task data, and adds event listeners to priority buttons.
+ *
+ * @async
+ * @param {number} taskId - The ID of the task to be edited.
+ */
 async function openEdit(taskId) {
   await selctedAssignees(taskId);
   const taskData = await fetchTaskData(taskId);
@@ -50,6 +64,13 @@ async function openEdit(taskId) {
   });
 }
 
+/**
+ * Adds an input listener to a subtask element, which updates the subtask's content in local storage.
+ *
+ * @param {number} taskId - The ID of the task containing the subtask.
+ * @param {number} index - The index of the subtask.
+ * @param {HTMLElement} subtaskItem - The subtask element.
+ */
 function addInputListener(taskId, index, subtaskItem) {
   const subtaskElement = subtaskItem.querySelector(".subtask");
   subtaskElement.addEventListener("input", () =>
@@ -57,6 +78,12 @@ function addInputListener(taskId, index, subtaskItem) {
   );
 }
 
+/**
+ * Adds an input listener to a subtask element by its index, which updates the subtask's content in local storage.
+ *
+ * @param {number} taskId - The ID of the task containing the subtask.
+ * @param {number} index - The index of the subtask.
+ */
 function addSubtaskInputListener(taskId, index) {
   const subtaskElement = document.querySelector(`#subtask-${index} .subtask`);
   subtaskElement.addEventListener("input", () =>
@@ -64,11 +91,21 @@ function addSubtaskInputListener(taskId, index) {
   );
 }
 
+/**
+ * Initializes the kanban board by loading necessary information and task data.
+ */
 function init12() {
   getInfo();
   loadBoard();
 }
 
+/**
+ * Creates a task element, generates its content, and adds event listeners to it.
+ *
+ * @param {Object} task - The task data object.
+ * @param {number} index - The index of the task.
+ * @return {HTMLElement} - The created task element.
+ */
 function createTaskElement(task, index) {
   const { category, title, description, subtask, assigned, priority } = task;
   const taskElement = createTaskDiv(index);
@@ -88,6 +125,18 @@ function createTaskElement(task, index) {
   return taskElement;
 }
 
+/**
+ * Generates the HTML content for a task element.
+ *
+ * @param {string} category - The category of the task.
+ * @param {string} title - The title of the task.
+ * @param {string} description - The description of the task.
+ * @param {string} subtask - The subtasks of the task.
+ * @param {Array} assigned - The list of assigned people.
+ * @param {string} priority - The priority level of the task.
+ * @param {number} index - The index of the task.
+ * @return {string} - The generated HTML content for the task.
+ */
 function generateTaskContent(
   category,
   title,
@@ -115,10 +164,19 @@ function generateTaskContent(
   );
 }
 
+/**
+ * Parses a comma-separated string of subtasks into an array.
+ *
+ * @param {string} subtask - The comma-separated string of subtasks.
+ * @return {Array<string>} - An array of non-empty subtasks.
+ */
 function parseSubtasks(subtask) {
   return subtask ? subtask.split(",").filter((st) => st.trim() !== "") : [];
 }
 
+/**
+ * Handles the mouseover event for a priority button, changing its image to the hover state.
+ */
 function handleMouseOver() {
   if (!this.classList.contains("clicked")) {
     const hoverSrc = this.src.replace("_standart", "_hover");
@@ -126,6 +184,9 @@ function handleMouseOver() {
   }
 }
 
+/**
+ * Handles the mouseout event for a priority button, reverting its image to the standard state.
+ */
 function handleMouseOut() {
   if (!this.classList.contains("clicked")) {
     const standartSrc = this.src.replace("_hover", "_standart");
@@ -133,6 +194,9 @@ function handleMouseOut() {
   }
 }
 
+/**
+ * Handles the click event for priority buttons, updating the clicked state and image accordingly.
+ */
 function handleClick() {
   document.querySelectorAll(".prio-button").forEach(function (btn) {
     if (btn !== this) {
@@ -149,6 +213,12 @@ function handleClick() {
   }
 }
 
+/**
+ * Returns the URL of the image corresponding to the task's priority level.
+ *
+ * @param {string} priority - The priority level (e.g., "urgent", "medium", "low").
+ * @return {string} - The image URL for the corresponding priority level.
+ */
 function getPriorityImage(priority) {
   const priorities = {
     urgent: "/assets/img/img_board/urgent.png",
@@ -160,6 +230,12 @@ function getPriorityImage(priority) {
   );
 }
 
+/**
+ * Creates a new task div element with a unique ID and sets it as draggable.
+ *
+ * @param {number} index - The index of the task.
+ * @return {HTMLElement} - The created task div element.
+ */
 function createTaskDiv(index) {
   const taskDiv = document.createElement("div");
   taskDiv.className = "task";
@@ -168,6 +244,12 @@ function createTaskDiv(index) {
   return taskDiv;
 }
 
+/**
+ * Returns the appropriate header color based on the task category.
+ *
+ * @param {string} userStoryText - The task category (e.g., "Technical Task", "User Story").
+ * @return {string} - The color corresponding to the task category.
+ */
 function getHeaderColor(userStoryText) {
   const colors = {
     "Technical Task": "#1FD7C1",
@@ -176,6 +258,12 @@ function getHeaderColor(userStoryText) {
   return colors[userStoryText] || "#FFF";
 }
 
+/**
+ * Generates the HTML for displaying assigned people as circles with initials.
+ *
+ * @param {Array<Object>} assignedPeople - An array of people assigned to the task, each with a name and color.
+ * @return {string} - The HTML string representing the assigned people.
+ */
 function generateAssignedHtml(assignedPeople) {
   return assignedPeople
     .map((person) => {
@@ -184,14 +272,19 @@ function generateAssignedHtml(assignedPeople) {
         .map((name) => name[0])
         .join("");
       return `
-            <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
-                ${initials}
-            </span>
-        `;
+              <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
+                  ${initials}
+              </span>
+          `;
     })
     .join("");
 }
 
+/**
+ * Loads the task board by fetching tasks and processing them into their respective columns.
+ *
+ * @async
+ */
 async function loadBoard() {
   const tasks = await fetchTasks();
   if (!tasks || tasks.length === 0) return;
@@ -207,6 +300,11 @@ async function loadBoard() {
   saveTasks();
 }
 
+/**
+ * Maps column IDs to their corresponding DOM element IDs.
+ *
+ * @return {Object} - A mapping of column numbers to content element IDs.
+ */
 function getColumnMapping() {
   return {
     0: "content-todo",
@@ -216,6 +314,15 @@ function getColumnMapping() {
   };
 }
 
+/**
+ * Processes a task by creating its element, assigning it to a column, and updating its progress bar.
+ *
+ * @async
+ * @param {Object} task - The task data object.
+ * @param {number} index - The index of the task.
+ * @param {Object} tasksPositions - The task positions in the kanban board.
+ * @param {Object} columnMapping - The mapping of column IDs to content element IDs.
+ */
 async function processTask3(task, index, tasksPositions, columnMapping) {
   const taskElement = createTaskElement(task, index);
   const columnId = findColumnForTask(task.id, tasksPositions);
@@ -225,6 +332,12 @@ async function processTask3(task, index, tasksPositions, columnMapping) {
   await updateProgressBarFromFirebase(task.id);
 }
 
+/**
+ * Appends a task element to the corresponding kanban column.
+ *
+ * @param {HTMLElement} taskElement - The task element to be appended.
+ * @param {string} columnContentId - The ID of the content element for the column.
+ */
 function appendTaskToColumn(taskElement, columnContentId) {
   if (columnContentId) {
     const columnContent = document.getElementById(columnContentId);
@@ -240,6 +353,12 @@ function appendTaskToColumn(taskElement, columnContentId) {
   }
 }
 
+/**
+ * Fetches task positions from the server.
+ *
+ * @async
+ * @return {Object} - The task positions in the kanban board.
+ */
 async function fetchTasksPositions() {
   const response = await fetch(
     "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/.json"
@@ -247,6 +366,13 @@ async function fetchTasksPositions() {
   return await response.json();
 }
 
+/**
+ * Finds the column ID for a task based on its position in the kanban board.
+ *
+ * @param {number} taskId - The ID of the task.
+ * @param {Object} tasksPositions - The task positions in the kanban board.
+ * @return {string} - The column ID where the task is located.
+ */
 function findColumnForTask(taskId, tasksPositions) {
   if (!tasksPositions || Object.keys(tasksPositions).length === 0) {
     console.error(
@@ -263,6 +389,14 @@ function findColumnForTask(taskId, tasksPositions) {
   return "0";
 }
 
+/**
+ * Saves the state of a subtask's checkbox to Firebase.
+ *
+ * @async
+ * @param {number} taskId - The ID of the task containing the subtask.
+ * @param {number} subtaskIndex - The index of the subtask.
+ * @param {boolean} isChecked - The state of the checkbox (checked or unchecked).
+ */
 async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
   const firebasePath = generateFirebasePath(taskId, subtaskIndex);
 
@@ -274,947 +408,233 @@ async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
     throw error;
   }
 }
-
+/**
+ * Generates the Firebase path for storing the subtask status.
+ *
+ * @param {number} taskId - The ID of the task.
+ * @param {number} subtaskIndex - The index of the subtask.
+ * @return {string} - The Firebase path for the subtask status.
+ */
 function generateFirebasePath(taskId, subtaskIndex) {
-  return `tasks/task${taskId}/subtaskStatuses/${subtaskIndex}.json`;
-}
-
-async function sendCheckboxStateToFirebase(firebasePath, isChecked) {
-  return await fetch(BASE_URL + firebasePath, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(isChecked),
-  });
-}
-
-function handleResponseStatus(response) {
-  if (!response.ok) {
-    throw new Error("Fehler beim Speichern des Zustands in Firebase");
+    return `tasks/task${taskId}/subtaskStatuses/${subtaskIndex}.json`;
   }
-}
-
-function handleError(error) {
-  console.error(
-    "Fehler beim Speichern des Checkbox-Zustands in Firebase:",
-    error
-  );
-}
-
-async function processTaskWithSubtasks(task, index) {
-  const taskElement = createTaskElement(task, index);
-
-  const subtaskText = await subtaskFB(`tasks/task${task.id}/subtask`);
-  if (subtaskText) {
-    const subtasksContainer = document.createElement("div");
-    taskElement.appendChild(subtasksContainer);
-
-    await updateProgressBarFromFirebase(task.id);
-  }
-
-  return taskElement;
-}
-
-async function updateProgressBarFromFirebase(taskId) {
-  const savedStatuses = await getSavedStatusesFromFirebase(taskId);
-
-  const totalSubtasks = savedStatuses.length;
-  const completedCount = savedStatuses.filter(
-    (status) => status === true
-  ).length;
-
-  updateProgressBarUI(taskId, completedCount, totalSubtasks);
-  updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
-}
-
-function showNoTasksMessage(container) {
-  container.innerHTML = "<p>No tasks available.</p>";
-}
-
-function processTask(task, index, container) {
-  const taskElement = createTaskElement(task, index);
-  container.appendChild(taskElement);
-  loadSubtaskProgress(index + 1);
-  updateProgressBarFromFirebase(index + 1);
-}
-
-function calculateSubtaskCounts(statuses) {
-  const completedCount = statuses.filter((status) => status).length;
-  return { completedCount, totalSubtasks: statuses.length };
-}
-
-function updateSubtaskCountElement(taskId, completedCount, totalSubtasks) {
-  const subtaskCountElement = document.getElementById(
-    `subtask-count-${taskId}`
-  );
-  if (subtaskCountElement) {
-    subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
-  }
-}
-
-function updateProgress(taskId) {
-  const subtaskImages = getSubtaskImages(taskId);
-  const { completedCount, totalSubtasks } =
-    calculateSubtaskCompletion(subtaskImages);
-
-  updateProgressBarUI(taskId, completedCount, totalSubtasks);
-  updateSubtaskCountUI(taskId, completedCount, totalSubtasks);
-
-  saveSubtaskProgress(taskId, subtaskImages);
-}
-
-function getSubtaskImages(taskId) {
-  return document.querySelectorAll(`#popup-task${taskId} .subtask img`);
-}
-
-function calculateSubtaskCompletion(subtaskImages) {
-  const completedCount = Array.from(subtaskImages).filter((img) =>
-    img.src.includes("checkesbox.png")
-  ).length;
-  return { completedCount, totalSubtasks: subtaskImages.length };
-}
-
-function updateProgressBarUI(taskId, completedCount, totalSubtasks) {
-  const progressBar = document.getElementById(`progress-bar-${taskId}`);
-  if (progressBar) {
-    const progressPercentage = (completedCount / totalSubtasks) * 100;
-    progressBar.style.width = `${progressPercentage}%`;
-  }
-}
-
-function updateSubtaskCountUI(taskId, completedCount, totalSubtasks) {
-  const subtaskCountElement = document.getElementById(
-    `subtask-count-${taskId}`
-  );
-  if (subtaskCountElement) {
-    subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
-  }
-}
-
-async function saveSubtaskProgress(taskId) {
-  const subtaskStatuses = getSubtaskStatuses(taskId);
-  const firebasePath = generateFirebaseSubtaskPath(taskId);
-
-  try {
-    await sendSubtaskStatusesToFirebase(firebasePath, subtaskStatuses);
-  } catch (error) {
-    handleSaveError(error);
-  }
-}
-
-function getSubtaskStatuses(taskId) {
-  const subtaskImages = document.querySelectorAll(
-    `#popup-task${taskId} .subtask img`
-  );
-  return Array.from(subtaskImages).map((img) =>
-    img.src.includes("checkesbox.png")
-  );
-}
-
-function generateFirebaseSubtaskPath(taskId) {
-  return `tasks/task${taskId}/subtaskStatuses.json`;
-}
-
-async function sendSubtaskStatusesToFirebase(firebasePath, subtaskStatuses) {
-  await fetch(BASE_URL + firebasePath, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(subtaskStatuses),
-  });
-}
-
-function handleSaveError(error) {
-  console.error("Error saving subtask statuses to Firebase:", error);
-}
-
-async function loadSubtaskProgress(taskId) {
-  const savedStatuses = await getSavedStatusesFromFirebase(taskId);
-
-  const subtaskImages = getSubtaskImages(taskId);
-
-  if (!savedStatuses || savedStatuses.length === 0) {
-    const initialStatuses = Array(subtaskImages.length).fill(false);
-
-    await saveSubtaskProgress(taskId, initialStatuses);
-
-    applySavedStatuses(subtaskImages, initialStatuses);
-  } else {
-    applySavedStatuses(subtaskImages, savedStatuses);
-  }
-
-  updateProgressBarFromFirebase(taskId);
-}
-
-async function getSavedStatusesFromFirebase(taskId) {
-  const response = await fetch(
-    BASE_URL + `tasks/task${taskId}/subtaskStatuses.json`
-  );
-  const savedStatuses = await response.json();
-  return savedStatuses || [];
-}
-
-function applySavedStatuses(subtaskImages, savedStatuses) {
-  subtaskImages.forEach((img, index) => {
-    img.src = savedStatuses[index]
-      ? "/assets/img/img_add_task/checkesbox.png"
-      : "/assets/img/img_add_task/checkbox.png";
-  });
-}
-async function fetchTasks() {
-  try {
-    const response = await fetch(BASE_URL + "tasks.json");
-    const data = await response.json();
-
-    if (!data) {
-      console.error("No tasks data found");
-      return [];
-    }
-
-    const tasks = Object.keys(data).map((taskId) => ({
-      id: taskId,
-      ...data[taskId],
-    }));
-
-    return tasks;
-  } catch (error) {
-    console.error("Error fetching tasks:", error);
-    return [];
-  }
-}
-
-async function openPopup(taskId) {
-  const taskData = await fetchTaskData(taskId);
-  currentTaskData = { taskId, ...taskData };
-
-  document.body.style.overflowY = "hidden";
-  const assignedHtml = generateAssignedHtml2(taskData.assignedPeople);
-  const subtasksHtml = generateSubtasksHtml(taskData.subtaskText, taskId);
-  const priorityImage = getPriorityImage(taskData.priorityText);
-  const headerBackgroundColor = getHeaderBackgroundColor(
-    taskData.userStoryText
-  );
-
-  displayPopup(
-    taskId,
-    headerBackgroundColor,
-    taskData,
-    priorityImage,
-    assignedHtml,
-    subtasksHtml
-  );
-
-  await loadSubtaskProgress(taskId);
-}
-
-async function fetchTaskData(taskId) {
-  const [
-    userStoryText,
-    titleText,
-    dueDate,
-    descriptionText,
-    subtaskText,
-    priorityText,
-    assignedPeople,
-  ] = await Promise.all([
-    userStory(`tasks/task${taskId}/category`),
-    title(`tasks/task${taskId}/title`),
-    dateFB(`tasks/task${taskId}/date`),
-    descriptionFB(`tasks/task${taskId}/description`),
-    subtaskFB(`tasks/task${taskId}/subtask`),
-    priorityFB(`tasks/task${taskId}/priority`),
-    assignedFB(`tasks/task${taskId}/assigned`),
-  ]);
-  return {
-    userStoryText,
-    titleText,
-    dueDate,
-    descriptionText,
-    subtaskText,
-    priorityText,
-    assignedPeople: assignedPeople || [],
-  };
-}
-
-function generateSubtasksHtml(subtaskText, taskId) {
-  const subtasks = Array.isArray(subtaskText)
-    ? subtaskText
-    : subtaskText.split(",").filter((subtask) => subtask.trim() !== "");
-  if (subtasks.length === 0) return "<p>No subtasks available.</p>";
-  return subtasks
-    .map(
-      (subtask, index) => `
-        <div class="subtask flex" onclick="toggleCheckbox(${index}, ${taskId})">
-            <img src="/assets/img/img_add_task/checkbox.png" id="popup-subtask-${index}" name="subtask-${index}" style="height: 16px">
-            <label for="popup-subtask-${index}">${subtask.trim()}</label>
-        </div>`
-    )
-    .join("");
-}
-
-function getHeaderBackgroundColor(userStoryText) {
-  const colors = {
-    "Technical Task": "#1FD7C1",
-    "User Story": "#0038FF",
-  };
-  return colors[userStoryText] || "#FFF";
-}
-
-function displayPopup(
-  taskId,
-  headerBackgroundColor,
-  taskData,
-  priorityImage,
-  assignedHtml,
-  subtasksHtml
-) {
-  const popup = document.getElementById("popup-tasks");
-  popup.style.display = "flex";
-  popup.innerHTML = HtmlPopup(
-    taskId,
-    headerBackgroundColor,
-    taskData.userStoryText,
-    taskData.titleText,
-    taskData.descriptionText,
-    taskData.dueDate,
-    taskData.priorityText,
-    priorityImage,
-    assignedHtml,
-    subtasksHtml
-  );
-}
-function generateAssignedHtml2(assignedPeople) {
-  if (assignedPeople.length === 0) return "<p>No one assigned</p>";
-  return assignedPeople
-    .map((person) => {
-      const initials = person.name
-        .split(" ")
-        .map((name) => name[0])
-        .join("");
-      return `
-        <div>
-            <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; text-align: center; color: #fff;">
-                ${initials}
-            </span>
-            <p>${person.name}<p>
-        </div>`;
-    })
-    .join("");
-}
-
-let isSaving = false;
-
-async function toggleCheckbox(index, taskId) {
-  if (isSaving) return;
-
-  isSaving = true;
-
-  const imgElement = document.getElementById(`popup-subtask-${index}`);
-  const isChecked = imgElement.src.includes("checkbox.png");
-
-  imgElement.src = isChecked
-    ? "/assets/img/img_add_task/checkesbox.png"
-    : "/assets/img/img_add_task/checkbox.png";
-
-  await saveCheckboxState(taskId, index, !isChecked);
-
-  updateProgress(taskId);
-
-  isSaving = false;
-}
-
-async function selctedAssignees(taskId) {
-  const assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
-  resetDropdownItems();
-  highlightAssignedPeople(assignedPeople);
-}
-
-function resetDropdownItems() {
-  document.querySelectorAll(".dropdown-item").forEach((item) => {
-    item.setAttribute("data-selected", "false");
-    const img = item.querySelector(".toggle-image");
-    img.src = "/assets/img/img_add_task/checkbox.png";
-    img.alt = "Unselected";
-    item.style.backgroundColor = "";
-    item.style.color = "";
-  });
-}
-
-function highlightAssignedPeople(assignedPeople) {
-  if (!assignedPeople || assignedPeople.length === 0) {
-    return;
-  }
-
-  assignedPeople.forEach((person) => {
-    const dropdownItem = document.querySelector(
-      `.dropdown-item[data-name="${person.name}"]`
-    );
-    if (dropdownItem) {
-      setItemSelected(dropdownItem);
-    }
-  });
-}
-
-function setItemSelected(item) {
-  item.setAttribute("data-selected", "true");
-  const img = item.querySelector(".toggle-image");
-  img.src = "/assets/img/img_add_task/checkedbox.png";
-  img.alt = "Selected";
-  item.style.backgroundColor = "#2A3647";
-  item.style.color = "white";
-}
-
-function displayEditPopup(taskId, taskData, assignedHtml) {
-  document.getElementById(`popup-task${taskId}`).style.height = "80%";
-  const edit = document.getElementById(`popup-task${taskId}`);
-  edit.innerHTML = HtmlEdit(
-    taskData.titleText,
-    taskData.descriptionText,
-    taskId,
-    assignedHtml,
-    taskData.dueDate,
-    taskData.priorityText,
-    taskData.userStoryText
-  );
-}
-
-function loadSubtasksIntoEditForm(taskId, subtaskText) {
-  if (typeof subtaskText === "string") {
-    const subtasks = subtaskText
-      .split(",")
-      .filter((subtask) => subtask.trim() !== "");
-    populateSubtaskList(taskId, subtasks);
-  } else {
-    console.error("subtaskText is not a string:", subtaskText);
-  }
-}
-
-function populateSubtaskList(taskId, subtasks) {
-  const subtaskList = document.getElementById("subtask-list");
-  subtaskList.innerHTML = subtasks
-    .map(
-      (subtask, index) => `
-        <div id="subtask-${index}" style="display: flex; align-items: center;">
-            <p class="subtask" contenteditable="true" style="flex-grow: 1;">${subtask.trim()}</p>
-            <img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtasks(${index})">
-        </div>
-    `
-    )
-    .join("");
-
-  subtasks.forEach((_, index) => addSubtaskInputListener(taskId, index));
-}
-
-function updateSubtasksInFirebase(taskId) {
-  const newSubtasks = Array.from(
-    document.querySelectorAll("#subtask-list .subtask")
-  ).map((p) => p.textContent.trim());
-
-  const combinedSubtasks = newSubtasks.filter(
-    (subtask) => subtask.trim() !== ""
-  );
-
-  putData(`tasks/task${taskId}/subtask`, combinedSubtasks.join(",")).catch(
-    (error) => {
-      console.error("Error updating subtasks in Firebase:", error);
-    }
-  );
-}
-
-function addSubtasks(taskId) {
-  const subtaskText = getSubtaskInputValue();
-  if (!subtaskText) return;
-
-  const index = appendSubtaskToList(taskId, subtaskText);
-  clearSubtaskInput();
-  updateSubtasksInFirebase(taskId);
-
-  updateProgress(taskId);
-}
-
-function getSubtaskInputValue() {
-  const input = document.getElementById("subtask-input");
-  return input.value.trim();
-}
-
-function appendSubtaskToList(taskId, subtaskText) {
-  const subtaskList = document.getElementById("subtask-list");
-  const index = subtaskList.children.length;
-
-  const subtaskItem = createSubtaskElement(index, subtaskText);
-  addInputListener(taskId, index, subtaskItem);
-
-  subtaskList.appendChild(subtaskItem);
-  return index;
-}
-
-function createSubtaskElement(index, subtaskText) {
-  const subtaskItem = document.createElement("div");
-  subtaskItem.id = `subtask-${index}`;
-  subtaskItem.style.display = "flex";
-  subtaskItem.style.alignItems = "center";
-  subtaskItem.innerHTML = `
-        <p class="subtask" contenteditable="true" style="flex-grow: 1;">${subtaskText}</p>
-        <img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtasks(${index})">
-    `;
-  return subtaskItem;
-}
-
-function clearSubtaskInput() {
-  document.getElementById("subtask-input").value = "";
-}
-
-function removeSubtasks(index) {
-  const subtaskElement = document.getElementById(`subtask-${index}`);
-  const subtaskText = subtaskElement.querySelector(".subtask").textContent;
-
-  if (subtaskElement) {
-    subtaskElement.remove();
-    deleteSubTaskFB(`tasks/task${currentTaskData.taskId}`, subtaskText);
-  }
-}
-
-async function deleteSubTaskFB(path, subtaskToDelete) {
-  const taskData = await fetchTaskDataFromFirebase(path);
-  if (!isValidTaskData(taskData)) return;
-
-  const updatedSubtasks = removeSubtask(taskData.subtask, subtaskToDelete);
-  if (updatedSubtasks === taskData.subtask) return;
-
-  return await updateSubtasksInFirebase2(path, updatedSubtasks);
-}
-
-async function fetchTaskDataFromFirebase(path) {
-  const response = await fetch(BASE_URL + path + ".json");
-  return await response.json();
-}
-
-function isValidTaskData(taskData) {
-  return taskData && taskData.subtask;
-}
-
-function removeSubtask(subtasksString, subtaskToDelete) {
-  const subtasks = subtasksString.split(",");
-  return subtasks
-    .filter((subtask) => subtask.trim() !== subtaskToDelete.trim())
-    .join(",");
-}
-
-async function updateSubtasksInFirebase2(path, updatedSubtasks) {
-  const response = await fetch(BASE_URL + path + ".json", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ subtask: updatedSubtasks }),
-  });
-
-  return await response.json();
-}
-
-function filterSubtasks(subtaskString, subtaskToDelete) {
-  return subtaskString
-    .split(",")
-    .filter((subtask) => subtask.trim() !== subtaskToDelete.trim());
-}
-
-async function updateSubtasks(path, updatedSubtaskString) {
-  const response = await fetch(BASE_URL + path + ".json", {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ subtask: updatedSubtaskString }),
-  });
-  return await response.json();
-}
-
-function putOnFb(taskId) {
-  const taskData = collectTaskData();
-  if (!validateTaskData(taskData)) return;
-  const newSubtasks = collectNewSubtasks();
-  const subtaskStatuses = newSubtasks.map(() => false);
-  taskData.subtask = newSubtasks.join(",");
-  taskData.subtaskStatuses = subtaskStatuses;
-  saveTaskToFb(taskId, taskData).then(() => {
-    addToColumn0(taskId);
-  });
-  window.location.href = "/html/board.html";
-}
-
-function addToColumn0(taskId) {
-  fetchColumn0Tasks()
-    .then((column0Tasks) => updateColumn0Tasks(column0Tasks, taskId))
-    .catch(handleAddToColumnError);
-}
-
-async function fetchColumn0Tasks() {
-  const response = await fetch(
-    "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json"
-  );
-  const column0Tasks = await response.json();
-  return Array.isArray(column0Tasks) ? column0Tasks : [];
-}
-
-async function updateColumn0Tasks(column0Tasks, taskId) {
-  column0Tasks.push(`task${taskId}`);
-  const response = await fetch(
-    "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json",
-    {
+  
+  /**
+   * Sends the subtask checkbox state to Firebase.
+   *
+   * @async
+   * @param {string} firebasePath - The Firebase path for the subtask status.
+   * @param {boolean} isChecked - The checkbox state (true for checked, false for unchecked).
+   * @return {Promise<Response>} - The fetch API response.
+   */
+  async function sendCheckboxStateToFirebase(firebasePath, isChecked) {
+    return await fetch(BASE_URL + firebasePath, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(column0Tasks),
-    }
-  );
-  return await response.json();
-}
-
-function handleAddToColumnError(error) {
-  console.error("Fehler beim Hinzufügen der Task zu column0:", error);
-}
-
-function collectTaskData() {
-  return {
-    title: document.getElementById("title-input").value,
-    description: document.getElementById("description-input").value,
-    date: document.getElementById("date").value,
-    category: document.getElementById("category").value,
-    priority: document.querySelector(".prio-button.clicked")?.alt || "",
-    assigned: getSelectedContacts(),
-  };
-}
-function validateTaskData({ title, date, category }) {
-  return title && date && category;
-}
-
-function collectNewSubtasks() {
-  return Array.from(document.querySelectorAll("#subtask-list .subtask")).map(
-    (p) => p.textContent.trim()
-  );
-}
-
-function mergeAndSaveSubtasks(taskId, newSubtasks, taskData) {
-  subtaskFB(`tasks/task${taskId}/subtask`)
-    .then((existingSubtasks) => {
-      const existingSubtaskArray = Array.isArray(existingSubtasks)
-        ? existingSubtasks
-        : existingSubtasks
-            .split(",")
-            .filter((subtask) => subtask.trim() !== "");
-      const combinedSubtasks = [...newSubtasks, ...existingSubtaskArray].filter(
-        (subtask, index, self) => self.indexOf(subtask) === index
-      );
-      taskData.subtask = combinedSubtasks.join(",");
-      taskData.assigned = getSelectedContacts();
-      saveTaskToFb(taskId, taskData);
-    })
-    .catch(console.error);
-}
-
-function saveTaskToFb(taskId, taskData) {
-  putData(`tasks/task${taskId}`, taskData)
-    .then(() => (window.location.href = "/html/board.html"))
-    .catch((error) => {
-      console.error("Error updating task:", error);
+      body: JSON.stringify(isChecked),
     });
-}
-
-async function dateFB(path = "") {
-  try {
-    let response = await fetch(BASE_URL + path + ".json");
-    let dueDate = await response.json();
-    return dueDate;
-  } catch (error) {
-    console.error("Error fetching duedate:", error);
-    return "Error loading duedate";
   }
-}
-
-async function subtaskFB(path = "") {
-  try {
-    let response = await fetch(BASE_URL + path + ".json");
-    let subtask = await response.json();
-    return subtask;
-  } catch (error) {
-    console.error("Error fetching subtask:", error);
-    return [];
-  }
-}
-
-async function descriptionFB(path = "") {
-  try {
-    let response = await fetch(BASE_URL + path + ".json");
-    let description = await response.json();
-    return description;
-  } catch (error) {
-    console.error("Error fetching description:", error);
-    return "Error loading description";
-  }
-}
-
-async function title(path = "") {
-  try {
-    let response = await fetch(BASE_URL + path + ".json");
-    let title = await response.json();
-    return title;
-  } catch (error) {
-    console.error("Error fetching title:", error);
-    return "Error loading title";
-  }
-}
-
-async function userStory(path = "") {
-  try {
-    let response = await fetch(BASE_URL + path + ".json");
-    let userStory = await response.json();
-    return userStory;
-  } catch (error) {
-    console.error("Error fetching user story:", error);
-    return "Error loading user story";
-  }
-}
-
-async function assignedFB(path = "") {
-  try {
-    let response = await fetch(BASE_URL + path + ".json");
-    let assigned = await response.json();
-    return assigned;
-  } catch (error) {
-    console.error("Error fetching assigned people:", error);
-    return [];
-  }
-}
-
-async function priorityFB(path = "") {
-  try {
-    let response = await fetch(BASE_URL + path + ".json");
-    let priority = await response.json();
-    return priority;
-  } catch (error) {
-    console.error("Error fetching priority:", error);
-    return "Error loading priority";
-  }
-}
-
-function move() {
-  if (i == 0) {
-    i = 1;
-    var elem = document.getElementById("myBar");
-    var width = 10;
-    var id = setInterval(frame, 10);
-    function frame() {
-      if (width >= 100) {
-        clearInterval(id);
-        i = 0;
-      } else {
-        width++;
-        elem.style.width = width + "%";
-        elem.innerHTML = width + "%";
-      }
-    }
-  }
-}
-async function deleteTask(taskId) {
-  try {
-    await deleteTaskFromFirebase(taskId);
-    const remainingTasks = await fetchRemainingTasks();
-
-    if (!remainingTasks.length) {
-      console.error("No tasks found in Firebase.");
-      return;
-    }
-
-    const renumberedTasks = renumberTasks(remainingTasks);
-    await updateTasksInFirebase(renumberedTasks);
-
-    closePopupAndReload();
-  } catch (error) {
-    handleError2(error);
-  }
-}
-
-async function deleteTaskFromFirebase(taskId) {
-  const taskPath = `${BASE_URL}tasks/task${taskId}.json`;
-  const response = await fetch(taskPath, { method: "DELETE" });
-  if (!response.ok) {
-    throw new Error(`Error deleting task ${taskId}`);
-  }
-}
-
-async function fetchRemainingTasks() {
-  const response = await fetch(`${BASE_URL}tasks.json`);
-  const tasksData = await response.json();
-  if (!tasksData) return [];
-
-  return Object.keys(tasksData).map((key) => ({
-    id: key,
-    data: tasksData[key],
-  }));
-}
-
-function renumberTasks(tasks) {
-  return tasks
-    .sort(
-      (a, b) =>
-        parseInt(a.id.replace("task", "")) - parseInt(b.id.replace("task", ""))
-    )
-    .reduce((renumberedTasks, task, index) => {
-      renumberedTasks[`task${index + 1}`] = task.data;
-      return renumberedTasks;
-    }, {});
-}
-
-async function updateTasksInFirebase(renumberedTasks) {
-  await fetch(`${BASE_URL}tasks.json`, { method: "DELETE" });
-  await fetch(`${BASE_URL}tasks.json`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(renumberedTasks),
-  });
-}
-
-function closePopupAndReload() {
-  closePopup();
-  window.location.href = "../html/board.html";
-}
-
-function handleError2(error) {
-  console.error("Error deleting and renumbering tasks:", error);
-}
-
-async function updateTaskPositionsAfterDeletion(taskId) {
-  try {
-    const tasksPositions = await fetchTaskPositions();
-    const updatedPositions = removeTaskFromPositions(tasksPositions, taskId);
-    await updateFirebaseTaskPositions(updatedPositions);
-  } catch (error) {
-    handleTaskPositionError(error);
-  }
-}
-
-async function fetchTaskPositions() {
-  const response = await fetch(BASE_URL + "tasksPositions.json");
-  return await response.json();
-}
-
-function removeTaskFromPositions(tasksPositions, taskId) {
-  Object.keys(tasksPositions).forEach((columnKey) => {
-    tasksPositions[columnKey] = tasksPositions[columnKey].filter(
-      (id) => id !== `task${taskId}`
-    );
-  });
-  return tasksPositions;
-}
-
-async function updateFirebaseTaskPositions(updatedPositions) {
-  await fetch(BASE_URL + "tasksPositions.json", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(updatedPositions),
-  });
-}
-
-function handleTaskPositionError(error) {
-  console.error("Error updating task positions:", error);
-}
-
-async function deleteData(path = "") {
-  try {
-    let response = await fetch(BASE_URL + path + ".json", {
-      method: "DELETE",
-    });
-
+  
+  /**
+   * Handles the response from Firebase and throws an error if the response is not ok.
+   *
+   * @param {Response} response - The fetch response from Firebase.
+   * @throws Will throw an error if the response status is not ok.
+   */
+  function handleResponseStatus(response) {
     if (!response.ok) {
-      throw new Error("Network response was not ok");
+      throw new Error("Fehler beim Speichern des Zustands in Firebase");
     }
-
-    return response.json();
-  } catch (error) {
-    console.error("Error deleting data:", error);
-    return null;
   }
-}
-
-function closePopup() {
-  const popup = document.getElementById("popup-tasks");
-  const overlay = document.getElementById("overlay-task");
-
-  document.body.style.overflowY = "scroll";
-  if (popup) {
-    popup.style.display = "none";
-    popup.innerHTML = "";
+  
+  /**
+   * Logs an error message when saving checkbox state to Firebase fails.
+   *
+   * @param {Error} error - The error object.
+   */
+  function handleError(error) {
+    console.error(
+      "Fehler beim Speichern des Checkbox-Zustands in Firebase:",
+      error
+    );
   }
-
-  if (overlay) {
-    overlay.style.display = "none";
-  }
-
-  currentTaskData = {};
-}
-
-function filterTaskss() {
-  const searchTerm = document
-    .getElementById("findTaskResponsive")
-    .value.toLowerCase();
-  const taskElements = document.querySelectorAll(".task");
-
-  taskElements.forEach((taskElement) => {
-    const titleText = taskElement.querySelector("h3").textContent.toLowerCase();
-    const descriptionText = taskElement
-      .querySelector("p")
-      .textContent.toLowerCase();
-
-    if (
-      titleText.includes(searchTerm) ||
-      descriptionText.includes(searchTerm)
-    ) {
-      taskElement.style.display = "";
-    } else {
-      taskElement.style.display = "none";
+  
+  /**
+   * Processes a task with subtasks by fetching subtask data and updating the progress bar.
+   *
+   * @async
+   * @param {Object} task - The task data object.
+   * @param {number} index - The index of the task.
+   * @return {Promise<HTMLElement>} - The task element with subtasks processed.
+   */
+  async function processTaskWithSubtasks(task, index) {
+    const taskElement = createTaskElement(task, index);
+  
+    const subtaskText = await subtaskFB(`tasks/task${task.id}/subtask`);
+    if (subtaskText) {
+      const subtasksContainer = document.createElement("div");
+      taskElement.appendChild(subtasksContainer);
+  
+      await updateProgressBarFromFirebase(task.id);
     }
-  });
-}
-
-function filterTasks() {
-  const searchTerm = document.getElementById("findTask").value.toLowerCase();
-  const taskElements = document.querySelectorAll(".task");
-
-  taskElements.forEach((taskElement) => {
-    const titleText = taskElement.querySelector("h3").textContent.toLowerCase();
-    const descriptionText = taskElement
-      .querySelector("p")
-      .textContent.toLowerCase();
-
-    if (
-      titleText.includes(searchTerm) ||
-      descriptionText.includes(searchTerm)
-    ) {
-      taskElement.style.display = "";
-    } else {
-      taskElement.style.display = "none";
-    }
-  });
-}
-
-function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
-  const savedStatuses =
-    JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
-
-  while (savedStatuses.length <= subtaskIndex) {
-    savedStatuses.push(false);
+  
+    return taskElement;
   }
-
-  const existingSubtasks =
-    JSON.parse(localStorage.getItem(`task-${taskId}-subtask-texts`)) || [];
-  existingSubtasks[subtaskIndex] = newText.trim();
-  localStorage.setItem(
-    `task-${taskId}-subtask-texts`,
-    JSON.stringify(existingSubtasks)
-  );
-
-  updateSubtasksInFirebase(taskId);
-}
+  
+  /**
+   * Updates the progress bar for a task by fetching subtask statuses from Firebase.
+   *
+   * @async
+   * @param {number} taskId - The ID of the task to update the progress bar for.
+   */
+  async function updateProgressBarFromFirebase(taskId) {
+    const savedStatuses = await getSavedStatusesFromFirebase(taskId);
+  
+    const totalSubtasks = savedStatuses.length;
+    const completedCount = savedStatuses.filter(
+      (status) => status === true
+    ).length;
+  
+    updateProgressBarUI(taskId, completedCount, totalSubtasks);
+    updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
+  }
+  
+  /**
+   * Displays a message indicating that no tasks are available.
+   *
+   * @param {HTMLElement} container - The container to display the message in.
+   */
+  function showNoTasksMessage(container) {
+    container.innerHTML = "<p>No tasks available.</p>";
+  }
+  
+  /**
+   * Processes a task by creating its element, adding it to the container, and updating its progress bar.
+   *
+   * @param {Object} task - The task data object.
+   * @param {number} index - The index of the task.
+   * @param {HTMLElement} container - The container to append the task element to.
+   */
+  function processTask(task, index, container) {
+    const taskElement = createTaskElement(task, index);
+    container.appendChild(taskElement);
+    loadSubtaskProgress(index + 1);
+    updateProgressBarFromFirebase(index + 1);
+  }
+  
+  /**
+   * Calculates the number of completed and total subtasks from the subtask statuses.
+   *
+   * @param {Array<boolean>} statuses - An array of subtask statuses (true for completed, false for not completed).
+   * @return {Object} - An object containing the completed count and total subtasks.
+   */
+  function calculateSubtaskCounts(statuses) {
+    const completedCount = statuses.filter((status) => status).length;
+    return { completedCount, totalSubtasks: statuses.length };
+  }
+  
+  /**
+   * Updates the subtask count element for a task.
+   *
+   * @param {number} taskId - The ID of the task.
+   * @param {number} completedCount - The number of completed subtasks.
+   * @param {number} totalSubtasks - The total number of subtasks.
+   */
+  function updateSubtaskCountElement(taskId, completedCount, totalSubtasks) {
+    const subtaskCountElement = document.getElementById(
+      `subtask-count-${taskId}`
+    );
+    if (subtaskCountElement) {
+      subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
+    }
+  }
+  
+  /**
+   * Updates the progress bar for a task based on the subtask completion.
+   *
+   * @param {number} taskId - The ID of the task.
+   */
+  function updateProgress(taskId) {
+    const subtaskImages = getSubtaskImages(taskId);
+    const { completedCount, totalSubtasks } =
+      calculateSubtaskCompletion(subtaskImages);
+  
+    updateProgressBarUI(taskId, completedCount, totalSubtasks);
+    updateSubtaskCountUI(taskId, completedCount, totalSubtasks);
+  
+    saveSubtaskProgress(taskId, subtaskImages);
+  }
+  
+  /**
+   * Retrieves the subtask images for a task.
+   *
+   * @param {number} taskId - The ID of the task.
+   * @return {NodeList} - A NodeList of subtask images.
+   */
+  function getSubtaskImages(taskId) {
+    return document.querySelectorAll(`#popup-task${taskId} .subtask img`);
+  }
+  
+  /**
+   * Calculates the number of completed subtasks from the subtask images.
+   *
+   * @param {NodeList} subtaskImages - A NodeList of subtask images.
+   * @return {Object} - An object containing the completed count and total subtasks.
+   */
+  function calculateSubtaskCompletion(subtaskImages) {
+    const completedCount = Array.from(subtaskImages).filter((img) =>
+      img.src.includes("checkesbox.png")
+    ).length;
+    return { completedCount, totalSubtasks: subtaskImages.length };
+  }
+  
+  /**
+   * Updates the progress bar UI for a task based on the number of completed and total subtasks.
+   *
+   * @param {number} taskId - The ID of the task.
+   * @param {number} completedCount - The number of completed subtasks.
+   * @param {number} totalSubtasks - The total number of subtasks.
+   */
+  function updateProgressBarUI(taskId, completedCount, totalSubtasks) {
+    const progressBar = document.getElementById(`progress-bar-${taskId}`);
+    if (progressBar) {
+      const progressPercentage = (completedCount / totalSubtasks) * 100;
+      progressBar.style.width = `${progressPercentage}%`;
+    }
+  }
+  
+  /**
+   * Updates the subtask count UI for a task based on the number of completed and total subtasks.
+   *
+   * @param {number} taskId - The ID of the task.
+   * @param {number} completedCount - The number of completed subtasks.
+   * @param {number} totalSubtasks - The total number of subtasks.
+   */
+  function updateSubtaskCountUI(taskId, completedCount, totalSubtasks) {
+    const subtaskCountElement = document.getElementById(
+      `subtask-count-${taskId}`
+    );
+    if (subtaskCountElement) {
+      subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
+    }
+  }
+  
+  /**
+   * Saves the subtask progress to Firebase.
+   *
+   * @async
+   * @param {number} taskId - The ID of the task.
+   */
+  async function saveSubtaskProgress(taskId) {
+    const subtaskStatuses = getSubtaskStatuses(taskId);
+    const firebasePath = generateFirebaseSubtaskPath(taskId);
+  
+    try {
+      await sendSubtaskStatusesToFirebase(firebasePath, subtaskStatuses);
+    } catch (error) {
+      handleSaveError(error);
+    }
+  }
+  

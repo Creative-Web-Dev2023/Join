@@ -244,3 +244,62 @@ function HtmlProgressBar(index, subtaskCount) {
           }">0/${subtaskCount} Subtasks</p>
       `;
 }
+/**
+ * Generates the HTML structure for the detailed view of a contact, including the profile, name, contact actions (edit and delete),
+ * and contact information (email and phone).
+ * 
+ * @param {Object} contact - The contact object containing details like name, email, phone, initials, color, etc.
+ * @param {string} contactJsonString - A JSON stringified version of the contact object for use in function calls.
+ * @return {string} - The generated HTML structure as a string.
+ */
+function HTMLContactDetail(contact, contactJsonString) {
+  return `
+  <div class="contact-card-main-infos">
+      <div class="contact-detail-header">
+          <!-- Profile with initials and color -->
+          <div class="profile-content-big" style="background-color: ${contact.color}">
+              ${contact.firstInitial}${contact.secondInitial}
+          </div>
+          <div class="contact-name-big">
+              <h2>${contact.name}</h2>
+          </div>
+          
+          <!-- Contact action buttons (edit and delete) -->
+          <div class="contact-actions" id="contact-actions">
+              <div class="contact-functions" onclick='openEditContactModal(${contactJsonString})'>
+                  <img class="contact-functions-icons" src="/assets/img/img_contacts/edit.png" alt="">Edit
+              </div>
+              <div class="contact-functions" onclick="deleteContact('${contact.id}')">
+                  <img class="contact-functions-icons" src="/assets/img/img_contacts/delete.png" alt="">Delete
+              </div>
+          </div>
+          
+          <!-- Contact Information Section -->
+          <div class="contact-card-subtitle">Contact Information</div>
+          <div class="contact-card-details">
+              <div class="contact-card-info">
+                  <div class="contact-method">Email</div>
+                  <div class="contact-email">
+                      <a href="mailto:${contact.email}">${contact.email}</a>
+                  </div>
+              </div>
+              <div class="contact-card-info">
+                  <div class="contact-method">Phone</div>
+                  <div class="contact-phone">
+                      <p>${contact.phone}</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+      <!-- Mini action buttons for editing and deleting -->
+      <div class="edit_contact" id="editContact" onclick="toggleMiniReg()">
+        <img class="hoverr" src="/assets/img/img_contacts/edit_contact.png" alt="">
+        <div class="miniReg" id="miniReg" style="display: none;">
+            <img class="edit_hoverr" src="/assets/img/img_contacts/mini_edit.png" onclick="openEditContactModal(${contactJsonString})" alt="">
+            <img class="delete_hoverr" src="/assets/img/img_contacts/mini_delete.png" onclick="deleteContact('${contact.id}')" alt="">
+        </div>          
+      </div>
+  </div>
+  `;
+}
