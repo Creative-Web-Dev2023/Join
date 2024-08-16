@@ -71,6 +71,7 @@
 .input-style-1 {
     margin-bottom: 24px;
 }
+
 .input-style-2 {
     margin-bottom: 24px;
 }
@@ -333,6 +334,7 @@
     line-height: 73.2px;
     text-align: left;
 }
+
 .reactivefonts {
     font-size: 20px;
     font-weight: 400;
@@ -342,6 +344,7 @@
     margin: 0px;
     overflow-y: scroll;
 }
+
 .reactivefont {
     font-size: 20px;
     font-weight: 400;

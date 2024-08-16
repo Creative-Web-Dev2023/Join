@@ -15,7 +15,8 @@
 
     <div class="border">
         <div class="interface">
-            <div class="arrow-interface"><a href="../index.html"><img class="pointer" src="../assets/img/arrow_left.png" width="32px" height="32px"></a></div>
+            <div class="arrow-interface"><a href="../index.html"><img class="pointer" src="../assets/img/arrow_left.png"
+                        width="32px" height="32px"></a></div>
             <div class="headline">
                 <img class="headline-h1" src="../assets/img/sign_up_h1.png">
             </div>
@@ -26,7 +27,7 @@
                         <i class="fa fa-user"><img src="../assets/img/person.png"></i>
                         <span class="error-message">Name is required</span>
                     </div>
-            
+
                     <div class="input-container">
                         <input type="email" id="email" placeholder="Email" required>
                         <i class="fa fa-envelope"><img src="../assets/img/img_login/mail.png"></i>
@@ -34,37 +35,42 @@
                         <span id="emailError" style="display:none; color:red;"></span>
 
                     </div>
-            
+
                     <div class="input-container">
                         <input type="password" id="password" placeholder="Password" required>
-                        <i class="fa fa-eye" onclick="togglePasswordVisibility('password')"><img src="../assets/img/lock.png"></i>
+                        <i class="fa fa-eye" onclick="togglePasswordVisibility('password')"><img
+                                src="../assets/img/lock.png"></i>
                         <span class="error-message">Password is required</span>
                     </div>
-            
+
                     <div class="input-container">
                         <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-                        <i class="fa fa-eye" onclick="togglePasswordVisibility('confirmPassword')"><img src="../assets/img/lock.png"></i>
+                        <i class="fa fa-eye" onclick="togglePasswordVisibility('confirmPassword')"><img
+                                src="../assets/img/lock.png"></i>
                     </div>
-            
+
                     <div class="centering">
-                        <span id="passwordError" class="error-message" style="display:none;">Passwords do not match</span>
+                        <span id="passwordError" class="error-message" style="display:none;">Passwords do not
+                            match</span>
                     </div>
-                    
+
                     <div class="checkbox-sign-up-button">
                         <div class="checkbox-container">
                             <input type="checkbox" id="privacyPolicy" required>
-                            <label class="font-size-18" for="privacyPolicy">I accept the <a class="link-decoration" href="/html/privacy_policy_noconto.html">Privacy policy</a></label>
+                            <label class="font-size-18" for="privacyPolicy">I accept the <a class="link-decoration"
+                                    href="/html/privacy_policy_noconto.html">Privacy policy</a></label>
                         </div>
-            
+
                         <div class="button-container">
-                            <button type="submit" class="signup-button" id="signUpButton" onclick="submitContactFB()" disabled>Sign Up</button>
+                            <button type="submit" class="signup-button" id="signUpButton" onclick="submitContactFB()"
+                                disabled>Sign Up</button>
                         </div>
                     </div>
                 </div>
             </form>
             <div id="successPopup">You Signed Up Successfully</div>
         </div>
-        
+
     </div>
     <div class="bottom-policy-and-co">
         <a class="link-decoration-bottom" href="/html/privacy_policy_noconto.html">Privacy policy</a>
