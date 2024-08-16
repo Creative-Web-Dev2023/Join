@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: firebase_add_task.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: firebase_add_task.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const BASE_URL =
+  "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
+const BASE_TASKS_URL = `${BASE_URL}tasks.json`;
+const BASE_CONTACTS_URL = `${BASE_URL}contacts.json`;
+
+let subtask = [];
+
+let text = document.getElementById("title-input");
+let description = document.getElementById("description-input");
+let category = document.getElementById("category");
+let date = document.getElementById("date");
+let listtask = subtask;
+let priority = "";
+
+/**
+ * Counts the tasks and initiates task creation if the form inputs are valid.
+ * 
+ * @async
+ */
+async function count() {
+  const tasks = await getData("tasks");
+  const taskId = tasks ? Object.keys(tasks).length : 0;
+
+  if (text.value > "") {
+    if (category.value > "") {
+      if (date.value > "") {
+        init(taskId + 1);
+      }
+    }
+  }
+}
+
+/**
+ * Initializes task creation by gathering button data, saving the task to Firebase, and clearing inputs.
+ * 
+ * @param {number} taskId - The ID of the task to be created.
+ */
+function init(taskId) {
+  getButtonData();
+  putOnFB(taskId);
+  clearInputs();
+  showAddedPopup();
+}
+
+/**
+ * Saves task data to Firebase under the specified task ID.
+ * 
+ * @param {number} taskId - The ID of the task to save.
+ */
+function putOnFB(taskId) {
+  const selectedContacts = getSelectedContacts();
+  const subtaskStatuses = listtask.map(() => false);
+  putData(`tasks/task${taskId}/title`, `${text.value}`);
+  putData(`tasks/task${taskId}/description`, `${description.value}`);
+  putData(`tasks/task${taskId}/assigned`, selectedContacts);
+  putData(`tasks/task${taskId}/date`, `${date.value}`);
+  putData(`tasks/task${taskId}/category`, `${category.value}`);
+  putData(`tasks/task${taskId}/priority`, `${priority}`);
+  putData(`tasks/task${taskId}/subtask`, listtask.join(","));
+  putData(`tasks/task${taskId}/subtaskStatuses`, subtaskStatuses);
+}
+
+/**
+ * Gathers the priority data from the selected button.
+ */
+function getButtonData() {
+  document.querySelectorAll(".prio-button").forEach(function (button) {
+    if (button.classList.contains("clicked")) {
+      if (button.id === "urgent") priority = "Urgent";
+      if (button.id === "medium") priority = "Medium";
+      if (button.id === "low") priority = "Low";
+    }
+  });
+}
+
+/**
+ * Retrieves the selected contacts from the dropdown menu.
+ * 
+ * @return {Array&lt;Object>} - An array of selected contact objects, each containing a name and color.
+ */
+function getSelectedContacts() {
+  const selectedContacts = [];
+  document.querySelectorAll(".dropdown-item").forEach((item) => {
+    if (item.getAttribute("data-selected") === "true") {
+      const contactName = item.querySelector(".chosenName").textContent.trim();
+      const contactColor = item.querySelector(".circle").style.backgroundColor;
+      selectedContacts.push({ name: contactName, color: contactColor });
+    }
+  });
+  updateSelectedContactsDisplay(selectedContacts);
+  return selectedContacts;
+}
+
+/**
+ * Sends data to the specified Firebase path using a PUT request.
+ * 
+ * @async
+ * @param {string} [path=""] - The Firebase path where the data should be saved.
+ * @param {Object} data - The data to be saved.
+ */
+async function putData(path = "", data = {}) {
+  await fetch(BASE_URL + path + ".json", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Clears all input fields, dropdown selections, subtasks, and priority buttons.
+ */
+function clearInputs() {
+  clearInputFields();
+  clearDropdownSelections();
+  clearSubtaskList();
+  resetPriorityButtons();
+  clearSelectedContacts();
+}
+
+/**
+ * Clears the values of the input fields for the task form.
+ */
+function clearInputFields() {
+  text.value = "";
+  description.value = "";
+  category.selectedIndex = 0;
+  date.value = "";
+}
+
+/**
+ * Clears the selections of the dropdown items.
+ */
+function clearDropdownSelections() {
+  document.querySelectorAll(".dropdown-item").forEach((item) => {
+    item.setAttribute("data-selected", "false");
+    const img = item.querySelector(".toggle-image");
+    img.src = "/assets/img/img_add_task/checkbox.png";
+    img.alt = "Unselected";
+    item.style.backgroundColor = "";
+    item.style.color = "";
+  });
+}
+
+/**
+ * Clears the subtask list and resets the subtask array.
+ */
+function clearSubtaskList() {
+  const subtaskList = document.getElementById("subtask-list");
+  subtaskList.innerHTML = "";
+  subtask = [];
+  listtask = [];
+}
+
+/**
+ * Resets the priority buttons by removing the clicked state.
+ */
+function resetPriorityButtons() {
+  document.querySelectorAll(".prio-button").forEach((button) => {
+    button.classList.remove("clicked");
+    button.src = button.src.replace("_clicked", "_standart");
+  });
+}
+
+/**
+ * Clears the selected contacts display.
+ */
+function clearSelectedContacts() {
+  const selectedContactsContainer = document.getElementById(
+    "selected-contacts-container"
+  );
+  selectedContactsContainer.innerHTML = "";
+}
+
+/**
+ * Shows the "task added" popup and redirects to the task board after a short delay.
+ */
+function showAddedPopup() {
+  const successPopup = document.getElementById("successPopup");
+  successPopup.style.display = "block";
+
+  setTimeout(() => {
+    successPopup.style.bottom = "50%";
+  }, 0);
+
+  setTimeout(() => {
+    successPopup.style.display = "none";
+  }, 1500);
+
+  setTimeout(() => {
+    window.location.href = "/html/board.html";
+  }, 1500);
+}
+
+/**
+ * Fetches data from the specified Firebase path.
+ * 
+ * @async
+ * @param {string} [path=""] - The Firebase path to fetch data from.
+ * @return {Promise&lt;Object>} - The fetched data.
+ */
+async function getData(path = "") {
+  let response = await fetch(BASE_URL + path + ".json");
+  let data = await response.json();
+  return data;
+}
+
+/**
+ * Updates the display for the selected contacts with their initials and colors.
+ * 
+ * @param {Array&lt;Object>} selectedContacts - The array of selected contact objects.
+ */
+function updateSelectedContactsDisplay(selectedContacts) {
+  const container = document.getElementById("selected-contacts-container");
+  container.innerHTML = "";
+
+  selectedContacts.forEach((contact) => {
+    const circle = document.createElement("div");
+    circle.className = "contact-circle";
+    circle.style.backgroundColor = contact.color;
+    circle.textContent = contact.name
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
+      .toUpperCase();
+    circle.title = contact.name;
+    container.appendChild(circle);
+  });
+}
+
+/**
+ * Fetches and displays contact information from Firebase.
+ * 
+ * @async
+ * @param {string} [path="contacts"] - The Firebase path to fetch contacts from.
+ */
+async function getInfo(path = "contacts") {
+  try {
+    let response = await fetch(BASE_URL + path + ".json");
+    let contacts = await response.json();
+    if (!contacts) {
+      return;
+    }
+    const contactKeys = Object.keys(contacts);
+    for (let key of contactKeys) {
+      let contactData = await getNameAndColor(`contacts/${key}`);
+      if (contactData.name &amp;&amp; contactData.color) {
+        const nameElement = document.getElementById("dropdown-content");
+        nameElement.innerHTML += displayNameColor(
+          contactData.name,
+          contactData.color,
+          contactData.emblem
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Error fetching contacts:", error);
+  }
+}
+
+/**
+ * Fetches name, color, and emblem data from Firebase for a given contact.
+ * 
+ * @async
+ * @param {string} [path=""] - The Firebase path to fetch the contact data from.
+ * @return {Promise&lt;Object>} - An object containing the name, color, and emblem data.
+ */
+async function getNameAndColor(path = "") {
+  const [nameData, colorData, emblemData] = await fetchNameColorEmblem(path);
+  return createNameColorEmblemObject(nameData, colorData, emblemData);
+}
+
+/**
+ * Fetches the name, color, and emblem data from Firebase concurrently.
+ * 
+ * @async
+ * @param {string} path - The Firebase path to fetch the data from.
+ * @return {Promise&lt;Array>} - An array containing the name, color, and emblem data.
+ */
+async function fetchNameColorEmblem(path) {
+  const nameResponse = fetch(`${BASE_URL}${path}/name.json`).then((res) =>
+    res.json()
+  );
+  const colorResponse = fetch(`${BASE_URL}${path}/color.json`).then((res) =>
+    res.json()
+  );
+  const emblemResponse = fetch(`${BASE_URL}${path}/emblem.json`).then((res) =>
+    res.json()
+  );
+
+  return Promise.all([nameResponse, colorResponse, emblemResponse]);
+}
+
+/**
+ * Creates an object containing the name, color, and emblem data.
+ * 
+ * @param {string} nameData - The name data.
+ * @param {string} colorData - The color data.
+ * @param {string} [emblemData=""] - The emblem data.
+ * @return {Object} - An object containing the name, color, and emblem data.
+ */
+function createNameColorEmblemObject(nameData, colorData, emblemData) {
+  if (nameData &amp;&amp; colorData) {
+    return {
+      name: nameData,
+      color: colorData,
+      emblem: emblemData || "",
+    };
+  }
+  return {};
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#BASE_URL">BASE_URL</a></li><li><a href="global.html#FullName">FullName</a></li><li><a href="global.html#HTMLContactDetail">HTMLContactDetail</a></li><li><a href="global.html#HtmlEdit">HtmlEdit</a></li><li><a href="global.html#HtmlPopup">HtmlPopup</a></li><li><a href="global.html#HtmlProgressBar">HtmlProgressBar</a></li><li><a href="global.html#HtmlTaskElement">HtmlTaskElement</a></li><li><a href="global.html#addContact">addContact</a></li><li><a href="global.html#addContactToFirebase">addContactToFirebase</a></li><li><a href="global.html#addContactToList">addContactToList</a></li><li><a href="global.html#addInputListener">addInputListener</a></li><li><a href="global.html#addSubtask">addSubtask</a></li><li><a href="global.html#addSubtaskInputListener">addSubtaskInputListener</a></li><li><a href="global.html#addSubtaskListeners">addSubtaskListeners</a></li><li><a href="global.html#addSubtasks">addSubtasks</a></li><li><a href="global.html#addTaskListeners">addTaskListeners</a></li><li><a href="global.html#addToColumn0">addToColumn0</a></li><li><a href="global.html#allCount">allCount</a></li><li><a href="global.html#allowDrop">allowDrop</a></li><li><a href="global.html#appendSubtaskToList">appendSubtaskToList</a></li><li><a href="global.html#appendTaskToColumn">appendTaskToColumn</a></li><li><a href="global.html#appendTasksToColumn">appendTasksToColumn</a></li><li><a href="global.html#applySavedStatuses">applySavedStatuses</a></li><li><a href="global.html#areInputsFilled">areInputsFilled</a></li><li><a href="global.html#arePasswordsMatching">arePasswordsMatching</a></li><li><a href="global.html#assignedFB">assignedFB</a></li><li><a href="global.html#calculateSubtaskCompletion">calculateSubtaskCompletion</a></li><li><a href="global.html#calculateSubtaskCounts">calculateSubtaskCounts</a></li><li><a href="global.html#capitalizeFirstLetter">capitalizeFirstLetter</a></li><li><a href="global.html#checkIcon">checkIcon</a></li><li><a href="global.html#checkWindowSize">checkWindowSize</a></li><li><a href="global.html#clearContactForm">clearContactForm</a></li><li><a href="global.html#clearDropdownSelections">clearDropdownSelections</a></li><li><a href="global.html#clearError">clearError</a></li><li><a href="global.html#clearErrorMessages">clearErrorMessages</a></li><li><a href="global.html#clearInputErrors">clearInputErrors</a></li><li><a href="global.html#clearInputFields">clearInputFields</a></li><li><a href="global.html#clearInputs">clearInputs</a></li><li><a href="global.html#clearSelectedContacts">clearSelectedContacts</a></li><li><a href="global.html#clearSubtaskInput">clearSubtaskInput</a></li><li><a href="global.html#clearSubtaskList">clearSubtaskList</a></li><li><a href="global.html#closeModal">closeModal</a></li><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#closePopupAndReload">closePopupAndReload</a></li><li><a href="global.html#closeTaskEditPopup">closeTaskEditPopup</a></li><li><a href="global.html#collectNewSubtasks">collectNewSubtasks</a></li><li><a href="global.html#collectTaskData">collectTaskData</a></li><li><a href="global.html#configureSubmitButton">configureSubmitButton</a></li><li><a href="global.html#configureSubmitButtonForCreate">configureSubmitButtonForCreate</a></li><li><a href="global.html#configureSubmitButtonForUpdate">configureSubmitButtonForUpdate</a></li><li><a href="global.html#count">count</a></li><li><a href="global.html#createContactObject">createContactObject</a></li><li><a href="global.html#createNameColorEmblemObject">createNameColorEmblemObject</a></li><li><a href="global.html#createSubtaskElement">createSubtaskElement</a></li><li><a href="global.html#createSubtaskItem">createSubtaskItem</a></li><li><a href="global.html#createTaskDiv">createTaskDiv</a></li><li><a href="global.html#createTaskElement">createTaskElement</a></li><li><a href="global.html#dateFB">dateFB</a></li><li><a href="global.html#deleteContact">deleteContact</a></li><li><a href="global.html#deleteData">deleteData</a></li><li><a href="global.html#deleteSubTaskFB">deleteSubTaskFB</a></li><li><a href="global.html#deleteSubtask">deleteSubtask</a></li><li><a href="global.html#deleteTask">deleteTask</a></li><li><a href="global.html#deleteTaskFromFirebase">deleteTaskFromFirebase</a></li><li><a href="global.html#deleteThis">deleteThis</a></li><li><a href="global.html#descriptionFB">descriptionFB</a></li><li><a href="global.html#displayContacts">displayContacts</a></li><li><a href="global.html#displayEditPopup">displayEditPopup</a></li><li><a href="global.html#displayErrorMessage">displayErrorMessage</a></li><li><a href="global.html#displayNameColor">displayNameColor</a></li><li><a href="global.html#displayPopup">displayPopup</a></li><li><a href="global.html#displaySubtasks">displaySubtasks</a></li><li><a href="global.html#doneCount">doneCount</a></li><li><a href="global.html#drag">drag</a></li><li><a href="global.html#drop">drop</a></li><li><a href="global.html#editTask">editTask</a></li><li><a href="global.html#editThis">editThis</a></li><li><a href="global.html#error">error</a></li><li><a href="global.html#feedbackCount">feedbackCount</a></li><li><a href="global.html#fetchColumn0Tasks">fetchColumn0Tasks</a></li><li><a href="global.html#fetchNameColorEmblem">fetchNameColorEmblem</a></li><li><a href="global.html#fetchRemainingTasks">fetchRemainingTasks</a></li><li><a href="global.html#fetchTaskData">fetchTaskData</a></li><li><a href="global.html#fetchTaskDataFromFirebase">fetchTaskDataFromFirebase</a></li><li><a href="global.html#fetchTaskPositions">fetchTaskPositions</a></li><li><a href="global.html#fetchTasks">fetchTasks</a></li><li><a href="global.html#fetchTasksPositions">fetchTasksPositions</a></li><li><a href="global.html#fetchTasksPositionsFromFirebase">fetchTasksPositionsFromFirebase</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#filterSubtasks">filterSubtasks</a></li><li><a href="global.html#filterTasks">filterTasks</a></li><li><a href="global.html#filterTaskss">filterTaskss</a></li><li><a href="global.html#findColumnForTask">findColumnForTask</a></li><li><a href="global.html#gatherContactData">gatherContactData</a></li><li><a href="global.html#gatherContactInputData2">gatherContactInputData2</a></li><li><a href="global.html#gatherTasksData">gatherTasksData</a></li><li><a href="global.html#gatherUpdatedContactData">gatherUpdatedContactData</a></li><li><a href="global.html#generateAssignedHtml">generateAssignedHtml</a></li><li><a href="global.html#generateAssignedHtml2">generateAssignedHtml2</a></li><li><a href="global.html#generateEmblem">generateEmblem</a></li><li><a href="global.html#generateFirebasePath">generateFirebasePath</a></li><li><a href="global.html#generateFirebaseSubtaskPath">generateFirebaseSubtaskPath</a></li><li><a href="global.html#generateRandomColor">generateRandomColor</a></li><li><a href="global.html#generateSubtasksHtml">generateSubtasksHtml</a></li><li><a href="global.html#generateTaskContent">generateTaskContent</a></li><li><a href="global.html#getButtonData">getButtonData</a></li><li><a href="global.html#getColumnIndexFromKey">getColumnIndexFromKey</a></li><li><a href="global.html#getColumnMapping">getColumnMapping</a></li><li><a href="global.html#getContactFormData">getContactFormData</a></li><li><a href="global.html#getData">getData</a></li><li><a href="global.html#getDataFromFirebase">getDataFromFirebase</a></li><li><a href="global.html#getGreeting">getGreeting</a></li><li><a href="global.html#getHeaderBackgroundColor">getHeaderBackgroundColor</a></li><li><a href="global.html#getHeaderColor">getHeaderColor</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getInputValue">getInputValue</a></li><li><a href="global.html#getNameAndColor">getNameAndColor</a></li><li><a href="global.html#getPriorityImage">getPriorityImage</a></li><li><a href="global.html#getSavedStatusesFromFirebase">getSavedStatusesFromFirebase</a></li><li><a href="global.html#getSelectedContacts">getSelectedContacts</a></li><li><a href="global.html#getSubtaskImages">getSubtaskImages</a></li><li><a href="global.html#getSubtaskInput">getSubtaskInput</a></li><li><a href="global.html#getSubtaskInputValue">getSubtaskInputValue</a></li><li><a href="global.html#getSubtaskStatuses">getSubtaskStatuses</a></li><li><a href="global.html#getUserInput">getUserInput</a></li><li><a href="global.html#goBack">goBack</a></li><li><a href="global.html#handleAddToColumnError">handleAddToColumnError</a></li><li><a href="global.html#handleClick">handleClick</a></li><li><a href="global.html#handleError">handleError</a></li><li><a href="global.html#handleError2">handleError2</a></li><li><a href="global.html#handleFirebaseResponse">handleFirebaseResponse</a></li><li><a href="global.html#handleGuestLogin">handleGuestLogin</a></li><li><a href="global.html#handleLoadTasksError">handleLoadTasksError</a></li><li><a href="global.html#handleLoginSuccess">handleLoginSuccess</a></li><li><a href="global.html#handleMouseOut">handleMouseOut</a></li><li><a href="global.html#handleMouseOver">handleMouseOver</a></li><li><a href="global.html#handleResponseStatus">handleResponseStatus</a></li><li><a href="global.html#handleSaveError">handleSaveError</a></li><li><a href="global.html#handleSubtaskUpdates">handleSubtaskUpdates</a></li><li><a href="global.html#handleSuccessfulSubmission">handleSuccessfulSubmission</a></li><li><a href="global.html#handleTaskPositionError">handleTaskPositionError</a></li><li><a href="global.html#hideDropdown">hideDropdown</a></li><li><a href="global.html#hidePopup">hidePopup</a></li><li><a href="global.html#highlightAssignedPeople">highlightAssignedPeople</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#init12">init12</a></li><li><a href="global.html#initializePopupHandlers">initializePopupHandlers</a></li><li><a href="global.html#isFormValid">isFormValid</a></li><li><a href="global.html#isPrivacyPolicyAccepted">isPrivacyPolicyAccepted</a></li><li><a href="global.html#isValidContact">isValidContact</a></li><li><a href="global.html#isValidEmail">isValidEmail</a></li><li><a href="global.html#isValidTaskData">isValidTaskData</a></li><li><a href="global.html#loadBoard">loadBoard</a></li><li><a href="global.html#loadContacts">loadContacts</a></li><li><a href="global.html#loadSubtaskProgress">loadSubtaskProgress</a></li><li><a href="global.html#loadSubtasksIntoEditForm">loadSubtasksIntoEditForm</a></li><li><a href="global.html#loadTasks">loadTasks</a></li><li><a href="global.html#loadTasksIntoColumns">loadTasksIntoColumns</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#mergeAndSaveSubtasks">mergeAndSaveSubtasks</a></li><li><a href="global.html#move">move</a></li><li><a href="global.html#openEdit">openEdit</a></li><li><a href="global.html#openEditContactModal">openEditContactModal</a></li><li><a href="global.html#openLegalNoticePage">openLegalNoticePage</a></li><li><a href="global.html#openModal">openModal</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#openPrivacyPolicyPage">openPrivacyPolicyPage</a></li><li><a href="global.html#openSignUpPage">openSignUpPage</a></li><li><a href="global.html#openTaskBoard">openTaskBoard</a></li><li><a href="global.html#parseSubtaskText">parseSubtaskText</a></li><li><a href="global.html#parseSubtasks">parseSubtasks</a></li><li><a href="global.html#populateEditMode">populateEditMode</a></li><li><a href="global.html#populateSubtaskList">populateSubtaskList</a></li><li><a href="global.html#prepareContactData">prepareContactData</a></li><li><a href="global.html#prepareEditModal">prepareEditModal</a></li><li><a href="global.html#priorityFB">priorityFB</a></li><li><a href="global.html#processContactsData">processContactsData</a></li><li><a href="global.html#processTask">processTask</a></li><li><a href="global.html#processTask3">processTask3</a></li><li><a href="global.html#processTaskWithSubtasks">processTaskWithSubtasks</a></li><li><a href="global.html#processUserData">processUserData</a></li><li><a href="global.html#progressCount">progressCount</a></li><li><a href="global.html#pushAndDisplaySubtask">pushAndDisplaySubtask</a></li><li><a href="global.html#pushsubtasks">pushsubtasks</a></li><li><a href="global.html#putData">putData</a></li><li><a href="global.html#putOnFB">putOnFB</a></li><li><a href="global.html#putOnFb">putOnFb</a></li><li><a href="global.html#refreshContacts">refreshContacts</a></li><li><a href="global.html#removeSubtask">removeSubtask</a></li><li><a href="global.html#removeSubtasks">removeSubtasks</a></li><li><a href="global.html#removeTaskFromPositions">removeTaskFromPositions</a></li><li><a href="global.html#renderContactsHtml">renderContactsHtml</a></li><li><a href="global.html#renumberTasks">renumberTasks</a></li><li><a href="global.html#resetContactForm">resetContactForm</a></li><li><a href="global.html#resetDropdownItems">resetDropdownItems</a></li><li><a href="global.html#resetError">resetError</a></li><li><a href="global.html#resetForm">resetForm</a></li><li><a href="global.html#resetInput">resetInput</a></li><li><a href="global.html#resetOutline">resetOutline</a></li><li><a href="global.html#resetPriorityButtons">resetPriorityButtons</a></li><li><a href="global.html#resetSubmitButton">resetSubmitButton</a></li><li><a href="global.html#saveCheckboxState">saveCheckboxState</a></li><li><a href="global.html#saveContact">saveContact</a></li><li><a href="global.html#saveContactToFirebase">saveContactToFirebase</a></li><li><a href="global.html#saveSubtaskProgress">saveSubtaskProgress</a></li><li><a href="global.html#saveTaskToFb">saveTaskToFb</a></li><li><a href="global.html#saveTasks">saveTasks</a></li><li><a href="global.html#saveTasksToFirebase">saveTasksToFirebase</a></li><li><a href="global.html#selctedAssignees">selctedAssignees</a></li><li><a href="global.html#sendCheckboxStateToFirebase">sendCheckboxStateToFirebase</a></li><li><a href="global.html#sendContactData">sendContactData</a></li><li><a href="global.html#sendSubtaskStatusesToFirebase">sendSubtaskStatusesToFirebase</a></li><li><a href="global.html#sendTaskDataToFirebase">sendTaskDataToFirebase</a></li><li><a href="global.html#setDataToFirebase">setDataToFirebase</a></li><li><a href="global.html#setError">setError</a></li><li><a href="global.html#setItemSelected">setItemSelected</a></li><li><a href="global.html#showAddedPopup">showAddedPopup</a></li><li><a href="global.html#showContactModal">showContactModal</a></li><li><a href="global.html#showDropDown">showDropDown</a></li><li><a href="global.html#showError">showError</a></li><li><a href="global.html#showNoTasksMessage">showNoTasksMessage</a></li><li><a href="global.html#showPopup">showPopup</a></li><li><a href="global.html#showSuccessPopup">showSuccessPopup</a></li><li><a href="global.html#sortContactsAndInitials">sortContactsAndInitials</a></li><li><a href="global.html#submitContact">submitContact</a></li><li><a href="global.html#submitContactFB">submitContactFB</a></li><li><a href="global.html#subtaskFB">subtaskFB</a></li><li><a href="global.html#summaryCounts">summaryCounts</a></li><li><a href="global.html#title">title</a></li><li><a href="global.html#todoCount">todoCount</a></li><li><a href="global.html#toggleCheckbox">toggleCheckbox</a></li><li><a href="global.html#toggleDropdown">toggleDropdown</a></li><li><a href="global.html#toggleDropdowns">toggleDropdowns</a></li><li><a href="global.html#togglePasswordVisibility">togglePasswordVisibility</a></li><li><a href="global.html#toggleSelection">toggleSelection</a></li><li><a href="global.html#updateColumn0Tasks">updateColumn0Tasks</a></li><li><a href="global.html#updateFirebaseTaskPositions">updateFirebaseTaskPositions</a></li><li><a href="global.html#updateInitials">updateInitials</a></li><li><a href="global.html#updateNoTasksMessage">updateNoTasksMessage</a></li><li><a href="global.html#updateProfileIcon">updateProfileIcon</a></li><li><a href="global.html#updateProgress">updateProgress</a></li><li><a href="global.html#updateProgressBarFromFirebase">updateProgressBarFromFirebase</a></li><li><a href="global.html#updateProgressBarUI">updateProgressBarUI</a></li><li><a href="global.html#updateSelectedContactsDisplay">updateSelectedContactsDisplay</a></li><li><a href="global.html#updateSubtaskCountElement">updateSubtaskCountElement</a></li><li><a href="global.html#updateSubtaskCountUI">updateSubtaskCountUI</a></li><li><a href="global.html#updateSubtaskInLocalStorage">updateSubtaskInLocalStorage</a></li><li><a href="global.html#updateSubtaskText">updateSubtaskText</a></li><li><a href="global.html#updateSubtasks">updateSubtasks</a></li><li><a href="global.html#updateSubtasksInFirebase">updateSubtasksInFirebase</a></li><li><a href="global.html#updateSubtasksInFirebase2">updateSubtasksInFirebase2</a></li><li><a href="global.html#updateTaskPositionsAfterDeletion">updateTaskPositionsAfterDeletion</a></li><li><a href="global.html#updateTasksInFirebase">updateTasksInFirebase</a></li><li><a href="global.html#userStory">userStory</a></li><li><a href="global.html#validateContactData">validateContactData</a></li><li><a href="global.html#validateCredentials">validateCredentials</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateField">validateField</a></li><li><a href="global.html#validateForm">validateForm</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validatePasswords">validatePasswords</a></li><li><a href="global.html#validateTaskData">validateTaskData</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Fri Aug 16 2024 23:54:05 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

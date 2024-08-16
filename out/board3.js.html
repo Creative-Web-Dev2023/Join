@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: board3.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: board3.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Retrieves the statuses of subtasks by checking their associated images.
+ * 
+ * @param {number} taskId - The ID of the task whose subtasks are being checked.
+ * @returns {boolean[]} - An array of boolean values representing the subtask statuses.
+ */
+function getSubtaskStatuses(taskId) {
+    const subtaskImages = document.querySelectorAll(
+      `#popup-task${taskId} .subtask img`
+    );
+    return Array.from(subtaskImages).map((img) =>
+      img.src.includes("checkesbox.png")
+    );
+  }
+  
+  /**
+   * Generates the Firebase path for subtask statuses.
+   * 
+   * @param {number} taskId - The ID of the task whose subtask statuses are being saved.
+   * @returns {string} - The Firebase path for subtask statuses.
+   */
+  function generateFirebaseSubtaskPath(taskId) {
+    return `tasks/task${taskId}/subtaskStatuses.json`;
+  }
+  
+  /**
+   * Sends the subtask statuses to Firebase.
+   * 
+   * @param {string} firebasePath - The Firebase path to save the subtask statuses.
+   * @param {boolean[]} subtaskStatuses - The array of subtask statuses to be saved.
+   * @returns {Promise&lt;void>}
+   */
+  async function sendSubtaskStatusesToFirebase(firebasePath, subtaskStatuses) {
+    await fetch(BASE_URL + firebasePath, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(subtaskStatuses),
+    });
+  }
+  
+  /**
+   * Handles errors when saving subtask statuses to Firebase.
+   * 
+   * @param {Error} error - The error object.
+   */
+  function handleSaveError(error) {
+    console.error("Error saving subtask statuses to Firebase:", error);
+  }
+  
+  /**
+   * Loads the subtask progress for a task and applies saved statuses.
+   * 
+   * @param {number} taskId - The ID of the task to load subtask progress for.
+   * @returns {Promise&lt;void>}
+   */
+  async function loadSubtaskProgress(taskId) {
+    const savedStatuses = await getSavedStatusesFromFirebase(taskId);
+    const subtaskImages = getSubtaskImages(taskId);
+  
+    if (!savedStatuses || savedStatuses.length === 0) {
+      const initialStatuses = Array(subtaskImages.length).fill(false);
+      await saveSubtaskProgress(taskId, initialStatuses);
+      applySavedStatuses(subtaskImages, initialStatuses);
+    } else {
+      applySavedStatuses(subtaskImages, savedStatuses);
+    }
+  
+    updateProgressBarFromFirebase(taskId);
+  }
+  
+  /**
+   * Fetches saved subtask statuses from Firebase.
+   * 
+   * @param {number} taskId - The ID of the task to fetch the subtask statuses for.
+   * @returns {Promise&lt;boolean[]>} - The array of saved subtask statuses.
+   */
+  async function getSavedStatusesFromFirebase(taskId) {
+    const response = await fetch(
+      BASE_URL + `tasks/task${taskId}/subtaskStatuses.json`
+    );
+    const savedStatuses = await response.json();
+    return savedStatuses || [];
+  }
+  
+  /**
+   * Applies saved subtask statuses to the task's subtask images.
+   * 
+   * @param {NodeListOf&lt;Element>} subtaskImages - The subtask images to update.
+   * @param {boolean[]} savedStatuses - The saved statuses to apply.
+   */
+  function applySavedStatuses(subtaskImages, savedStatuses) {
+    subtaskImages.forEach((img, index) => {
+      img.src = savedStatuses[index]
+        ? "/assets/img/img_add_task/checkesbox.png"
+        : "/assets/img/img_add_task/checkbox.png";
+    });
+  }
+  
+  /**
+   * Fetches tasks from Firebase.
+   * 
+   * @returns {Promise&lt;Object[]>} - An array of task objects fetched from Firebase.
+   */
+  async function fetchTasks() {
+    try {
+      const response = await fetch(BASE_URL + "tasks.json");
+      const data = await response.json();
+  
+      if (!data) {
+        console.error("No tasks data found");
+        return [];
+      }
+  
+      const tasks = Object.keys(data).map((taskId) => ({
+        id: taskId,
+        ...data[taskId],
+      }));
+  
+      return tasks;
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      return [];
+    }
+  }
+  
+  /**
+   * Opens the task popup and loads the task data.
+   * 
+   * @param {number} taskId - The ID of the task to open the popup for.
+   * @returns {Promise&lt;void>}
+   */
+  async function openPopup(taskId) {
+    const taskData = await fetchTaskData(taskId);
+    currentTaskData = { taskId, ...taskData };
+  
+    document.body.style.overflowY = "hidden";
+    const assignedHtml = generateAssignedHtml2(taskData.assignedPeople);
+    const subtasksHtml = generateSubtasksHtml(taskData.subtaskText, taskId);
+    const priorityImage = getPriorityImage(taskData.priorityText);
+    const headerBackgroundColor = getHeaderBackgroundColor(taskData.userStoryText);
+  
+    displayPopup(
+      taskId,
+      headerBackgroundColor,
+      taskData,
+      priorityImage,
+      assignedHtml,
+      subtasksHtml
+    );
+  
+    await loadSubtaskProgress(taskId);
+  }
+  
+  /**
+   * Fetches the data for a specific task from Firebase.
+   * 
+   * @param {number} taskId - The ID of the task to fetch data for.
+   * @returns {Promise&lt;Object>} - The fetched task data.
+   */
+  async function fetchTaskData(taskId) {
+    const [
+      userStoryText,
+      titleText,
+      dueDate,
+      descriptionText,
+      subtaskText,
+      priorityText,
+      assignedPeople,
+    ] = await Promise.all([
+      userStory(`tasks/task${taskId}/category`),
+      title(`tasks/task${taskId}/title`),
+      dateFB(`tasks/task${taskId}/date`),
+      descriptionFB(`tasks/task${taskId}/description`),
+      subtaskFB(`tasks/task${taskId}/subtask`),
+      priorityFB(`tasks/task${taskId}/priority`),
+      assignedFB(`tasks/task${taskId}/assigned`),
+    ]);
+    return {
+      userStoryText,
+      titleText,
+      dueDate,
+      descriptionText,
+      subtaskText,
+      priorityText,
+      assignedPeople: assignedPeople || [],
+    };
+  }
+  
+  /**
+   * Generates the HTML for displaying subtasks in the popup.
+   * 
+   * @param {string|string[]} subtaskText - The subtasks as a string or array.
+   * @param {number} taskId - The ID of the task containing the subtasks.
+   * @returns {string} - The generated HTML for the subtasks.
+   */
+  function generateSubtasksHtml(subtaskText, taskId) {
+    const subtasks = Array.isArray(subtaskText)
+      ? subtaskText
+      : subtaskText.split(",").filter((subtask) => subtask.trim() !== "");
+    if (subtasks.length === 0) return "&lt;p>No subtasks available.&lt;/p>";
+    return subtasks
+      .map(
+        (subtask, index) => `
+            &lt;div class="subtask flex" onclick="toggleCheckbox(${index}, ${taskId})">
+                &lt;img src="/assets/img/img_add_task/checkbox.png" id="popup-subtask-${index}" name="subtask-${index}" style="height: 16px">
+                &lt;label for="popup-subtask-${index}">${subtask.trim()}&lt;/label>
+            &lt;/div>`
+      )
+      .join("");
+  }
+  
+  /**
+   * Retrieves the background color for the task header based on the user story text.
+   * 
+   * @param {string} userStoryText - The text describing the user story.
+   * @returns {string} - The background color for the task header.
+   */
+  function getHeaderBackgroundColor(userStoryText) {
+    const colors = {
+      "Technical Task": "#1FD7C1",
+      "User Story": "#0038FF",
+    };
+    return colors[userStoryText] || "#FFF";
+  }
+  
+  /**
+   * Displays the task popup with the provided data and HTML content.
+   * 
+   * @param {number} taskId - The ID of the task.
+   * @param {string} headerBackgroundColor - The background color for the task header.
+   * @param {Object} taskData - The data for the task.
+   * @param {string} priorityImage - The URL of the image representing the task priority.
+   * @param {string} assignedHtml - The HTML for the assigned people.
+   * @param {string} subtasksHtml - The HTML for the subtasks.
+   */
+  function displayPopup(
+    taskId,
+    headerBackgroundColor,
+    taskData,
+    priorityImage,
+    assignedHtml,
+    subtasksHtml
+  ) {
+    const popup = document.getElementById("popup-tasks");
+    popup.style.display = "flex";
+    popup.innerHTML = HtmlPopup(
+      taskId,
+      headerBackgroundColor,
+      taskData.userStoryText,
+      taskData.titleText,
+      taskData.descriptionText,
+      taskData.dueDate,
+      taskData.priorityText,
+      priorityImage,
+      assignedHtml,
+      subtasksHtml
+    );
+  }
+  
+  /**
+   * Generates the HTML for displaying assigned people in the popup.
+   * 
+   * @param {Object[]} assignedPeople - An array of people assigned to the task.
+   * @returns {string} - The generated HTML for the assigned people.
+   */
+  function generateAssignedHtml2(assignedPeople) {
+    if (assignedPeople.length === 0) return "&lt;p>No one assigned&lt;/p>";
+    return assignedPeople
+      .map((person) => {
+        const initials = person.name
+          .split(" ")
+          .map((name) => name[0])
+          .join("");
+        return `
+            &lt;div>
+                &lt;span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; text-align: center; color: #fff;">
+                    ${initials}
+                &lt;/span>
+                &lt;p>${person.name}&lt;p>
+            &lt;/div>`;
+      })
+      .join("");
+  }  
+
+let isSaving = false;
+
+/**
+ * Toggles the checkbox state for a subtask and saves the updated state to Firebase.
+ * 
+ * @param {number} index - The index of the subtask.
+ * @param {number} taskId - The ID of the task containing the subtask.
+ * @returns {Promise&lt;void>}
+ */
+async function toggleCheckbox(index, taskId) {
+    if (isSaving) return;
+  
+    isSaving = true;
+  
+    const imgElement = document.getElementById(`popup-subtask-${index}`);
+    const isChecked = imgElement.src.includes("checkbox.png");
+  
+    imgElement.src = isChecked
+      ? "/assets/img/img_add_task/checkesbox.png"
+      : "/assets/img/img_add_task/checkbox.png";
+  
+    await saveCheckboxState(taskId, index, !isChecked);
+  
+    updateProgress(taskId);
+  
+    isSaving = false;
+  }
+  
+  /**
+   * Fetches assigned people for a task and highlights them in the dropdown.
+   * 
+   * @param {number} taskId - The ID of the task.
+   * @returns {Promise&lt;void>}
+   */
+  async function selctedAssignees(taskId) {
+    const assignedPeople = await assignedFB(`tasks/task${taskId}/assigned`);
+    resetDropdownItems();
+    highlightAssignedPeople(assignedPeople);
+  }
+  
+  /**
+   * Resets all dropdown items to their unselected state.
+   */
+  function resetDropdownItems() {
+    document.querySelectorAll(".dropdown-item").forEach((item) => {
+      item.setAttribute("data-selected", "false");
+      const img = item.querySelector(".toggle-image");
+      img.src = "/assets/img/img_add_task/checkbox.png";
+      img.alt = "Unselected";
+      item.style.backgroundColor = "";
+      item.style.color = "";
+    });
+  }
+  
+  /**
+   * Highlights the dropdown items for the people who are assigned to the task.
+   * 
+   * @param {Array&lt;Object>} assignedPeople - An array of people assigned to the task.
+   */
+  function highlightAssignedPeople(assignedPeople) {
+    if (!assignedPeople || assignedPeople.length === 0) return;
+  
+    assignedPeople.forEach((person) => {
+      const dropdownItem = document.querySelector(
+        `.dropdown-item[data-name="${person.name}"]`
+      );
+      if (dropdownItem) {
+        setItemSelected(dropdownItem);
+      }
+    });
+  }
+  
+  /**
+   * Marks a dropdown item as selected.
+   * 
+   * @param {HTMLElement} item - The dropdown item element.
+   */
+  function setItemSelected(item) {
+    item.setAttribute("data-selected", "true");
+    const img = item.querySelector(".toggle-image");
+    img.src = "/assets/img/img_add_task/checkedbox.png";
+    img.alt = "Selected";
+    item.style.backgroundColor = "#2A3647";
+    item.style.color = "white";
+  }
+  
+  /**
+   * Displays the edit popup for a task.
+   * 
+   * @param {number} taskId - The ID of the task.
+   * @param {Object} taskData - The data of the task to display in the popup.
+   * @param {string} assignedHtml - The HTML content representing the assigned people.
+   */
+  function displayEditPopup(taskId, taskData, assignedHtml) {
+    document.getElementById(`popup-task${taskId}`).style.height = "80%";
+    const edit = document.getElementById(`popup-task${taskId}`);
+    edit.innerHTML = HtmlEdit(
+      taskData.titleText,
+      taskData.descriptionText,
+      taskId,
+      assignedHtml,
+      taskData.dueDate,
+      taskData.priorityText,
+      taskData.userStoryText
+    );
+  }
+  
+  /**
+   * Loads subtasks into the edit form.
+   * 
+   * @param {number} taskId - The ID of the task.
+   * @param {string} subtaskText - The subtasks as a comma-separated string.
+   */
+  function loadSubtasksIntoEditForm(taskId, subtaskText) {
+    if (typeof subtaskText === "string") {
+      const subtasks = subtaskText
+        .split(",")
+        .filter((subtask) => subtask.trim() !== "");
+      populateSubtaskList(taskId, subtasks);
+    } else {
+      console.error("subtaskText is not a string:", subtaskText);
+    }
+  }
+  
+  /**
+   * Populates the subtask list in the edit form.
+   * 
+   * @param {number} taskId - The ID of the task.
+   * @param {Array&lt;string>} subtasks - An array of subtask strings.
+   */
+  function populateSubtaskList(taskId, subtasks) {
+    const subtaskList = document.getElementById("subtask-list");
+    subtaskList.innerHTML = subtasks
+      .map(
+        (subtask, index) => `
+            &lt;div id="subtask-${index}" style="display: flex; align-items: center;">
+                &lt;p class="subtask" contenteditable="true" style="flex-grow: 1;">${subtask.trim()}&lt;/p>
+                &lt;img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtasks(${index})">
+            &lt;/div>
+        `
+      )
+      .join("");
+  
+    subtasks.forEach((_, index) => addSubtaskInputListener(taskId, index));
+  }
+  
+  /**
+   * Updates the subtasks in Firebase for a given task.
+   * 
+   * @param {number} taskId - The ID of the task.
+   */
+  function updateSubtasksInFirebase(taskId) {
+    const newSubtasks = Array.from(
+      document.querySelectorAll("#subtask-list .subtask")
+    ).map((p) => p.textContent.trim());
+  
+    const combinedSubtasks = newSubtasks.filter(
+      (subtask) => subtask.trim() !== ""
+    );
+  
+    putData(`tasks/task${taskId}/subtask`, combinedSubtasks.join(",")).catch(
+      (error) => {
+        console.error("Error updating subtasks in Firebase:", error);
+      }
+    );
+  }
+  
+  /**
+   * Adds a new subtask to the list and updates Firebase.
+   * 
+   * @param {number} taskId - The ID of the task.
+   */
+  function addSubtasks(taskId) {
+    const subtaskText = getSubtaskInputValue();
+    if (!subtaskText) return;
+  
+    const index = appendSubtaskToList(taskId, subtaskText);
+    clearSubtaskInput();
+    updateSubtasksInFirebase(taskId);
+  
+    updateProgress(taskId);
+  }
+  
+  /**
+   * Retrieves the value of the subtask input field.
+   * 
+   * @returns {string} - The trimmed value of the subtask input field.
+   */
+  function getSubtaskInputValue() {
+    const input = document.getElementById("subtask-input");
+    return input.value.trim();
+  }
+  
+  /**
+   * Appends a subtask to the list in the edit form.
+   * 
+   * @param {number} taskId - The ID of the task.
+   * @param {string} subtaskText - The text of the subtask to add.
+   * @returns {number} - The index of the added subtask.
+   */
+  function appendSubtaskToList(taskId, subtaskText) {
+    const subtaskList = document.getElementById("subtask-list");
+    const index = subtaskList.children.length;
+  
+    const subtaskItem = createSubtaskElement(index, subtaskText);
+    addInputListener(taskId, index, subtaskItem);
+  
+    subtaskList.appendChild(subtaskItem);
+    return index;
+  }
+  
+  /**
+   * Creates a subtask element for the edit form.
+   * 
+   * @param {number} index - The index of the subtask.
+   * @param {string} subtaskText - The text of the subtask.
+   * @returns {HTMLElement} - The subtask element.
+   */
+  function createSubtaskElement(index, subtaskText) {
+    const subtaskItem = document.createElement("div");
+    subtaskItem.id = `subtask-${index}`;
+    subtaskItem.style.display = "flex";
+    subtaskItem.style.alignItems = "center";
+    subtaskItem.innerHTML = `
+            &lt;p class="subtask" contenteditable="true" style="flex-grow: 1;">${subtaskText}&lt;/p>
+            &lt;img src="/assets/img/delete.png" alt="Delete" style="cursor: pointer;" onclick="removeSubtasks(${index})">
+        `;
+    return subtaskItem;
+  }
+  
+  /**
+   * Clears the subtask input field.
+   */
+  function clearSubtaskInput() {
+    document.getElementById("subtask-input").value = "";
+  }
+  
+  /**
+   * Removes a subtask from the list and Firebase.
+   * 
+   * @param {number} index - The index of the subtask to remove.
+   */
+  function removeSubtasks(index) {
+    const subtaskElement = document.getElementById(`subtask-${index}`);
+    const subtaskText = subtaskElement.querySelector(".subtask").textContent;
+  
+    if (subtaskElement) {
+      subtaskElement.remove();
+      deleteSubTaskFB(`tasks/task${currentTaskData.taskId}`, subtaskText);
+    }
+  }
+  
+  /**
+   * Deletes a subtask from Firebase.
+   * 
+   * @param {string} path - The path to the task in Firebase.
+   * @param {string} subtaskToDelete - The text of the subtask to delete.
+   * @returns {Promise&lt;void>}
+   */
+  async function deleteSubTaskFB(path, subtaskToDelete) {
+    const taskData = await fetchTaskDataFromFirebase(path);
+    if (!isValidTaskData(taskData)) return;
+  
+    const updatedSubtasks = removeSubtask(taskData.subtask, subtaskToDelete);
+    if (updatedSubtasks === taskData.subtask) return;
+  
+    return await updateSubtasksInFirebase2(path, updatedSubtasks);
+  }
+  
+  /**
+   * Fetches task data from Firebase.
+   * 
+   * @param {string} path - The path to the task in Firebase.
+   * @returns {Promise&lt;Object>} - The fetched task data.
+   */
+  async function fetchTaskDataFromFirebase(path) {
+    const response = await fetch(BASE_URL + path + ".json");
+    return await response.json();
+  }
+  
+  /**
+   * Checks if the task data is valid.
+   * 
+   * @param {Object} taskData - The task data to validate.
+   * @returns {boolean} - Whether the task data is valid.
+   */
+  function isValidTaskData(taskData) {
+    return taskData &amp;&amp; taskData.subtask;
+  }
+  
+  /**
+   * Removes a subtask from a comma-separated string of subtasks.
+   * 
+   * @param {string} subtasksString - The original subtask string.
+   * @param {string} subtaskToDelete - The subtask to remove.
+   * @returns {string} - The updated subtask string.
+   */
+  function removeSubtask(subtasksString, subtaskToDelete) {
+    const subtasks = subtasksString.split(",");
+    return subtasks
+      .filter((subtask) => subtask.trim() !== subtaskToDelete.trim())
+      .join(",");
+  }
+  
+  /**
+   * Updates the subtasks in Firebase after removing a subtask.
+   * 
+   * @param {string} path - The path to the task in Firebase.
+   * @param {string} updatedSubtasks - The updated subtask string.
+   * @returns {Promise&lt;Object>} - The response from Firebase.
+   */
+  async function updateSubtasksInFirebase2(path, updatedSubtasks) {
+    const response = await fetch(BASE_URL + path + ".json", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ subtask: updatedSubtasks }),
+    });
+  
+    return await response.json();
+  }
+  
+  /**
+   * Filters out a subtask from a comma-separated string of subtasks.
+   * 
+   * @param {string} subtaskString - The original subtask string.
+   * @param {string} subtaskToDelete - The subtask to remove.
+   * @returns {string} - The filtered subtask string.
+   */
+  function filterSubtasks(subtaskString, subtaskToDelete) {
+    return subtaskString
+      .split(",")
+      .filter((subtask) => subtask.trim() !== subtaskToDelete.trim());
+  }
+  
+  /**
+   * Updates subtasks in Firebase with a new subtask string.
+   * 
+   * @param {string} path - The path to the task in Firebase.
+   * @param {string} updatedSubtaskString - The updated subtask string.
+   * @returns {Promise&lt;Object>} - The response from Firebase.
+   */
+  async function updateSubtasks(path, updatedSubtaskString) {
+    const response = await fetch(BASE_URL + path + ".json", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subtask: updatedSubtaskString }),
+    });
+    return await response.json();
+  }
+  </code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#BASE_URL">BASE_URL</a></li><li><a href="global.html#FullName">FullName</a></li><li><a href="global.html#HTMLContactDetail">HTMLContactDetail</a></li><li><a href="global.html#HtmlEdit">HtmlEdit</a></li><li><a href="global.html#HtmlPopup">HtmlPopup</a></li><li><a href="global.html#HtmlProgressBar">HtmlProgressBar</a></li><li><a href="global.html#HtmlTaskElement">HtmlTaskElement</a></li><li><a href="global.html#addContact">addContact</a></li><li><a href="global.html#addContactToFirebase">addContactToFirebase</a></li><li><a href="global.html#addContactToList">addContactToList</a></li><li><a href="global.html#addInputListener">addInputListener</a></li><li><a href="global.html#addSubtask">addSubtask</a></li><li><a href="global.html#addSubtaskInputListener">addSubtaskInputListener</a></li><li><a href="global.html#addSubtaskListeners">addSubtaskListeners</a></li><li><a href="global.html#addSubtasks">addSubtasks</a></li><li><a href="global.html#addTaskListeners">addTaskListeners</a></li><li><a href="global.html#addToColumn0">addToColumn0</a></li><li><a href="global.html#allCount">allCount</a></li><li><a href="global.html#allowDrop">allowDrop</a></li><li><a href="global.html#appendSubtaskToList">appendSubtaskToList</a></li><li><a href="global.html#appendTaskToColumn">appendTaskToColumn</a></li><li><a href="global.html#appendTasksToColumn">appendTasksToColumn</a></li><li><a href="global.html#applySavedStatuses">applySavedStatuses</a></li><li><a href="global.html#areInputsFilled">areInputsFilled</a></li><li><a href="global.html#arePasswordsMatching">arePasswordsMatching</a></li><li><a href="global.html#assignedFB">assignedFB</a></li><li><a href="global.html#calculateSubtaskCompletion">calculateSubtaskCompletion</a></li><li><a href="global.html#calculateSubtaskCounts">calculateSubtaskCounts</a></li><li><a href="global.html#capitalizeFirstLetter">capitalizeFirstLetter</a></li><li><a href="global.html#checkIcon">checkIcon</a></li><li><a href="global.html#checkWindowSize">checkWindowSize</a></li><li><a href="global.html#clearContactForm">clearContactForm</a></li><li><a href="global.html#clearDropdownSelections">clearDropdownSelections</a></li><li><a href="global.html#clearError">clearError</a></li><li><a href="global.html#clearErrorMessages">clearErrorMessages</a></li><li><a href="global.html#clearInputErrors">clearInputErrors</a></li><li><a href="global.html#clearInputFields">clearInputFields</a></li><li><a href="global.html#clearInputs">clearInputs</a></li><li><a href="global.html#clearSelectedContacts">clearSelectedContacts</a></li><li><a href="global.html#clearSubtaskInput">clearSubtaskInput</a></li><li><a href="global.html#clearSubtaskList">clearSubtaskList</a></li><li><a href="global.html#closeModal">closeModal</a></li><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#closePopupAndReload">closePopupAndReload</a></li><li><a href="global.html#closeTaskEditPopup">closeTaskEditPopup</a></li><li><a href="global.html#collectNewSubtasks">collectNewSubtasks</a></li><li><a href="global.html#collectTaskData">collectTaskData</a></li><li><a href="global.html#configureSubmitButton">configureSubmitButton</a></li><li><a href="global.html#configureSubmitButtonForCreate">configureSubmitButtonForCreate</a></li><li><a href="global.html#configureSubmitButtonForUpdate">configureSubmitButtonForUpdate</a></li><li><a href="global.html#count">count</a></li><li><a href="global.html#createContactObject">createContactObject</a></li><li><a href="global.html#createNameColorEmblemObject">createNameColorEmblemObject</a></li><li><a href="global.html#createSubtaskElement">createSubtaskElement</a></li><li><a href="global.html#createSubtaskItem">createSubtaskItem</a></li><li><a href="global.html#createTaskDiv">createTaskDiv</a></li><li><a href="global.html#createTaskElement">createTaskElement</a></li><li><a href="global.html#dateFB">dateFB</a></li><li><a href="global.html#deleteContact">deleteContact</a></li><li><a href="global.html#deleteData">deleteData</a></li><li><a href="global.html#deleteSubTaskFB">deleteSubTaskFB</a></li><li><a href="global.html#deleteSubtask">deleteSubtask</a></li><li><a href="global.html#deleteTask">deleteTask</a></li><li><a href="global.html#deleteTaskFromFirebase">deleteTaskFromFirebase</a></li><li><a href="global.html#deleteThis">deleteThis</a></li><li><a href="global.html#descriptionFB">descriptionFB</a></li><li><a href="global.html#displayContacts">displayContacts</a></li><li><a href="global.html#displayEditPopup">displayEditPopup</a></li><li><a href="global.html#displayErrorMessage">displayErrorMessage</a></li><li><a href="global.html#displayNameColor">displayNameColor</a></li><li><a href="global.html#displayPopup">displayPopup</a></li><li><a href="global.html#displaySubtasks">displaySubtasks</a></li><li><a href="global.html#doneCount">doneCount</a></li><li><a href="global.html#drag">drag</a></li><li><a href="global.html#drop">drop</a></li><li><a href="global.html#editTask">editTask</a></li><li><a href="global.html#editThis">editThis</a></li><li><a href="global.html#error">error</a></li><li><a href="global.html#feedbackCount">feedbackCount</a></li><li><a href="global.html#fetchColumn0Tasks">fetchColumn0Tasks</a></li><li><a href="global.html#fetchNameColorEmblem">fetchNameColorEmblem</a></li><li><a href="global.html#fetchRemainingTasks">fetchRemainingTasks</a></li><li><a href="global.html#fetchTaskData">fetchTaskData</a></li><li><a href="global.html#fetchTaskDataFromFirebase">fetchTaskDataFromFirebase</a></li><li><a href="global.html#fetchTaskPositions">fetchTaskPositions</a></li><li><a href="global.html#fetchTasks">fetchTasks</a></li><li><a href="global.html#fetchTasksPositions">fetchTasksPositions</a></li><li><a href="global.html#fetchTasksPositionsFromFirebase">fetchTasksPositionsFromFirebase</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#filterSubtasks">filterSubtasks</a></li><li><a href="global.html#filterTasks">filterTasks</a></li><li><a href="global.html#filterTaskss">filterTaskss</a></li><li><a href="global.html#findColumnForTask">findColumnForTask</a></li><li><a href="global.html#gatherContactData">gatherContactData</a></li><li><a href="global.html#gatherContactInputData2">gatherContactInputData2</a></li><li><a href="global.html#gatherTasksData">gatherTasksData</a></li><li><a href="global.html#gatherUpdatedContactData">gatherUpdatedContactData</a></li><li><a href="global.html#generateAssignedHtml">generateAssignedHtml</a></li><li><a href="global.html#generateAssignedHtml2">generateAssignedHtml2</a></li><li><a href="global.html#generateEmblem">generateEmblem</a></li><li><a href="global.html#generateFirebasePath">generateFirebasePath</a></li><li><a href="global.html#generateFirebaseSubtaskPath">generateFirebaseSubtaskPath</a></li><li><a href="global.html#generateRandomColor">generateRandomColor</a></li><li><a href="global.html#generateSubtasksHtml">generateSubtasksHtml</a></li><li><a href="global.html#generateTaskContent">generateTaskContent</a></li><li><a href="global.html#getButtonData">getButtonData</a></li><li><a href="global.html#getColumnIndexFromKey">getColumnIndexFromKey</a></li><li><a href="global.html#getColumnMapping">getColumnMapping</a></li><li><a href="global.html#getContactFormData">getContactFormData</a></li><li><a href="global.html#getData">getData</a></li><li><a href="global.html#getDataFromFirebase">getDataFromFirebase</a></li><li><a href="global.html#getGreeting">getGreeting</a></li><li><a href="global.html#getHeaderBackgroundColor">getHeaderBackgroundColor</a></li><li><a href="global.html#getHeaderColor">getHeaderColor</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getInputValue">getInputValue</a></li><li><a href="global.html#getNameAndColor">getNameAndColor</a></li><li><a href="global.html#getPriorityImage">getPriorityImage</a></li><li><a href="global.html#getSavedStatusesFromFirebase">getSavedStatusesFromFirebase</a></li><li><a href="global.html#getSelectedContacts">getSelectedContacts</a></li><li><a href="global.html#getSubtaskImages">getSubtaskImages</a></li><li><a href="global.html#getSubtaskInput">getSubtaskInput</a></li><li><a href="global.html#getSubtaskInputValue">getSubtaskInputValue</a></li><li><a href="global.html#getSubtaskStatuses">getSubtaskStatuses</a></li><li><a href="global.html#getUserInput">getUserInput</a></li><li><a href="global.html#goBack">goBack</a></li><li><a href="global.html#handleAddToColumnError">handleAddToColumnError</a></li><li><a href="global.html#handleClick">handleClick</a></li><li><a href="global.html#handleError">handleError</a></li><li><a href="global.html#handleError2">handleError2</a></li><li><a href="global.html#handleFirebaseResponse">handleFirebaseResponse</a></li><li><a href="global.html#handleGuestLogin">handleGuestLogin</a></li><li><a href="global.html#handleLoadTasksError">handleLoadTasksError</a></li><li><a href="global.html#handleLoginSuccess">handleLoginSuccess</a></li><li><a href="global.html#handleMouseOut">handleMouseOut</a></li><li><a href="global.html#handleMouseOver">handleMouseOver</a></li><li><a href="global.html#handleResponseStatus">handleResponseStatus</a></li><li><a href="global.html#handleSaveError">handleSaveError</a></li><li><a href="global.html#handleSubtaskUpdates">handleSubtaskUpdates</a></li><li><a href="global.html#handleSuccessfulSubmission">handleSuccessfulSubmission</a></li><li><a href="global.html#handleTaskPositionError">handleTaskPositionError</a></li><li><a href="global.html#hideDropdown">hideDropdown</a></li><li><a href="global.html#hidePopup">hidePopup</a></li><li><a href="global.html#highlightAssignedPeople">highlightAssignedPeople</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#init12">init12</a></li><li><a href="global.html#initializePopupHandlers">initializePopupHandlers</a></li><li><a href="global.html#isFormValid">isFormValid</a></li><li><a href="global.html#isPrivacyPolicyAccepted">isPrivacyPolicyAccepted</a></li><li><a href="global.html#isValidContact">isValidContact</a></li><li><a href="global.html#isValidEmail">isValidEmail</a></li><li><a href="global.html#isValidTaskData">isValidTaskData</a></li><li><a href="global.html#loadBoard">loadBoard</a></li><li><a href="global.html#loadContacts">loadContacts</a></li><li><a href="global.html#loadSubtaskProgress">loadSubtaskProgress</a></li><li><a href="global.html#loadSubtasksIntoEditForm">loadSubtasksIntoEditForm</a></li><li><a href="global.html#loadTasks">loadTasks</a></li><li><a href="global.html#loadTasksIntoColumns">loadTasksIntoColumns</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#mergeAndSaveSubtasks">mergeAndSaveSubtasks</a></li><li><a href="global.html#move">move</a></li><li><a href="global.html#openEdit">openEdit</a></li><li><a href="global.html#openEditContactModal">openEditContactModal</a></li><li><a href="global.html#openLegalNoticePage">openLegalNoticePage</a></li><li><a href="global.html#openModal">openModal</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#openPrivacyPolicyPage">openPrivacyPolicyPage</a></li><li><a href="global.html#openSignUpPage">openSignUpPage</a></li><li><a href="global.html#openTaskBoard">openTaskBoard</a></li><li><a href="global.html#parseSubtaskText">parseSubtaskText</a></li><li><a href="global.html#parseSubtasks">parseSubtasks</a></li><li><a href="global.html#populateEditMode">populateEditMode</a></li><li><a href="global.html#populateSubtaskList">populateSubtaskList</a></li><li><a href="global.html#prepareContactData">prepareContactData</a></li><li><a href="global.html#prepareEditModal">prepareEditModal</a></li><li><a href="global.html#priorityFB">priorityFB</a></li><li><a href="global.html#processContactsData">processContactsData</a></li><li><a href="global.html#processTask">processTask</a></li><li><a href="global.html#processTask3">processTask3</a></li><li><a href="global.html#processTaskWithSubtasks">processTaskWithSubtasks</a></li><li><a href="global.html#processUserData">processUserData</a></li><li><a href="global.html#progressCount">progressCount</a></li><li><a href="global.html#pushAndDisplaySubtask">pushAndDisplaySubtask</a></li><li><a href="global.html#pushsubtasks">pushsubtasks</a></li><li><a href="global.html#putData">putData</a></li><li><a href="global.html#putOnFB">putOnFB</a></li><li><a href="global.html#putOnFb">putOnFb</a></li><li><a href="global.html#refreshContacts">refreshContacts</a></li><li><a href="global.html#removeSubtask">removeSubtask</a></li><li><a href="global.html#removeSubtasks">removeSubtasks</a></li><li><a href="global.html#removeTaskFromPositions">removeTaskFromPositions</a></li><li><a href="global.html#renderContactsHtml">renderContactsHtml</a></li><li><a href="global.html#renumberTasks">renumberTasks</a></li><li><a href="global.html#resetContactForm">resetContactForm</a></li><li><a href="global.html#resetDropdownItems">resetDropdownItems</a></li><li><a href="global.html#resetError">resetError</a></li><li><a href="global.html#resetForm">resetForm</a></li><li><a href="global.html#resetInput">resetInput</a></li><li><a href="global.html#resetOutline">resetOutline</a></li><li><a href="global.html#resetPriorityButtons">resetPriorityButtons</a></li><li><a href="global.html#resetSubmitButton">resetSubmitButton</a></li><li><a href="global.html#saveCheckboxState">saveCheckboxState</a></li><li><a href="global.html#saveContact">saveContact</a></li><li><a href="global.html#saveContactToFirebase">saveContactToFirebase</a></li><li><a href="global.html#saveSubtaskProgress">saveSubtaskProgress</a></li><li><a href="global.html#saveTaskToFb">saveTaskToFb</a></li><li><a href="global.html#saveTasks">saveTasks</a></li><li><a href="global.html#saveTasksToFirebase">saveTasksToFirebase</a></li><li><a href="global.html#selctedAssignees">selctedAssignees</a></li><li><a href="global.html#sendCheckboxStateToFirebase">sendCheckboxStateToFirebase</a></li><li><a href="global.html#sendContactData">sendContactData</a></li><li><a href="global.html#sendSubtaskStatusesToFirebase">sendSubtaskStatusesToFirebase</a></li><li><a href="global.html#sendTaskDataToFirebase">sendTaskDataToFirebase</a></li><li><a href="global.html#setDataToFirebase">setDataToFirebase</a></li><li><a href="global.html#setError">setError</a></li><li><a href="global.html#setItemSelected">setItemSelected</a></li><li><a href="global.html#showAddedPopup">showAddedPopup</a></li><li><a href="global.html#showContactModal">showContactModal</a></li><li><a href="global.html#showDropDown">showDropDown</a></li><li><a href="global.html#showError">showError</a></li><li><a href="global.html#showNoTasksMessage">showNoTasksMessage</a></li><li><a href="global.html#showPopup">showPopup</a></li><li><a href="global.html#showSuccessPopup">showSuccessPopup</a></li><li><a href="global.html#sortContactsAndInitials">sortContactsAndInitials</a></li><li><a href="global.html#submitContact">submitContact</a></li><li><a href="global.html#submitContactFB">submitContactFB</a></li><li><a href="global.html#subtaskFB">subtaskFB</a></li><li><a href="global.html#summaryCounts">summaryCounts</a></li><li><a href="global.html#title">title</a></li><li><a href="global.html#todoCount">todoCount</a></li><li><a href="global.html#toggleCheckbox">toggleCheckbox</a></li><li><a href="global.html#toggleDropdown">toggleDropdown</a></li><li><a href="global.html#toggleDropdowns">toggleDropdowns</a></li><li><a href="global.html#togglePasswordVisibility">togglePasswordVisibility</a></li><li><a href="global.html#toggleSelection">toggleSelection</a></li><li><a href="global.html#updateColumn0Tasks">updateColumn0Tasks</a></li><li><a href="global.html#updateFirebaseTaskPositions">updateFirebaseTaskPositions</a></li><li><a href="global.html#updateInitials">updateInitials</a></li><li><a href="global.html#updateNoTasksMessage">updateNoTasksMessage</a></li><li><a href="global.html#updateProfileIcon">updateProfileIcon</a></li><li><a href="global.html#updateProgress">updateProgress</a></li><li><a href="global.html#updateProgressBarFromFirebase">updateProgressBarFromFirebase</a></li><li><a href="global.html#updateProgressBarUI">updateProgressBarUI</a></li><li><a href="global.html#updateSelectedContactsDisplay">updateSelectedContactsDisplay</a></li><li><a href="global.html#updateSubtaskCountElement">updateSubtaskCountElement</a></li><li><a href="global.html#updateSubtaskCountUI">updateSubtaskCountUI</a></li><li><a href="global.html#updateSubtaskInLocalStorage">updateSubtaskInLocalStorage</a></li><li><a href="global.html#updateSubtaskText">updateSubtaskText</a></li><li><a href="global.html#updateSubtasks">updateSubtasks</a></li><li><a href="global.html#updateSubtasksInFirebase">updateSubtasksInFirebase</a></li><li><a href="global.html#updateSubtasksInFirebase2">updateSubtasksInFirebase2</a></li><li><a href="global.html#updateTaskPositionsAfterDeletion">updateTaskPositionsAfterDeletion</a></li><li><a href="global.html#updateTasksInFirebase">updateTasksInFirebase</a></li><li><a href="global.html#userStory">userStory</a></li><li><a href="global.html#validateContactData">validateContactData</a></li><li><a href="global.html#validateCredentials">validateCredentials</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateField">validateField</a></li><li><a href="global.html#validateForm">validateForm</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validatePasswords">validatePasswords</a></li><li><a href="global.html#validateTaskData">validateTaskData</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Fri Aug 16 2024 23:54:05 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: sign_up.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: sign_up.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Validates the passwords and privacy policy acceptance.
+ *
+ * @return {boolean} - True if the passwords match and the privacy policy is accepted, false otherwise.
+ */
+function validatePasswords() {
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
+  const passwordError = document.getElementById("passwordError");
+  const privacyPolicy = document.getElementById("privacyPolicy");
+  resetError(passwordError);
+
+  if (!arePasswordsMatching(password, confirmPassword, passwordError)) {
+    return false;
+  }
+
+  if (!isPrivacyPolicyAccepted(privacyPolicy, passwordError)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Resets the display of the error element.
+ *
+ * @param {HTMLElement} errorElement - The element where the error message is displayed.
+ */
+function resetError(errorElement) {
+  errorElement.style.display = "none";
+}
+
+/**
+ * Checks if the passwords match.
+ *
+ * @param {string} password - The password entered by the user.
+ * @param {string} confirmPassword - The password confirmation entered by the user.
+ * @param {HTMLElement} errorElement - The element where the error message is displayed.
+ * @return {boolean} - True if the passwords match, false otherwise.
+ */
+function arePasswordsMatching(password, confirmPassword, errorElement) {
+  if (password === confirmPassword) {
+    return true;
+  }
+  showError(errorElement, "Passwords do not match.");
+  return false;
+}
+
+/**
+ * Checks if the privacy policy is accepted.
+ *
+ * @param {HTMLElement} privacyPolicyCheckbox - The privacy policy checkbox element.
+ * @param {HTMLElement} errorElement - The element where the error message is displayed.
+ * @return {boolean} - True if the privacy policy is accepted, false otherwise.
+ */
+function isPrivacyPolicyAccepted(privacyPolicyCheckbox, errorElement) {
+  if (privacyPolicyCheckbox.checked) {
+    return true;
+  }
+  showError(errorElement, "Please accept the privacy policy.");
+  return false;
+}
+
+/**
+ * Displays an error message.
+ *
+ * @param {HTMLElement} errorElement - The element where the error message is displayed.
+ * @param {string} message - The error message to display.
+ */
+function showError(errorElement, message) {
+  errorElement.textContent = message;
+  errorElement.style.display = "block";
+}
+
+/**
+ * Shows a success popup after form submission and redirects the user.
+ */
+function showSuccessPopup() {
+  const successPopup = document.getElementById("successPopup");
+  successPopup.style.display = "block";
+  setTimeout(() => {
+    successPopup.style.bottom = "50%";
+  }, 0);
+  setTimeout(() => {
+    successPopup.style.display = "none";
+    window.location.href = "/html/summary.html";
+  }, 1500);
+}
+
+/**
+ * Toggles the visibility of the password input field.
+ *
+ * @param {string} id - The ID of the password input field.
+ */
+function togglePasswordVisibility(id) {
+  const input = document.getElementById(id);
+  if (input.type === "password") {
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
+}
+
+/**
+ * Handles form submission for contact data and sends it to Firebase.
+ *
+ * @async
+ * @param {Event} event - The event object.
+ */
+async function submitContactFB(event) {
+  clearErrorMessages();
+  let { contactName, contactEmail, password } = getContactFormData();
+
+  if (!isFormValid(contactName, contactEmail)) return;
+
+  let contactData = prepareContactData(contactName, contactEmail, password);
+
+  try {
+    await addContactToFirebase(contactData);
+    handleSuccessfulSubmission(contactName);
+  } catch (error) {
+    console.error("Failed to submit contact data:", error);
+  }
+}
+
+/**
+ * Clears error messages from the form.
+ */
+function clearErrorMessages() {
+  document.getElementById("emailError").style.display = "none";
+  document.getElementById("passwordError").style.display = "none";
+}
+
+/**
+ * Retrieves contact form data.
+ *
+ * @return {Object} - An object containing the contact name, email, and password.
+ */
+function getContactFormData() {
+  return {
+    contactName: document.getElementById("fullName").value,
+    contactEmail: document.getElementById("email").value,
+    password: document.getElementById("password").value,
+  };
+}
+
+/**
+ * Validates the form inputs.
+ *
+ * @param {string} contactName - The name entered by the user.
+ * @param {string} contactEmail - The email entered by the user.
+ * @return {boolean} - True if the form is valid, false otherwise.
+ */
+function isFormValid(contactName, contactEmail) {
+  let isValid = true;
+
+  if (!validatePasswords()) isValid = false;
+
+  if (!validateEmail(contactEmail)) {
+    showError(
+      "emailError",
+      "Please enter a valid email address ending in .de or .com"
+    );
+    isValid = false;
+  }
+
+  if (!contactName || !contactEmail) isValid = false;
+
+  return isValid;
+}
+
+/**
+ * Prepares the contact data for submission.
+ *
+ * @param {string} contactName - The name entered by the user.
+ * @param {string} contactEmail - The email entered by the user.
+ * @param {string} password - The password entered by the user.
+ * @return {Object} - An object containing the contact data.
+ */
+function prepareContactData(contactName, contactEmail, password) {
+  return {
+    name: contactName,
+    email: contactEmail,
+    color: generateRandomColor(),
+    emblem: generateEmblem(contactName),
+    password: password,
+  };
+}
+
+/**
+ * Handles the successful form submission, stores the user's name, and resets the form.
+ *
+ * @param {string} contactName - The name entered by the user.
+ */
+function handleSuccessfulSubmission(contactName) {
+  localStorage.setItem("fullName", contactName);
+  localStorage.setItem("isGuest", "false");
+  showSuccessPopup();
+  resetForm();
+}
+
+/**
+ * Resets the form inputs.
+ */
+function resetForm() {
+  document.getElementById("fullName").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("confirmPassword").value = "";
+}
+
+/**
+ * Checks if all required inputs are filled and enables or disables the sign-up button accordingly.
+ */
+document.addEventListener("DOMContentLoaded", function () {
+  const signUpButton = document.getElementById("signUpButton");
+  const inputs = document.querySelectorAll("#signupForm input[required]");
+  const privacyPolicy = document.getElementById("privacyPolicy");
+
+  function checkInputs() {
+    const allFilled = areInputsFilled(inputs);
+    signUpButton.disabled = !(allFilled &amp;&amp; privacyPolicy.checked);
+  }
+
+  inputs.forEach((input) => input.addEventListener("input", checkInputs));
+
+  privacyPolicy.addEventListener("change", checkInputs);
+  checkInputs();
+});
+
+/**
+ * Checks if all required inputs are filled.
+ *
+ * @param {NodeList} inputs - A NodeList of required input elements.
+ * @return {boolean} - True if all inputs are filled, false otherwise.
+ */
+function areInputsFilled(inputs) {
+  return Array.from(inputs).every((input) => input.value.trim() !== "");
+}
+
+/**
+ * Validates the email address format.
+ *
+ * @param {string} email - The email address entered by the user.
+ * @return {boolean} - True if the email format is valid, false otherwise.
+ */
+function validateEmail(email) {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.(de|com)$/;
+  return emailPattern.test(email);
+}
+
+/**
+ * Sends the contact data to Firebase.
+ *
+ * @async
+ * @param {Object} contactData - The contact data object.
+ * @return {Object} - The response from Firebase.
+ */
+async function addContactToFirebase(contactData) {
+  const BASE_URL =
+    "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
+  try {
+    const response = await sendContactData(BASE_URL, contactData);
+    return await handleFirebaseResponse(response);
+  } catch (error) {
+    handleError(error);
+    return {};
+  }
+}
+
+/**
+ * Sends contact data to Firebase.
+ *
+ * @async
+ * @param {string} BASE_URL - The base URL for Firebase.
+ * @param {Object} contactData - The contact data object.
+ * @return {Response} - The fetch API response.
+ */
+async function sendContactData(BASE_URL, contactData) {
+  return await fetch(BASE_URL + "contacts.json", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(contactData),
+  });
+}
+
+/**
+ * Handles the Firebase response after submitting contact data.
+ *
+ * @async
+ * @param {Response} response - The response from Firebase.
+ * @return {Object} - The JSON response from Firebase.
+ */
+async function handleFirebaseResponse(response) {
+  if (!response.ok) {
+    console.error("Failed to set data to Firebase:", response.statusText);
+    return {};
+  }
+  return await response.json();
+}
+
+/**
+ * Logs an error to the console.
+ *
+ * @param {Error} error - The error object.
+ */
+function handleError(error) {
+  console.error("Error setting data:", error);
+}
+
+/**
+ * Generates a random color in hex format.
+ *
+ * @return {string} - A randomly generated color in hex format.
+ */
+function generateRandomColor() {
+  const letters = "0123456789ABCDEF";
+  let color = "#";
+  for (let i = 0; i &lt; 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
+
+/**
+ * Generates an emblem from the user's name by taking the first letter of each name part.
+ *
+ * @param {string} name - The user's full name.
+ * @return {string} - The generated emblem.
+ */
+function generateEmblem(name) {
+  const nameParts = name.trim().split(" ");
+  const firstInitial = nameParts[0].charAt(0).toUpperCase();
+  const secondInitial =
+    nameParts.length > 1 ? nameParts[1].charAt(0).toUpperCase() : "";
+  return firstInitial + secondInitial;
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#BASE_URL">BASE_URL</a></li><li><a href="global.html#FullName">FullName</a></li><li><a href="global.html#HTMLContactDetail">HTMLContactDetail</a></li><li><a href="global.html#HtmlEdit">HtmlEdit</a></li><li><a href="global.html#HtmlPopup">HtmlPopup</a></li><li><a href="global.html#HtmlProgressBar">HtmlProgressBar</a></li><li><a href="global.html#HtmlTaskElement">HtmlTaskElement</a></li><li><a href="global.html#addContact">addContact</a></li><li><a href="global.html#addContactToFirebase">addContactToFirebase</a></li><li><a href="global.html#addContactToList">addContactToList</a></li><li><a href="global.html#addInputListener">addInputListener</a></li><li><a href="global.html#addSubtask">addSubtask</a></li><li><a href="global.html#addSubtaskInputListener">addSubtaskInputListener</a></li><li><a href="global.html#addSubtaskListeners">addSubtaskListeners</a></li><li><a href="global.html#addSubtasks">addSubtasks</a></li><li><a href="global.html#addTaskListeners">addTaskListeners</a></li><li><a href="global.html#addToColumn0">addToColumn0</a></li><li><a href="global.html#allCount">allCount</a></li><li><a href="global.html#allowDrop">allowDrop</a></li><li><a href="global.html#appendSubtaskToList">appendSubtaskToList</a></li><li><a href="global.html#appendTaskToColumn">appendTaskToColumn</a></li><li><a href="global.html#appendTasksToColumn">appendTasksToColumn</a></li><li><a href="global.html#applySavedStatuses">applySavedStatuses</a></li><li><a href="global.html#areInputsFilled">areInputsFilled</a></li><li><a href="global.html#arePasswordsMatching">arePasswordsMatching</a></li><li><a href="global.html#assignedFB">assignedFB</a></li><li><a href="global.html#calculateSubtaskCompletion">calculateSubtaskCompletion</a></li><li><a href="global.html#calculateSubtaskCounts">calculateSubtaskCounts</a></li><li><a href="global.html#capitalizeFirstLetter">capitalizeFirstLetter</a></li><li><a href="global.html#checkIcon">checkIcon</a></li><li><a href="global.html#checkWindowSize">checkWindowSize</a></li><li><a href="global.html#clearContactForm">clearContactForm</a></li><li><a href="global.html#clearDropdownSelections">clearDropdownSelections</a></li><li><a href="global.html#clearError">clearError</a></li><li><a href="global.html#clearErrorMessages">clearErrorMessages</a></li><li><a href="global.html#clearInputErrors">clearInputErrors</a></li><li><a href="global.html#clearInputFields">clearInputFields</a></li><li><a href="global.html#clearInputs">clearInputs</a></li><li><a href="global.html#clearSelectedContacts">clearSelectedContacts</a></li><li><a href="global.html#clearSubtaskInput">clearSubtaskInput</a></li><li><a href="global.html#clearSubtaskList">clearSubtaskList</a></li><li><a href="global.html#closeModal">closeModal</a></li><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#closePopupAndReload">closePopupAndReload</a></li><li><a href="global.html#closeTaskEditPopup">closeTaskEditPopup</a></li><li><a href="global.html#collectNewSubtasks">collectNewSubtasks</a></li><li><a href="global.html#collectTaskData">collectTaskData</a></li><li><a href="global.html#configureSubmitButton">configureSubmitButton</a></li><li><a href="global.html#configureSubmitButtonForCreate">configureSubmitButtonForCreate</a></li><li><a href="global.html#configureSubmitButtonForUpdate">configureSubmitButtonForUpdate</a></li><li><a href="global.html#count">count</a></li><li><a href="global.html#createContactObject">createContactObject</a></li><li><a href="global.html#createNameColorEmblemObject">createNameColorEmblemObject</a></li><li><a href="global.html#createSubtaskElement">createSubtaskElement</a></li><li><a href="global.html#createSubtaskItem">createSubtaskItem</a></li><li><a href="global.html#createTaskDiv">createTaskDiv</a></li><li><a href="global.html#createTaskElement">createTaskElement</a></li><li><a href="global.html#dateFB">dateFB</a></li><li><a href="global.html#deleteContact">deleteContact</a></li><li><a href="global.html#deleteData">deleteData</a></li><li><a href="global.html#deleteSubTaskFB">deleteSubTaskFB</a></li><li><a href="global.html#deleteSubtask">deleteSubtask</a></li><li><a href="global.html#deleteTask">deleteTask</a></li><li><a href="global.html#deleteTaskFromFirebase">deleteTaskFromFirebase</a></li><li><a href="global.html#deleteThis">deleteThis</a></li><li><a href="global.html#descriptionFB">descriptionFB</a></li><li><a href="global.html#displayContacts">displayContacts</a></li><li><a href="global.html#displayEditPopup">displayEditPopup</a></li><li><a href="global.html#displayErrorMessage">displayErrorMessage</a></li><li><a href="global.html#displayNameColor">displayNameColor</a></li><li><a href="global.html#displayPopup">displayPopup</a></li><li><a href="global.html#displaySubtasks">displaySubtasks</a></li><li><a href="global.html#doneCount">doneCount</a></li><li><a href="global.html#drag">drag</a></li><li><a href="global.html#drop">drop</a></li><li><a href="global.html#editTask">editTask</a></li><li><a href="global.html#editThis">editThis</a></li><li><a href="global.html#error">error</a></li><li><a href="global.html#feedbackCount">feedbackCount</a></li><li><a href="global.html#fetchColumn0Tasks">fetchColumn0Tasks</a></li><li><a href="global.html#fetchNameColorEmblem">fetchNameColorEmblem</a></li><li><a href="global.html#fetchRemainingTasks">fetchRemainingTasks</a></li><li><a href="global.html#fetchTaskData">fetchTaskData</a></li><li><a href="global.html#fetchTaskDataFromFirebase">fetchTaskDataFromFirebase</a></li><li><a href="global.html#fetchTaskPositions">fetchTaskPositions</a></li><li><a href="global.html#fetchTasks">fetchTasks</a></li><li><a href="global.html#fetchTasksPositions">fetchTasksPositions</a></li><li><a href="global.html#fetchTasksPositionsFromFirebase">fetchTasksPositionsFromFirebase</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#filterSubtasks">filterSubtasks</a></li><li><a href="global.html#filterTasks">filterTasks</a></li><li><a href="global.html#filterTaskss">filterTaskss</a></li><li><a href="global.html#findColumnForTask">findColumnForTask</a></li><li><a href="global.html#gatherContactData">gatherContactData</a></li><li><a href="global.html#gatherContactInputData2">gatherContactInputData2</a></li><li><a href="global.html#gatherTasksData">gatherTasksData</a></li><li><a href="global.html#gatherUpdatedContactData">gatherUpdatedContactData</a></li><li><a href="global.html#generateAssignedHtml">generateAssignedHtml</a></li><li><a href="global.html#generateAssignedHtml2">generateAssignedHtml2</a></li><li><a href="global.html#generateEmblem">generateEmblem</a></li><li><a href="global.html#generateFirebasePath">generateFirebasePath</a></li><li><a href="global.html#generateFirebaseSubtaskPath">generateFirebaseSubtaskPath</a></li><li><a href="global.html#generateRandomColor">generateRandomColor</a></li><li><a href="global.html#generateSubtasksHtml">generateSubtasksHtml</a></li><li><a href="global.html#generateTaskContent">generateTaskContent</a></li><li><a href="global.html#getButtonData">getButtonData</a></li><li><a href="global.html#getColumnIndexFromKey">getColumnIndexFromKey</a></li><li><a href="global.html#getColumnMapping">getColumnMapping</a></li><li><a href="global.html#getContactFormData">getContactFormData</a></li><li><a href="global.html#getData">getData</a></li><li><a href="global.html#getDataFromFirebase">getDataFromFirebase</a></li><li><a href="global.html#getGreeting">getGreeting</a></li><li><a href="global.html#getHeaderBackgroundColor">getHeaderBackgroundColor</a></li><li><a href="global.html#getHeaderColor">getHeaderColor</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getInputValue">getInputValue</a></li><li><a href="global.html#getNameAndColor">getNameAndColor</a></li><li><a href="global.html#getPriorityImage">getPriorityImage</a></li><li><a href="global.html#getSavedStatusesFromFirebase">getSavedStatusesFromFirebase</a></li><li><a href="global.html#getSelectedContacts">getSelectedContacts</a></li><li><a href="global.html#getSubtaskImages">getSubtaskImages</a></li><li><a href="global.html#getSubtaskInput">getSubtaskInput</a></li><li><a href="global.html#getSubtaskInputValue">getSubtaskInputValue</a></li><li><a href="global.html#getSubtaskStatuses">getSubtaskStatuses</a></li><li><a href="global.html#getUserInput">getUserInput</a></li><li><a href="global.html#goBack">goBack</a></li><li><a href="global.html#handleAddToColumnError">handleAddToColumnError</a></li><li><a href="global.html#handleClick">handleClick</a></li><li><a href="global.html#handleError">handleError</a></li><li><a href="global.html#handleError2">handleError2</a></li><li><a href="global.html#handleFirebaseResponse">handleFirebaseResponse</a></li><li><a href="global.html#handleGuestLogin">handleGuestLogin</a></li><li><a href="global.html#handleLoadTasksError">handleLoadTasksError</a></li><li><a href="global.html#handleLoginSuccess">handleLoginSuccess</a></li><li><a href="global.html#handleMouseOut">handleMouseOut</a></li><li><a href="global.html#handleMouseOver">handleMouseOver</a></li><li><a href="global.html#handleResponseStatus">handleResponseStatus</a></li><li><a href="global.html#handleSaveError">handleSaveError</a></li><li><a href="global.html#handleSubtaskUpdates">handleSubtaskUpdates</a></li><li><a href="global.html#handleSuccessfulSubmission">handleSuccessfulSubmission</a></li><li><a href="global.html#handleTaskPositionError">handleTaskPositionError</a></li><li><a href="global.html#hideDropdown">hideDropdown</a></li><li><a href="global.html#hidePopup">hidePopup</a></li><li><a href="global.html#highlightAssignedPeople">highlightAssignedPeople</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#init12">init12</a></li><li><a href="global.html#initializePopupHandlers">initializePopupHandlers</a></li><li><a href="global.html#isFormValid">isFormValid</a></li><li><a href="global.html#isPrivacyPolicyAccepted">isPrivacyPolicyAccepted</a></li><li><a href="global.html#isValidContact">isValidContact</a></li><li><a href="global.html#isValidEmail">isValidEmail</a></li><li><a href="global.html#isValidTaskData">isValidTaskData</a></li><li><a href="global.html#loadBoard">loadBoard</a></li><li><a href="global.html#loadContacts">loadContacts</a></li><li><a href="global.html#loadSubtaskProgress">loadSubtaskProgress</a></li><li><a href="global.html#loadSubtasksIntoEditForm">loadSubtasksIntoEditForm</a></li><li><a href="global.html#loadTasks">loadTasks</a></li><li><a href="global.html#loadTasksIntoColumns">loadTasksIntoColumns</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#mergeAndSaveSubtasks">mergeAndSaveSubtasks</a></li><li><a href="global.html#move">move</a></li><li><a href="global.html#openEdit">openEdit</a></li><li><a href="global.html#openEditContactModal">openEditContactModal</a></li><li><a href="global.html#openLegalNoticePage">openLegalNoticePage</a></li><li><a href="global.html#openModal">openModal</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#openPrivacyPolicyPage">openPrivacyPolicyPage</a></li><li><a href="global.html#openSignUpPage">openSignUpPage</a></li><li><a href="global.html#openTaskBoard">openTaskBoard</a></li><li><a href="global.html#parseSubtaskText">parseSubtaskText</a></li><li><a href="global.html#parseSubtasks">parseSubtasks</a></li><li><a href="global.html#populateEditMode">populateEditMode</a></li><li><a href="global.html#populateSubtaskList">populateSubtaskList</a></li><li><a href="global.html#prepareContactData">prepareContactData</a></li><li><a href="global.html#prepareEditModal">prepareEditModal</a></li><li><a href="global.html#priorityFB">priorityFB</a></li><li><a href="global.html#processContactsData">processContactsData</a></li><li><a href="global.html#processTask">processTask</a></li><li><a href="global.html#processTask3">processTask3</a></li><li><a href="global.html#processTaskWithSubtasks">processTaskWithSubtasks</a></li><li><a href="global.html#processUserData">processUserData</a></li><li><a href="global.html#progressCount">progressCount</a></li><li><a href="global.html#pushAndDisplaySubtask">pushAndDisplaySubtask</a></li><li><a href="global.html#pushsubtasks">pushsubtasks</a></li><li><a href="global.html#putData">putData</a></li><li><a href="global.html#putOnFB">putOnFB</a></li><li><a href="global.html#putOnFb">putOnFb</a></li><li><a href="global.html#refreshContacts">refreshContacts</a></li><li><a href="global.html#removeSubtask">removeSubtask</a></li><li><a href="global.html#removeSubtasks">removeSubtasks</a></li><li><a href="global.html#removeTaskFromPositions">removeTaskFromPositions</a></li><li><a href="global.html#renderContactsHtml">renderContactsHtml</a></li><li><a href="global.html#renumberTasks">renumberTasks</a></li><li><a href="global.html#resetContactForm">resetContactForm</a></li><li><a href="global.html#resetDropdownItems">resetDropdownItems</a></li><li><a href="global.html#resetError">resetError</a></li><li><a href="global.html#resetForm">resetForm</a></li><li><a href="global.html#resetInput">resetInput</a></li><li><a href="global.html#resetOutline">resetOutline</a></li><li><a href="global.html#resetPriorityButtons">resetPriorityButtons</a></li><li><a href="global.html#resetSubmitButton">resetSubmitButton</a></li><li><a href="global.html#saveCheckboxState">saveCheckboxState</a></li><li><a href="global.html#saveContact">saveContact</a></li><li><a href="global.html#saveContactToFirebase">saveContactToFirebase</a></li><li><a href="global.html#saveSubtaskProgress">saveSubtaskProgress</a></li><li><a href="global.html#saveTaskToFb">saveTaskToFb</a></li><li><a href="global.html#saveTasks">saveTasks</a></li><li><a href="global.html#saveTasksToFirebase">saveTasksToFirebase</a></li><li><a href="global.html#selctedAssignees">selctedAssignees</a></li><li><a href="global.html#sendCheckboxStateToFirebase">sendCheckboxStateToFirebase</a></li><li><a href="global.html#sendContactData">sendContactData</a></li><li><a href="global.html#sendSubtaskStatusesToFirebase">sendSubtaskStatusesToFirebase</a></li><li><a href="global.html#sendTaskDataToFirebase">sendTaskDataToFirebase</a></li><li><a href="global.html#setDataToFirebase">setDataToFirebase</a></li><li><a href="global.html#setError">setError</a></li><li><a href="global.html#setItemSelected">setItemSelected</a></li><li><a href="global.html#showAddedPopup">showAddedPopup</a></li><li><a href="global.html#showContactModal">showContactModal</a></li><li><a href="global.html#showDropDown">showDropDown</a></li><li><a href="global.html#showError">showError</a></li><li><a href="global.html#showNoTasksMessage">showNoTasksMessage</a></li><li><a href="global.html#showPopup">showPopup</a></li><li><a href="global.html#showSuccessPopup">showSuccessPopup</a></li><li><a href="global.html#sortContactsAndInitials">sortContactsAndInitials</a></li><li><a href="global.html#submitContact">submitContact</a></li><li><a href="global.html#submitContactFB">submitContactFB</a></li><li><a href="global.html#subtaskFB">subtaskFB</a></li><li><a href="global.html#summaryCounts">summaryCounts</a></li><li><a href="global.html#title">title</a></li><li><a href="global.html#todoCount">todoCount</a></li><li><a href="global.html#toggleCheckbox">toggleCheckbox</a></li><li><a href="global.html#toggleDropdown">toggleDropdown</a></li><li><a href="global.html#toggleDropdowns">toggleDropdowns</a></li><li><a href="global.html#togglePasswordVisibility">togglePasswordVisibility</a></li><li><a href="global.html#toggleSelection">toggleSelection</a></li><li><a href="global.html#updateColumn0Tasks">updateColumn0Tasks</a></li><li><a href="global.html#updateFirebaseTaskPositions">updateFirebaseTaskPositions</a></li><li><a href="global.html#updateInitials">updateInitials</a></li><li><a href="global.html#updateNoTasksMessage">updateNoTasksMessage</a></li><li><a href="global.html#updateProfileIcon">updateProfileIcon</a></li><li><a href="global.html#updateProgress">updateProgress</a></li><li><a href="global.html#updateProgressBarFromFirebase">updateProgressBarFromFirebase</a></li><li><a href="global.html#updateProgressBarUI">updateProgressBarUI</a></li><li><a href="global.html#updateSelectedContactsDisplay">updateSelectedContactsDisplay</a></li><li><a href="global.html#updateSubtaskCountElement">updateSubtaskCountElement</a></li><li><a href="global.html#updateSubtaskCountUI">updateSubtaskCountUI</a></li><li><a href="global.html#updateSubtaskInLocalStorage">updateSubtaskInLocalStorage</a></li><li><a href="global.html#updateSubtaskText">updateSubtaskText</a></li><li><a href="global.html#updateSubtasks">updateSubtasks</a></li><li><a href="global.html#updateSubtasksInFirebase">updateSubtasksInFirebase</a></li><li><a href="global.html#updateSubtasksInFirebase2">updateSubtasksInFirebase2</a></li><li><a href="global.html#updateTaskPositionsAfterDeletion">updateTaskPositionsAfterDeletion</a></li><li><a href="global.html#updateTasksInFirebase">updateTasksInFirebase</a></li><li><a href="global.html#userStory">userStory</a></li><li><a href="global.html#validateContactData">validateContactData</a></li><li><a href="global.html#validateCredentials">validateCredentials</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateField">validateField</a></li><li><a href="global.html#validateForm">validateForm</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validatePasswords">validatePasswords</a></li><li><a href="global.html#validateTaskData">validateTaskData</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Fri Aug 16 2024 23:54:05 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

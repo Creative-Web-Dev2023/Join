@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: board2.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: board2.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Adds event listeners to filter tasks based on user input.
+ */
+document.getElementById("findTask").addEventListener("input", filterTasks);
+document.getElementById("findTaskResponsive").addEventListener("input", filterTaskss);
+
+/**
+ * Collects task data and saves it to Firebase. Adds the task to the first column and navigates to the board page.
+ * 
+ * @param {number} taskId - The ID of the task to be saved.
+ */
+function putOnFb(taskId) {
+    const taskData = collectTaskData();
+    if (!validateTaskData(taskData)) return;
+    const newSubtasks = collectNewSubtasks();
+    const subtaskStatuses = newSubtasks.map(() => false);
+    taskData.subtask = newSubtasks.join(",");
+    taskData.subtaskStatuses = subtaskStatuses;
+    saveTaskToFb(taskId, taskData).then(() => {
+      addToColumn0(taskId);
+    });
+    window.location.href = "/html/board.html";
+}
+
+/**
+ * Adds a task to the first column of the board.
+ * 
+ * @param {number} taskId - The ID of the task to be added.
+ */
+function addToColumn0(taskId) {
+    fetchColumn0Tasks()
+      .then((column0Tasks) => updateColumn0Tasks(column0Tasks, taskId))
+      .catch(handleAddToColumnError);
+}
+
+/**
+ * Fetches tasks from column0 in Firebase.
+ * 
+ * @returns {Promise&lt;Array>} - A promise that resolves to an array of tasks in column0.
+ */
+async function fetchColumn0Tasks() {
+    const response = await fetch(
+      "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json"
+    );
+    const column0Tasks = await response.json();
+    return Array.isArray(column0Tasks) ? column0Tasks : [];
+}
+
+/**
+ * Updates tasks in column0 by adding a new task ID.
+ * 
+ * @param {Array} column0Tasks - The current list of tasks in column0.
+ * @param {number} taskId - The ID of the task to be added.
+ * @returns {Promise&lt;Object>} - A promise that resolves to the updated task list.
+ */
+async function updateColumn0Tasks(column0Tasks, taskId) {
+    column0Tasks.push(`task${taskId}`);
+    const response = await fetch(
+      "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(column0Tasks),
+      }
+    );
+    return await response.json();
+}
+
+/**
+ * Handles errors when adding tasks to column0.
+ * 
+ * @param {Error} error - The error object.
+ */
+function handleAddToColumnError(error) {
+    console.error("Fehler beim Hinzufügen der Task zu column0:", error);
+}
+
+/**
+ * Collects data from the task creation form.
+ * 
+ * @returns {Object} - An object containing the task data.
+ */
+function collectTaskData() {
+    return {
+      title: document.getElementById("title-input").value,
+      description: document.getElementById("description-input").value,
+      date: document.getElementById("date").value,
+      category: document.getElementById("category").value,
+      priority: document.querySelector(".prio-button.clicked")?.alt || "",
+      assigned: getSelectedContacts(),
+    };
+}
+
+/**
+ * Validates the task data to ensure required fields are filled.
+ * 
+ * @param {Object} param0 - The task data object.
+ * @param {string} param0.title - The title of the task.
+ * @param {string} param0.date - The due date of the task.
+ * @param {string} param0.category - The category of the task.
+ * @returns {boolean} - True if the data is valid, otherwise false.
+ */
+function validateTaskData({ title, date, category }) {
+    return title &amp;&amp; date &amp;&amp; category;
+}
+
+/**
+ * Collects subtasks from the task creation form.
+ * 
+ * @returns {Array&lt;string>} - An array of subtasks.
+ */
+function collectNewSubtasks() {
+    return Array.from(document.querySelectorAll("#subtask-list .subtask")).map(
+      (p) => p.textContent.trim()
+    );
+}
+
+/**
+ * Merges new subtasks with existing ones and saves them to Firebase.
+ * 
+ * @param {number} taskId - The ID of the task.
+ * @param {Array&lt;string>} newSubtasks - The array of new subtasks.
+ * @param {Object} taskData - The task data to be saved.
+ */
+function mergeAndSaveSubtasks(taskId, newSubtasks, taskData) {
+    subtaskFB(`tasks/task${taskId}/subtask`)
+      .then((existingSubtasks) => {
+        const existingSubtaskArray = Array.isArray(existingSubtasks)
+          ? existingSubtasks
+          : existingSubtasks
+              .split(",")
+              .filter((subtask) => subtask.trim() !== "");
+        const combinedSubtasks = [...newSubtasks, ...existingSubtaskArray].filter(
+          (subtask, index, self) => self.indexOf(subtask) === index
+        );
+        taskData.subtask = combinedSubtasks.join(",");
+        taskData.assigned = getSelectedContacts();
+        saveTaskToFb(taskId, taskData);
+      })
+      .catch(console.error);
+}
+
+/**
+ * Saves a task to Firebase.
+ * 
+ * @param {number} taskId - The ID of the task.
+ * @param {Object} taskData - The data of the task to be saved.
+ * @returns {Promise&lt;void>}
+ */
+function saveTaskToFb(taskId, taskData) {
+    putData(`tasks/task${taskId}`, taskData)
+      .then(() => (window.location.href = "/html/board.html"))
+      .catch((error) => {
+        console.error("Error updating task:", error);
+      });
+}
+
+/**
+ * Fetches date from Firebase.
+ * 
+ * @param {string} [path=""] - The path to fetch the due date from.
+ * @returns {Promise&lt;string|Object>} - The due date or an error message.
+ */
+async function dateFB(path = "") {
+    try {
+      let response = await fetch(BASE_URL + path + ".json");
+      let dueDate = await response.json();
+      return dueDate;
+    } catch (error) {
+      console.error("Error fetching duedate:", error);
+      return "Error loading duedate";
+    }
+}
+
+/**
+ * Fetches subtasks from Firebase.
+ * 
+ * @param {string} [path=""] - The path to fetch subtasks from.
+ * @returns {Promise&lt;Array|string>} - An array of subtasks or an empty array.
+ */
+async function subtaskFB(path = "") {
+    try {
+      let response = await fetch(BASE_URL + path + ".json");
+      let subtask = await response.json();
+      return subtask;
+    } catch (error) {
+      console.error("Error fetching subtask:", error);
+      return [];
+    }
+}
+  /**
+ * Fetches the description from Firebase.
+ * 
+ * @param {string} [path=""] - The path to fetch the description from.
+ * @returns {Promise&lt;string|Object>} - The description data or an error message.
+ */
+async function descriptionFB(path = "") {
+    try {
+      let response = await fetch(BASE_URL + path + ".json");
+      let description = await response.json();
+      return description;
+    } catch (error) {
+      console.error("Error fetching description:", error);
+      return "Error loading description";
+    }
+}
+
+/**
+ * Fetches the title from Firebase.
+ * 
+ * @param {string} [path=""] - The path to fetch the title from.
+ * @returns {Promise&lt;string|Object>} - The title data or an error message.
+ */
+async function title(path = "") {
+    try {
+      let response = await fetch(BASE_URL + path + ".json");
+      let title = await response.json();
+      return title;
+    } catch (error) {
+      console.error("Error fetching title:", error);
+      return "Error loading title";
+    }
+}
+
+/**
+ * Fetches the user story from Firebase.
+ * 
+ * @param {string} [path=""] - The path to fetch the user story from.
+ * @returns {Promise&lt;string|Object>} - The user story data or an error message.
+ */
+async function userStory(path = "") {
+    try {
+      let response = await fetch(BASE_URL + path + ".json");
+      let userStory = await response.json();
+      return userStory;
+    } catch (error) {
+      console.error("Error fetching user story:", error);
+      return "Error loading user story";
+    }
+}
+
+/**
+ * Fetches the assigned people from Firebase.
+ * 
+ * @param {string} [path=""] - The path to fetch assigned people from.
+ * @returns {Promise&lt;Array|string>} - The list of assigned people or an error message.
+ */
+async function assignedFB(path = "") {
+    try {
+      let response = await fetch(BASE_URL + path + ".json");
+      let assigned = await response.json();
+      return assigned;
+    } catch (error) {
+      console.error("Error fetching assigned people:", error);
+      return [];
+    }
+}
+
+/**
+ * Fetches the priority from Firebase.
+ * 
+ * @param {string} [path=""] - The path to fetch the priority from.
+ * @returns {Promise&lt;string|Object>} - The priority data or an error message.
+ */
+async function priorityFB(path = "") {
+    try {
+      let response = await fetch(BASE_URL + path + ".json");
+      let priority = await response.json();
+      return priority;
+    } catch (error) {
+      console.error("Error fetching priority:", error);
+      return "Error loading priority";
+    }
+}
+
+/**
+ * Animates the progress bar.
+ */
+function move() {
+    if (i == 0) {
+      i = 1;
+      var elem = document.getElementById("myBar");
+      var width = 10;
+      var id = setInterval(frame, 10);
+      function frame() {
+        if (width >= 100) {
+          clearInterval(id);
+          i = 0;
+        } else {
+          width++;
+          elem.style.width = width + "%";
+          elem.innerHTML = width + "%";
+        }
+      }
+    }
+}
+
+/**
+ * Deletes a task from Firebase and renumbers remaining tasks.
+ * 
+ * @param {number} taskId - The ID of the task to delete.
+ * @returns {Promise&lt;void>}
+ */
+async function deleteTask(taskId) {
+    try {
+      await deleteTaskFromFirebase(taskId);
+      const remainingTasks = await fetchRemainingTasks();
+  
+      if (!remainingTasks.length) {
+        console.error("No tasks found in Firebase.");
+        return;
+      }
+  
+      const renumberedTasks = renumberTasks(remainingTasks);
+      await updateTasksInFirebase(renumberedTasks);
+  
+      closePopupAndReload();
+    } catch (error) {
+      handleError2(error);
+    }
+}
+
+/**
+ * Deletes a task from Firebase.
+ * 
+ * @param {number} taskId - The ID of the task to delete.
+ * @returns {Promise&lt;void>}
+ * @throws Will throw an error if the task deletion fails.
+ */
+async function deleteTaskFromFirebase(taskId) {
+    const taskPath = `${BASE_URL}tasks/task${taskId}.json`;
+    const response = await fetch(taskPath, { method: "DELETE" });
+    if (!response.ok) {
+      throw new Error(`Error deleting task ${taskId}`);
+    }
+}
+
+/**
+ * Fetches the remaining tasks from Firebase.
+ * 
+ * @returns {Promise&lt;Array&lt;Object>>} - A promise that resolves to an array of remaining tasks.
+ */
+async function fetchRemainingTasks() {
+    const response = await fetch(`${BASE_URL}tasks.json`);
+    const tasksData = await response.json();
+    if (!tasksData) return [];
+  
+    return Object.keys(tasksData).map((key) => ({
+      id: key,
+      data: tasksData[key],
+    }));
+}
+
+/**
+ * Renumbers the tasks after a deletion.
+ * 
+ * @param {Array&lt;Object>} tasks - The remaining tasks.
+ * @returns {Object} - The renumbered tasks.
+ */
+function renumberTasks(tasks) {
+    return tasks
+      .sort(
+        (a, b) =>
+          parseInt(a.id.replace("task", "")) - parseInt(b.id.replace("task", ""))
+      )
+      .reduce((renumberedTasks, task, index) => {
+        renumberedTasks[`task${index + 1}`] = task.data;
+        return renumberedTasks;
+      }, {});
+}
+
+/**
+ * Updates tasks in Firebase after renumbering.
+ * 
+ * @param {Object} renumberedTasks - The renumbered task data.
+ * @returns {Promise&lt;void>}
+ */
+async function updateTasksInFirebase(renumberedTasks) {
+    await fetch(`${BASE_URL}tasks.json`, { method: "DELETE" });
+    await fetch(`${BASE_URL}tasks.json`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(renumberedTasks),
+    });
+}
+
+/**
+ * Closes the popup and reloads the page.
+ */
+function closePopupAndReload() {
+    closePopup();
+    window.location.href = "../html/board.html";
+}
+
+/**
+ * Handles errors during the task deletion and renumbering process.
+ * 
+ * @param {Error} error - The error object.
+ */
+function handleError2(error) {
+    console.error("Error deleting and renumbering tasks:", error);
+}
+
+/**
+ * Updates task positions after deletion by fetching and removing the deleted task from positions.
+ * 
+ * @param {number} taskId - The ID of the deleted task.
+ * @returns {Promise&lt;void>}
+ */
+async function updateTaskPositionsAfterDeletion(taskId) {
+    try {
+      const tasksPositions = await fetchTaskPositions();
+      const updatedPositions = removeTaskFromPositions(tasksPositions, taskId);
+      await updateFirebaseTaskPositions(updatedPositions);
+    } catch (error) {
+      handleTaskPositionError(error);
+    }
+}
+
+/**
+ * Fetches task positions from Firebase.
+ * 
+ * @returns {Promise&lt;Object>} - A promise that resolves to the task positions.
+ */
+async function fetchTaskPositions() {
+    const response = await fetch(BASE_URL + "tasksPositions.json");
+    return await response.json();
+}
+
+/**
+ * Removes a task from the task positions.
+ * 
+ * @param {Object} tasksPositions - The current task positions.
+ * @param {number} taskId - The ID of the task to remove.
+ * @returns {Object} - The updated task positions.
+ */
+function removeTaskFromPositions(tasksPositions, taskId) {
+    Object.keys(tasksPositions).forEach((columnKey) => {
+      tasksPositions[columnKey] = tasksPositions[columnKey].filter(
+        (id) => id !== `task${taskId}`
+      );
+    });
+    return tasksPositions;
+}
+
+/**
+ * Updates task positions in Firebase.
+ * 
+ * @param {Object} updatedPositions - The updated task positions.
+ * @returns {Promise&lt;void>}
+ */
+async function updateFirebaseTaskPositions(updatedPositions) {
+    await fetch(BASE_URL + "tasksPositions.json", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedPositions),
+    });
+}
+
+/**
+ * Handles errors when updating task positions.
+ * 
+ * @param {Error} error - The error object.
+ */
+function handleTaskPositionError(error) {
+    console.error("Error updating task positions:", error);
+}
+
+/**
+ * Deletes data from Firebase at a specified path.
+ * 
+ * @param {string} [path=""] - The path of the data to delete.
+ * @returns {Promise&lt;Object|null>} - The deleted data or null if an error occurs.
+ */
+async function deleteData(path = "") {
+    try {
+      let response = await fetch(BASE_URL + path + ".json", {
+        method: "DELETE",
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      return response.json();
+    } catch (error) {
+      console.error("Error deleting data:", error);
+      return null;
+    }
+}
+
+/**
+ * Closes the task popup and hides the overlay.
+ */
+function closePopup() {
+    const popup = document.getElementById("popup-tasks");
+    const overlay = document.getElementById("overlay-task");
+  
+    document.body.style.overflowY = "scroll";
+    if (popup) {
+      popup.style.display = "none";
+      popup.innerHTML = "";
+    }
+  
+    if (overlay) {
+      overlay.style.display = "none";
+    }
+  
+    currentTaskData = {};
+}
+
+/**
+ * Filters tasks based on user input in a responsive search field.
+ */
+function filterTaskss() {
+    const searchTerm = document
+      .getElementById("findTaskResponsive")
+      .value.toLowerCase();
+    const taskElements = document.querySelectorAll(".task");
+  
+    taskElements.forEach((taskElement) => {
+      const titleText = taskElement.querySelector("h3").textContent.toLowerCase();
+      const descriptionText = taskElement
+        .querySelector("p")
+        .textContent.toLowerCase();
+  
+      if (
+        titleText.includes(searchTerm) ||
+        descriptionText.includes(searchTerm)
+      ) {
+        taskElement.style.display = "";
+      } else {
+        taskElement.style.display = "none";
+      }
+    });
+}
+
+/**
+ * Filters tasks based on user input.
+ */
+function filterTasks() {
+    const searchTerm = document.getElementById("findTask").value.toLowerCase();
+    const taskElements = document.querySelectorAll(".task");
+  
+    taskElements.forEach((taskElement) => {
+      const titleText = taskElement.querySelector("h3").textContent.toLowerCase();
+      const descriptionText = taskElement
+        .querySelector("p")
+        .textContent.toLowerCase();
+  
+      if (
+        titleText.includes(searchTerm) ||
+        descriptionText.includes(searchTerm)
+      ) {
+        taskElement.style.display = "";
+      } else {
+        taskElement.style.display = "none";
+      }
+    });
+}
+
+/**
+ * Updates a subtask's text in local storage and synchronizes it with Firebase.
+ * 
+ * @param {number} taskId - The ID of the task.
+ * @param {number} subtaskIndex - The index of the subtask.
+ * @param {string} newText - The new text for the subtask.
+ */
+function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
+    const savedStatuses =
+      JSON.parse(localStorage.getItem(`task-${taskId}-subtasks`)) || [];
+  
+    while (savedStatuses.length &lt;= subtaskIndex) {
+      savedStatuses.push(false);
+    }
+  
+    const existingSubtasks =
+      JSON.parse(localStorage.getItem(`task-${taskId}-subtask-texts`)) || [];
+    existingSubtasks[subtaskIndex] = newText.trim();
+    localStorage.setItem(
+      `task-${taskId}-subtask-texts`,
+      JSON.stringify(existingSubtasks)
+    );
+  
+    updateSubtasksInFirebase(taskId);
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#BASE_URL">BASE_URL</a></li><li><a href="global.html#FullName">FullName</a></li><li><a href="global.html#HTMLContactDetail">HTMLContactDetail</a></li><li><a href="global.html#HtmlEdit">HtmlEdit</a></li><li><a href="global.html#HtmlPopup">HtmlPopup</a></li><li><a href="global.html#HtmlProgressBar">HtmlProgressBar</a></li><li><a href="global.html#HtmlTaskElement">HtmlTaskElement</a></li><li><a href="global.html#addContact">addContact</a></li><li><a href="global.html#addContactToFirebase">addContactToFirebase</a></li><li><a href="global.html#addContactToList">addContactToList</a></li><li><a href="global.html#addInputListener">addInputListener</a></li><li><a href="global.html#addSubtask">addSubtask</a></li><li><a href="global.html#addSubtaskInputListener">addSubtaskInputListener</a></li><li><a href="global.html#addSubtaskListeners">addSubtaskListeners</a></li><li><a href="global.html#addSubtasks">addSubtasks</a></li><li><a href="global.html#addTaskListeners">addTaskListeners</a></li><li><a href="global.html#addToColumn0">addToColumn0</a></li><li><a href="global.html#allCount">allCount</a></li><li><a href="global.html#allowDrop">allowDrop</a></li><li><a href="global.html#appendSubtaskToList">appendSubtaskToList</a></li><li><a href="global.html#appendTaskToColumn">appendTaskToColumn</a></li><li><a href="global.html#appendTasksToColumn">appendTasksToColumn</a></li><li><a href="global.html#applySavedStatuses">applySavedStatuses</a></li><li><a href="global.html#areInputsFilled">areInputsFilled</a></li><li><a href="global.html#arePasswordsMatching">arePasswordsMatching</a></li><li><a href="global.html#assignedFB">assignedFB</a></li><li><a href="global.html#calculateSubtaskCompletion">calculateSubtaskCompletion</a></li><li><a href="global.html#calculateSubtaskCounts">calculateSubtaskCounts</a></li><li><a href="global.html#capitalizeFirstLetter">capitalizeFirstLetter</a></li><li><a href="global.html#checkIcon">checkIcon</a></li><li><a href="global.html#checkWindowSize">checkWindowSize</a></li><li><a href="global.html#clearContactForm">clearContactForm</a></li><li><a href="global.html#clearDropdownSelections">clearDropdownSelections</a></li><li><a href="global.html#clearError">clearError</a></li><li><a href="global.html#clearErrorMessages">clearErrorMessages</a></li><li><a href="global.html#clearInputErrors">clearInputErrors</a></li><li><a href="global.html#clearInputFields">clearInputFields</a></li><li><a href="global.html#clearInputs">clearInputs</a></li><li><a href="global.html#clearSelectedContacts">clearSelectedContacts</a></li><li><a href="global.html#clearSubtaskInput">clearSubtaskInput</a></li><li><a href="global.html#clearSubtaskList">clearSubtaskList</a></li><li><a href="global.html#closeModal">closeModal</a></li><li><a href="global.html#closePopup">closePopup</a></li><li><a href="global.html#closePopupAndReload">closePopupAndReload</a></li><li><a href="global.html#closeTaskEditPopup">closeTaskEditPopup</a></li><li><a href="global.html#collectNewSubtasks">collectNewSubtasks</a></li><li><a href="global.html#collectTaskData">collectTaskData</a></li><li><a href="global.html#configureSubmitButton">configureSubmitButton</a></li><li><a href="global.html#configureSubmitButtonForCreate">configureSubmitButtonForCreate</a></li><li><a href="global.html#configureSubmitButtonForUpdate">configureSubmitButtonForUpdate</a></li><li><a href="global.html#count">count</a></li><li><a href="global.html#createContactObject">createContactObject</a></li><li><a href="global.html#createNameColorEmblemObject">createNameColorEmblemObject</a></li><li><a href="global.html#createSubtaskElement">createSubtaskElement</a></li><li><a href="global.html#createSubtaskItem">createSubtaskItem</a></li><li><a href="global.html#createTaskDiv">createTaskDiv</a></li><li><a href="global.html#createTaskElement">createTaskElement</a></li><li><a href="global.html#dateFB">dateFB</a></li><li><a href="global.html#deleteContact">deleteContact</a></li><li><a href="global.html#deleteData">deleteData</a></li><li><a href="global.html#deleteSubTaskFB">deleteSubTaskFB</a></li><li><a href="global.html#deleteSubtask">deleteSubtask</a></li><li><a href="global.html#deleteTask">deleteTask</a></li><li><a href="global.html#deleteTaskFromFirebase">deleteTaskFromFirebase</a></li><li><a href="global.html#deleteThis">deleteThis</a></li><li><a href="global.html#descriptionFB">descriptionFB</a></li><li><a href="global.html#displayContacts">displayContacts</a></li><li><a href="global.html#displayEditPopup">displayEditPopup</a></li><li><a href="global.html#displayErrorMessage">displayErrorMessage</a></li><li><a href="global.html#displayNameColor">displayNameColor</a></li><li><a href="global.html#displayPopup">displayPopup</a></li><li><a href="global.html#displaySubtasks">displaySubtasks</a></li><li><a href="global.html#doneCount">doneCount</a></li><li><a href="global.html#drag">drag</a></li><li><a href="global.html#drop">drop</a></li><li><a href="global.html#editTask">editTask</a></li><li><a href="global.html#editThis">editThis</a></li><li><a href="global.html#error">error</a></li><li><a href="global.html#feedbackCount">feedbackCount</a></li><li><a href="global.html#fetchColumn0Tasks">fetchColumn0Tasks</a></li><li><a href="global.html#fetchNameColorEmblem">fetchNameColorEmblem</a></li><li><a href="global.html#fetchRemainingTasks">fetchRemainingTasks</a></li><li><a href="global.html#fetchTaskData">fetchTaskData</a></li><li><a href="global.html#fetchTaskDataFromFirebase">fetchTaskDataFromFirebase</a></li><li><a href="global.html#fetchTaskPositions">fetchTaskPositions</a></li><li><a href="global.html#fetchTasks">fetchTasks</a></li><li><a href="global.html#fetchTasksPositions">fetchTasksPositions</a></li><li><a href="global.html#fetchTasksPositionsFromFirebase">fetchTasksPositionsFromFirebase</a></li><li><a href="global.html#fetchUserData">fetchUserData</a></li><li><a href="global.html#filterSubtasks">filterSubtasks</a></li><li><a href="global.html#filterTasks">filterTasks</a></li><li><a href="global.html#filterTaskss">filterTaskss</a></li><li><a href="global.html#findColumnForTask">findColumnForTask</a></li><li><a href="global.html#gatherContactData">gatherContactData</a></li><li><a href="global.html#gatherContactInputData2">gatherContactInputData2</a></li><li><a href="global.html#gatherTasksData">gatherTasksData</a></li><li><a href="global.html#gatherUpdatedContactData">gatherUpdatedContactData</a></li><li><a href="global.html#generateAssignedHtml">generateAssignedHtml</a></li><li><a href="global.html#generateAssignedHtml2">generateAssignedHtml2</a></li><li><a href="global.html#generateEmblem">generateEmblem</a></li><li><a href="global.html#generateFirebasePath">generateFirebasePath</a></li><li><a href="global.html#generateFirebaseSubtaskPath">generateFirebaseSubtaskPath</a></li><li><a href="global.html#generateRandomColor">generateRandomColor</a></li><li><a href="global.html#generateSubtasksHtml">generateSubtasksHtml</a></li><li><a href="global.html#generateTaskContent">generateTaskContent</a></li><li><a href="global.html#getButtonData">getButtonData</a></li><li><a href="global.html#getColumnIndexFromKey">getColumnIndexFromKey</a></li><li><a href="global.html#getColumnMapping">getColumnMapping</a></li><li><a href="global.html#getContactFormData">getContactFormData</a></li><li><a href="global.html#getData">getData</a></li><li><a href="global.html#getDataFromFirebase">getDataFromFirebase</a></li><li><a href="global.html#getGreeting">getGreeting</a></li><li><a href="global.html#getHeaderBackgroundColor">getHeaderBackgroundColor</a></li><li><a href="global.html#getHeaderColor">getHeaderColor</a></li><li><a href="global.html#getInfo">getInfo</a></li><li><a href="global.html#getInitials">getInitials</a></li><li><a href="global.html#getInputValue">getInputValue</a></li><li><a href="global.html#getNameAndColor">getNameAndColor</a></li><li><a href="global.html#getPriorityImage">getPriorityImage</a></li><li><a href="global.html#getSavedStatusesFromFirebase">getSavedStatusesFromFirebase</a></li><li><a href="global.html#getSelectedContacts">getSelectedContacts</a></li><li><a href="global.html#getSubtaskImages">getSubtaskImages</a></li><li><a href="global.html#getSubtaskInput">getSubtaskInput</a></li><li><a href="global.html#getSubtaskInputValue">getSubtaskInputValue</a></li><li><a href="global.html#getSubtaskStatuses">getSubtaskStatuses</a></li><li><a href="global.html#getUserInput">getUserInput</a></li><li><a href="global.html#goBack">goBack</a></li><li><a href="global.html#handleAddToColumnError">handleAddToColumnError</a></li><li><a href="global.html#handleClick">handleClick</a></li><li><a href="global.html#handleError">handleError</a></li><li><a href="global.html#handleError2">handleError2</a></li><li><a href="global.html#handleFirebaseResponse">handleFirebaseResponse</a></li><li><a href="global.html#handleGuestLogin">handleGuestLogin</a></li><li><a href="global.html#handleLoadTasksError">handleLoadTasksError</a></li><li><a href="global.html#handleLoginSuccess">handleLoginSuccess</a></li><li><a href="global.html#handleMouseOut">handleMouseOut</a></li><li><a href="global.html#handleMouseOver">handleMouseOver</a></li><li><a href="global.html#handleResponseStatus">handleResponseStatus</a></li><li><a href="global.html#handleSaveError">handleSaveError</a></li><li><a href="global.html#handleSubtaskUpdates">handleSubtaskUpdates</a></li><li><a href="global.html#handleSuccessfulSubmission">handleSuccessfulSubmission</a></li><li><a href="global.html#handleTaskPositionError">handleTaskPositionError</a></li><li><a href="global.html#hideDropdown">hideDropdown</a></li><li><a href="global.html#hidePopup">hidePopup</a></li><li><a href="global.html#highlightAssignedPeople">highlightAssignedPeople</a></li><li><a href="global.html#init">init</a></li><li><a href="global.html#init12">init12</a></li><li><a href="global.html#initializePopupHandlers">initializePopupHandlers</a></li><li><a href="global.html#isFormValid">isFormValid</a></li><li><a href="global.html#isPrivacyPolicyAccepted">isPrivacyPolicyAccepted</a></li><li><a href="global.html#isValidContact">isValidContact</a></li><li><a href="global.html#isValidEmail">isValidEmail</a></li><li><a href="global.html#isValidTaskData">isValidTaskData</a></li><li><a href="global.html#loadBoard">loadBoard</a></li><li><a href="global.html#loadContacts">loadContacts</a></li><li><a href="global.html#loadSubtaskProgress">loadSubtaskProgress</a></li><li><a href="global.html#loadSubtasksIntoEditForm">loadSubtasksIntoEditForm</a></li><li><a href="global.html#loadTasks">loadTasks</a></li><li><a href="global.html#loadTasksIntoColumns">loadTasksIntoColumns</a></li><li><a href="global.html#login">login</a></li><li><a href="global.html#mergeAndSaveSubtasks">mergeAndSaveSubtasks</a></li><li><a href="global.html#move">move</a></li><li><a href="global.html#openEdit">openEdit</a></li><li><a href="global.html#openEditContactModal">openEditContactModal</a></li><li><a href="global.html#openLegalNoticePage">openLegalNoticePage</a></li><li><a href="global.html#openModal">openModal</a></li><li><a href="global.html#openPopup">openPopup</a></li><li><a href="global.html#openPrivacyPolicyPage">openPrivacyPolicyPage</a></li><li><a href="global.html#openSignUpPage">openSignUpPage</a></li><li><a href="global.html#openTaskBoard">openTaskBoard</a></li><li><a href="global.html#parseSubtaskText">parseSubtaskText</a></li><li><a href="global.html#parseSubtasks">parseSubtasks</a></li><li><a href="global.html#populateEditMode">populateEditMode</a></li><li><a href="global.html#populateSubtaskList">populateSubtaskList</a></li><li><a href="global.html#prepareContactData">prepareContactData</a></li><li><a href="global.html#prepareEditModal">prepareEditModal</a></li><li><a href="global.html#priorityFB">priorityFB</a></li><li><a href="global.html#processContactsData">processContactsData</a></li><li><a href="global.html#processTask">processTask</a></li><li><a href="global.html#processTask3">processTask3</a></li><li><a href="global.html#processTaskWithSubtasks">processTaskWithSubtasks</a></li><li><a href="global.html#processUserData">processUserData</a></li><li><a href="global.html#progressCount">progressCount</a></li><li><a href="global.html#pushAndDisplaySubtask">pushAndDisplaySubtask</a></li><li><a href="global.html#pushsubtasks">pushsubtasks</a></li><li><a href="global.html#putData">putData</a></li><li><a href="global.html#putOnFB">putOnFB</a></li><li><a href="global.html#putOnFb">putOnFb</a></li><li><a href="global.html#refreshContacts">refreshContacts</a></li><li><a href="global.html#removeSubtask">removeSubtask</a></li><li><a href="global.html#removeSubtasks">removeSubtasks</a></li><li><a href="global.html#removeTaskFromPositions">removeTaskFromPositions</a></li><li><a href="global.html#renderContactsHtml">renderContactsHtml</a></li><li><a href="global.html#renumberTasks">renumberTasks</a></li><li><a href="global.html#resetContactForm">resetContactForm</a></li><li><a href="global.html#resetDropdownItems">resetDropdownItems</a></li><li><a href="global.html#resetError">resetError</a></li><li><a href="global.html#resetForm">resetForm</a></li><li><a href="global.html#resetInput">resetInput</a></li><li><a href="global.html#resetOutline">resetOutline</a></li><li><a href="global.html#resetPriorityButtons">resetPriorityButtons</a></li><li><a href="global.html#resetSubmitButton">resetSubmitButton</a></li><li><a href="global.html#saveCheckboxState">saveCheckboxState</a></li><li><a href="global.html#saveContact">saveContact</a></li><li><a href="global.html#saveContactToFirebase">saveContactToFirebase</a></li><li><a href="global.html#saveSubtaskProgress">saveSubtaskProgress</a></li><li><a href="global.html#saveTaskToFb">saveTaskToFb</a></li><li><a href="global.html#saveTasks">saveTasks</a></li><li><a href="global.html#saveTasksToFirebase">saveTasksToFirebase</a></li><li><a href="global.html#selctedAssignees">selctedAssignees</a></li><li><a href="global.html#sendCheckboxStateToFirebase">sendCheckboxStateToFirebase</a></li><li><a href="global.html#sendContactData">sendContactData</a></li><li><a href="global.html#sendSubtaskStatusesToFirebase">sendSubtaskStatusesToFirebase</a></li><li><a href="global.html#sendTaskDataToFirebase">sendTaskDataToFirebase</a></li><li><a href="global.html#setDataToFirebase">setDataToFirebase</a></li><li><a href="global.html#setError">setError</a></li><li><a href="global.html#setItemSelected">setItemSelected</a></li><li><a href="global.html#showAddedPopup">showAddedPopup</a></li><li><a href="global.html#showContactModal">showContactModal</a></li><li><a href="global.html#showDropDown">showDropDown</a></li><li><a href="global.html#showError">showError</a></li><li><a href="global.html#showNoTasksMessage">showNoTasksMessage</a></li><li><a href="global.html#showPopup">showPopup</a></li><li><a href="global.html#showSuccessPopup">showSuccessPopup</a></li><li><a href="global.html#sortContactsAndInitials">sortContactsAndInitials</a></li><li><a href="global.html#submitContact">submitContact</a></li><li><a href="global.html#submitContactFB">submitContactFB</a></li><li><a href="global.html#subtaskFB">subtaskFB</a></li><li><a href="global.html#summaryCounts">summaryCounts</a></li><li><a href="global.html#title">title</a></li><li><a href="global.html#todoCount">todoCount</a></li><li><a href="global.html#toggleCheckbox">toggleCheckbox</a></li><li><a href="global.html#toggleDropdown">toggleDropdown</a></li><li><a href="global.html#toggleDropdowns">toggleDropdowns</a></li><li><a href="global.html#togglePasswordVisibility">togglePasswordVisibility</a></li><li><a href="global.html#toggleSelection">toggleSelection</a></li><li><a href="global.html#updateColumn0Tasks">updateColumn0Tasks</a></li><li><a href="global.html#updateFirebaseTaskPositions">updateFirebaseTaskPositions</a></li><li><a href="global.html#updateInitials">updateInitials</a></li><li><a href="global.html#updateNoTasksMessage">updateNoTasksMessage</a></li><li><a href="global.html#updateProfileIcon">updateProfileIcon</a></li><li><a href="global.html#updateProgress">updateProgress</a></li><li><a href="global.html#updateProgressBarFromFirebase">updateProgressBarFromFirebase</a></li><li><a href="global.html#updateProgressBarUI">updateProgressBarUI</a></li><li><a href="global.html#updateSelectedContactsDisplay">updateSelectedContactsDisplay</a></li><li><a href="global.html#updateSubtaskCountElement">updateSubtaskCountElement</a></li><li><a href="global.html#updateSubtaskCountUI">updateSubtaskCountUI</a></li><li><a href="global.html#updateSubtaskInLocalStorage">updateSubtaskInLocalStorage</a></li><li><a href="global.html#updateSubtaskText">updateSubtaskText</a></li><li><a href="global.html#updateSubtasks">updateSubtasks</a></li><li><a href="global.html#updateSubtasksInFirebase">updateSubtasksInFirebase</a></li><li><a href="global.html#updateSubtasksInFirebase2">updateSubtasksInFirebase2</a></li><li><a href="global.html#updateTaskPositionsAfterDeletion">updateTaskPositionsAfterDeletion</a></li><li><a href="global.html#updateTasksInFirebase">updateTasksInFirebase</a></li><li><a href="global.html#userStory">userStory</a></li><li><a href="global.html#validateContactData">validateContactData</a></li><li><a href="global.html#validateCredentials">validateCredentials</a></li><li><a href="global.html#validateEmail">validateEmail</a></li><li><a href="global.html#validateField">validateField</a></li><li><a href="global.html#validateForm">validateForm</a></li><li><a href="global.html#validatePassword">validatePassword</a></li><li><a href="global.html#validatePasswords">validatePasswords</a></li><li><a href="global.html#validateTaskData">validateTaskData</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.3</a> on Fri Aug 16 2024 23:54:05 GMT+0200 (Mitteleuropäische Sommerzeit)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
