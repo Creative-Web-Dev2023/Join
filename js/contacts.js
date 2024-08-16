@@ -268,8 +268,6 @@ function makeContactsClickable() {
         event.preventDefault();
         showContactDetails(contact); // Show details and switch to the contact page
       });
-    } else {
-      console.warn(`No element found for contact with ID: ${contact.id}`);
     }
   });
 }
@@ -487,8 +485,6 @@ function makeContactsClickable() {
         // Optionale Funktion zum Anzeigen der Kontaktdetails
         showContactDetails(contact);
       });
-    } else {
-      console.warn(`No element found for contact with ID: ${contact.id}`);
     }
   });
 }

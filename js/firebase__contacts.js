@@ -184,7 +184,6 @@ async function addContact() {
     let contactPhone = document.getElementById('phone').value;
 
     if (!contactName || !contactEmail) {
-        alert("Please fill out all required fields.");
         return;
     }
 

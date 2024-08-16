@@ -56,7 +56,6 @@ function saveTasks() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Tasks successfully saved to Firebase:', data);
     })
     .catch(error => {
         console.error('Error saving tasks to Firebase:', error);
@@ -135,8 +134,6 @@ function deleteTask(event) {
     let taskElement = event.target.closest('.popup-task');
     if (taskElement) {
         taskElement.parentNode.removeChild(taskElement);
-    } else {
-        console.log('Task element not found');
     }
 }
 

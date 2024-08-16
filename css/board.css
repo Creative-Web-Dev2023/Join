@@ -441,6 +441,7 @@ body {
 }
 
 .edit-button {
+    cursor: pointer;
     width: fit-content;
     height: fit-content;
     padding: 16px;

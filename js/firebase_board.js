@@ -107,7 +107,6 @@ async function loadBoard() {
     const tasks = await fetchTasks();
 
     if (!tasks || tasks.length === 0) {
-        console.log('No tasks available.');
         return;
     }
 
@@ -184,7 +183,6 @@ async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
             throw new Error('Fehler beim Speichern des Zustands in Firebase');
         }
 
-        console.log(`Subtask ${subtaskIndex} status für Task ${taskId} wurde erfolgreich als ${isChecked} in Firebase gespeichert.`);
     } catch (error) {
         console.error('Fehler beim Speichern des Checkbox-Zustands in Firebase:', error);
         throw error; // Fehler weiterwerfen, damit die obere Funktion den Fehler ebenfalls behandeln kann
@@ -209,15 +207,10 @@ async function processTaskWithSubtasks(task, index) {
 }
 
 async function updateProgressBarFromFirebase(taskId) {
-    console.log(`Updating progress bar for task ID: ${taskId}`);
-
     const savedStatuses = await getSavedStatusesFromFirebase(taskId);
-    console.log('Saved statuses:', savedStatuses);
 
     const totalSubtasks = savedStatuses.length;
     const completedCount = savedStatuses.filter(status => status === true).length;
-
-    console.log(`Total subtasks: ${totalSubtasks}, Completed: ${completedCount}`);
 
     updateProgressBarUI(taskId, completedCount, totalSubtasks);
     updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
@@ -226,7 +219,6 @@ async function updateProgressBarFromFirebase(taskId) {
 
 
 function showNoTasksMessage(container) {
-    console.log('No tasks available.');
     container.innerHTML = '<p>No tasks available.</p>';
 }
 
@@ -328,7 +320,6 @@ async function saveSubtaskProgress(taskId) {
             },
             body: JSON.stringify(subtaskStatuses)
         });
-        console.log(`Subtask statuses for task ${taskId} saved to Firebase.`);
     } catch (error) {
         console.error('Error saving subtask statuses to Firebase:', error);
     }
@@ -345,7 +336,6 @@ async function loadSubtaskProgress(taskId) {
 
     // If no statuses exist in Firebase, initialize all to false
     if (!savedStatuses || savedStatuses.length === 0) {
-        console.log(`Initializing subtasks for task ${taskId}...`);
 
         // Initialize all subtasks to false (unchecked)
         const initialStatuses = Array(subtaskImages.length).fill(false);
@@ -395,7 +385,6 @@ async function fetchTasks() {
             ...data[taskId] // Spread the rest of the task data
         }));
 
-        console.log('Fetched tasks:', tasks);
         return tasks;
     } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -522,8 +511,6 @@ function resetDropdownItems() {
 
 function highlightAssignedPeople(assignedPeople) {
     if (!assignedPeople || assignedPeople.length === 0) {
-        // No one is assigned, so just return or handle accordingly
-        console.log('No one assigned to this task.');
         return;
     }
 
@@ -602,9 +589,6 @@ function updateSubtasksInFirebase(taskId) {
     const combinedSubtasks = newSubtasks.filter(subtask => subtask.trim() !== '');
 
     putData(`tasks/task${taskId}/subtask`, combinedSubtasks.join(','))
-        .then(() => {
-            console.log('Subtasks updated in Firebase.');
-        })
         .catch(error => {
             console.error('Error updating subtasks in Firebase:', error);
         });
@@ -674,13 +658,11 @@ function removeSubtasks(index) {
 
 
 async function deleteSubTaskFB(path, subtaskToDelete) {
-    console.log("Path:", path);
 
     let taskResponse = await fetch(BASE_URL + path + ".json");
     let taskData = await taskResponse.json();
 
     if (!taskData || !taskData.subtask) {
-        console.log("No subtasks found or invalid path.");
         return;
     }
 
@@ -689,7 +671,6 @@ async function deleteSubTaskFB(path, subtaskToDelete) {
     let updatedSubtasks = subtasks.filter(subtask => subtask.trim() !== subtaskToDelete.trim());
 
     if (updatedSubtasks.length === subtasks.length) {
-        console.log("Subtask not found.");
         return;
     }
 
@@ -737,7 +718,6 @@ function putOnFb(taskId) {
             // After task is saved, add it to column0
             addToColumn0(taskId);
         })
-        .catch(console.error);
 
     window.location.href = "/html/board.html";
 }
@@ -766,9 +746,7 @@ function addToColumn0(taskId) {
             });
         })
         .then(response => response.json())
-        .then(() => {
-            console.log(`Task ${taskId} erfolgreich zu column0 hinzugefügt.`);
-        })
+
         .catch(error => {
             console.error('Fehler beim Hinzufügen der Task zu column0:', error);
         });
@@ -809,7 +787,6 @@ function saveTaskToFb(taskId, taskData) {
         .then(() => window.location.href = '/html/board.html')
         .catch(error => {
             console.error('Error updating task:', error);
-            alert('Error updating task. Please try again later.');
         });
 }
 
@@ -817,7 +794,6 @@ async function dateFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let dueDate = await response.json();
-        console.log(dueDate);
         return dueDate;
     } catch (error) {
         console.error('Error fetching duedate:', error);
@@ -829,7 +805,6 @@ async function subtaskFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let subtask = await response.json();
-        console.log(subtask);
         return subtask;
     } catch (error) {
         console.error('Error fetching subtask:', error);
@@ -841,7 +816,6 @@ async function descriptionFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let description = await response.json();
-        console.log(description);
         return description;
     } catch (error) {
         console.error('Error fetching description:', error);
@@ -853,7 +827,6 @@ async function title(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let title = await response.json();
-        console.log(title);
         return title;
     } catch (error) {
         console.error('Error fetching title:', error);
@@ -865,7 +838,6 @@ async function userStory(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let userStory = await response.json();
-        console.log(userStory);
         return userStory;
     } catch (error) {
         console.error('Error fetching user story:', error);
@@ -877,7 +849,6 @@ async function assignedFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let assigned = await response.json();
-        console.log(assigned);
         return assigned;
     } catch (error) {
         console.error('Error fetching assigned people:', error);
@@ -889,7 +860,6 @@ async function priorityFB(path = "") {
     try {
         let response = await fetch(BASE_URL + path + ".json");
         let priority = await response.json();
-        console.log(priority);
         return priority;
     } catch (error) {
         console.error('Error fetching priority:', error);
@@ -927,7 +897,6 @@ async function deleteTask(taskId) {
             throw new Error(`Error deleting task ${taskId}`);
         }
 
-        console.log(`Task ${taskId} deleted successfully.`);
 
         // Step 2: Fetch all remaining tasks
         const tasksResponse = await fetch(`${BASE_URL}tasks.json`);
@@ -1004,7 +973,6 @@ async function updateTaskPositionsAfterDeletion(taskId) {
             body: JSON.stringify(tasksPositions),
         });
 
-        console.log(`Task ${taskId} successfully removed from task positions.`);
     } catch (error) {
         console.error('Error updating task positions:', error);
     }
@@ -1073,7 +1041,6 @@ function updateSubtaskInLocalStorage(taskId, subtaskIndex, newText) {
     existingSubtasks[subtaskIndex] = newText.trim();
     localStorage.setItem(`task-${taskId}-subtask-texts`, JSON.stringify(existingSubtasks));
 
-    console.log(`Subtask ${subtaskIndex} updated to: ${newText}`);
 
     updateSubtasksInFirebase(taskId);
 }

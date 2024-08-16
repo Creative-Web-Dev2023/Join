@@ -81,5 +81,4 @@ function clearError(field) {
 
 function resetInput() {
     window.location.href = '/html/add_task.html';
-    console.log('cleared inputs');
 }

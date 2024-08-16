@@ -126,25 +126,20 @@ async function submitContactFB(event) {
         isValid = false;
     }
 
-    // Validate Email
     if (!validateEmail(contactEmail)) {
         emailError.textContent = 'Please enter a valid email address ending in .de or .com';
         emailError.style.display = 'block';
         isValid = false;
     }
 
-    // Check if all required fields are filled
     if (!contactName || !contactEmail) {
-        alert("Please fill out all required fields.");
         isValid = false;
     }
 
-    // Stop further processing if validation fails
     if (!isValid) {
         return;
     }
 
-    // Prepare contact data for submission
     let contactData = {
         name: contactName,
         email: contactEmail,
@@ -154,17 +149,13 @@ async function submitContactFB(event) {
     };
 
     try {
-        // Submit data to Firebase
         await addContactToFirebase(contactData);
 
-        // Store the user's name in localStorage for later use (e.g., displaying initials)
         localStorage.setItem('fullName', contactName);
-        localStorage.setItem('isGuest', 'false'); // Indicate that the user is not a guest
+        localStorage.setItem('isGuest', 'false');
 
-        // Show success popup after successful submission
         showSuccessPopup();
 
-        // Clear the form fields
         document.getElementById("fullName").value = "";
         document.getElementById("email").value = "";
         document.getElementById("password").value = "";
@@ -172,7 +163,6 @@ async function submitContactFB(event) {
 
     } catch (error) {
         console.error("Failed to submit contact data:", error);
-        alert("There was an error submitting your data. Please try again.");
     }
 }
 
@@ -212,11 +202,8 @@ async function addContactToFirebase(contactData) {
         }
 
         let responseData = await response.json();
-        console.log("Response from Firebase:", responseData);
 
-        // Hier wird die generierte ID des neuen Kontakts geloggt
         const newContactId = responseData.name;
-        console.log("New contact ID:", newContactId);
 
         return responseData;
     } catch (error) {

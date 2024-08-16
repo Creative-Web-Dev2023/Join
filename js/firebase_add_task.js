@@ -21,8 +21,6 @@ async function count() {
         init(taskId + 1);
       }
     }
-  } else {
-    console.log('error')
   }
 }
 
@@ -92,7 +90,6 @@ function clearInputs() {
   clearSubtaskList();
   resetPriorityButtons();
   clearSelectedContacts();
-  console.log('Inputs cleared');
 }
 
 function clearInputFields() {
@@ -184,7 +181,6 @@ async function getInfo(path = "contacts") {
     let contacts = await response.json();
 
     if (!contacts) {
-      console.log("No contacts found.");
       return;
     }
 
@@ -330,9 +326,6 @@ function pushsubtasks() {
   });
 
   listtask = [...subtask];
-  console.log('Subtasks:', subtask);
-  console.log('Listtask:', listtask);
-
   updateProgress(currentTaskData.taskId);
   saveSubtaskProgress(currentTaskData.taskId);
 }
@@ -344,7 +337,6 @@ function updateSubtasks(taskId) {
     subtask.push(element.innerHTML.trim());
   });
   listtask = [...subtask];
-  console.log('Updated Subtasks:', subtask);
 
   updateProgress(taskId);
   saveSubtaskProgress(taskId);
@@ -398,18 +390,14 @@ function displaySubtasks() {
 
 function updateSubtaskText(event, index) {
   const updatedText = event.target.textContent.trim();
-  subtask[index] = updatedText; // Aktualisiert das Subtask-Array mit dem bearbeiteten Inhalt
-  listtask = [...subtask]; // Aktualisiert listtask, um den aktuellen Subtasks zu entsprechen
-  console.log('Aktualisierte Subtasks:', subtask);
+  subtask[index] = updatedText;
+  listtask = [...subtask];
 }
 
 function removeSubtask(index) {
-  // Entfernt die Subtask aus dem Array
   subtask.splice(index, 1);
 
-  // Aktualisiert listtask, um den aktuellen Subtasks zu entsprechen
   listtask = [...subtask];
 
-  // Aktualisiert die angezeigte Liste
   displaySubtasks();
 }
