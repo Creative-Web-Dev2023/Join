@@ -107,22 +107,25 @@ function generateAssignedHtml(assignedPeople) {
 async function loadBoard() {
     const tasks = await fetchTasks();
 
-    if (!tasks || tasks.length === 0) return showNoTasksMessage();
+    if (!tasks || tasks.length === 0) {
+        console.log('No tasks available.');
+        return;
+    }
 
     const tasksPositions = await fetchTasksPositions();
 
-    for (let index = 0; index < tasks.length; index++) {
-        const task = tasks[index];
-        const taskElement = await processTaskWithSubtasks(task, index);
+    const columnMapping = {
+        "0": "content-todo",
+        "1": "content-inprogress",
+        "2": "content-awaitfeedback",
+        "3": "content-done"
+    };
+
+    tasks.forEach((task, index) => {
+        const taskElement = createTaskElement(task, index);
         const columnId = findColumnForTask(task.id, tasksPositions);
 
-        const columnMapping = {
-            "0": "content-todo",
-            "1": "content-inprogress",
-            "2": "content-awaitfeedback",
-            "3": "content-done"
-        };
-
+        // Append the task to the correct column based on task positions
         const columnContentId = columnMapping[columnId];
         if (columnContentId) {
             const columnContent = document.getElementById(columnContentId);
@@ -136,10 +139,11 @@ async function loadBoard() {
         }
 
         // Update the progress bar and the checkbox UI after loading each task
-        await updateProgress(task.id); // Aktualisiere die Progress Bar nach dem Laden der Seite
-        
-    }
+        updateProgress(task.id);
+    });
 }
+
+
 
 
 
@@ -366,31 +370,29 @@ function applySavedStatuses(subtaskImages, savedStatuses) {
 }
 async function fetchTasks() {
     try {
-        let response = await fetch(BASE_URL + 'tasks.json');
-        let data = await response.json();
-        console.log('Tasks data:', data);
+        const response = await fetch(BASE_URL + 'tasks.json');
+        const data = await response.json();
 
-        // Überprüfen, ob die Daten korrekt sind und Tasks existieren
+        // Check if tasks exist
         if (!data) {
             console.error('No tasks data found');
             return [];
         }
 
-        // Erstelle ein Array von Tasks mit ihren IDs
-        let tasks = Object.keys(data).map(key => {
-            return {
-                id: key, // Setze die ID auf den Schlüssel in Firebase
-                ...data[key] // Füge die restlichen Daten der Task hinzu
-            };
-        });
+        // Create a dynamic list of tasks
+        const tasks = Object.keys(data).map(taskId => ({
+            id: taskId, // Use the dynamic task ID
+            ...data[taskId] // Spread the rest of the task data
+        }));
 
-        console.log('Formatted tasks:', tasks);
+        console.log('Fetched tasks:', tasks);
         return tasks;
     } catch (error) {
         console.error('Error fetching tasks:', error);
         return [];
     }
 }
+
 
 
 
@@ -904,17 +906,67 @@ function move() {
 }
 async function deleteTask(taskId) {
     try {
-        await deleteData(`tasks/task${taskId}`);
+        // Construct the correct path to delete the task from Firebase
+        const taskPath = `${BASE_URL}tasks/task${taskId}.json`;
+
+        console.log(taskPath);
+        
+        // Send DELETE request to Firebase
+        const response = await fetch(taskPath, {
+            method: 'DELETE',
+        });
+
+        // Check if the response was successful
+        if (!response.ok) {
+            throw new Error(`Error deleting task ${taskId}`);
+        }
+
+        // Remove the task element from the UI
         const taskElement = document.getElementById(`task${taskId}`);
         if (taskElement) {
             taskElement.remove();
         }
-        saveTasks();
+
+        // Update task positions after deletion
+        await updateTaskPositionsAfterDeletion(taskId);
+
+        // Close the popup if it's open
         closePopup();
+
+        console.log(`Task ${taskId} successfully deleted from Firebase and UI.`);
     } catch (error) {
         console.error('Error deleting task:', error);
     }
 }
+
+
+async function updateTaskPositionsAfterDeletion(taskId) {
+    try {
+        // Fetch current task positions from Firebase
+        const response = await fetch(BASE_URL + 'tasksPositions.json');
+        const tasksPositions = await response.json();
+
+        // Loop through all columns and remove the task ID
+        Object.keys(tasksPositions).forEach(columnKey => {
+            tasksPositions[columnKey] = tasksPositions[columnKey].filter(id => id !== `task${taskId}`);
+        });
+
+        // Update the tasksPositions in Firebase
+        await fetch(BASE_URL + 'tasksPositions.json', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(tasksPositions),
+        });
+
+        console.log(`Task ${taskId} successfully removed from task positions.`);
+    } catch (error) {
+        console.error('Error updating task positions:', error);
+    }
+}
+
+
 
 async function deleteData(path = "") {
     try {
