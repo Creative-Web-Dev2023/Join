@@ -1,26 +1,28 @@
 function openModal(isEditMode = false, contact = null) {
   CreateSvg();
 
+  const submitButton = document.getElementById("submit-button");
+
+  // Entferne vorherige Eventlistener für den Button
+  submitButton.removeEventListener('click', submitContact);
+  submitButton.removeEventListener('click', updateContact);
+
   if (isEditMode && contact) {
-    // Edit Mode: Populate fields with the contact's data for editing
+    // Bearbeitungsmodus: Felder mit den Kontaktinformationen befüllen
     document.getElementById("name-input").value = contact.name;
     document.getElementById("email-input").value = contact.email;
     document.getElementById("phone-input").value = contact.phone;
 
-    // Show/Hide elements for editing mode
-    document.getElementById('contactEdit').style.display = 'block';  // Show "Edit contact"
-    document.getElementById('contactAdd').style.display = 'none';    // Hide "Add contact"
-    document.getElementById('contactAddSmall').style.display = 'none'; // Hide "Tasks are better with a team"
+    // Zeige den Bearbeitungsmodus
+    document.getElementById('contactEdit').style.display = 'block';
+    document.getElementById('contactAdd').style.display = 'none';
 
-    // Update submit button for edit mode
-    const submitButton = document.getElementById("submit-button");
     submitButton.textContent = "Update contact";
 
-    // Clear previous event listeners
-    submitButton.onclick = null;
-
-    // Add the new event listener for updating contact
-    submitButton.onclick = async function () {
+    // Füge den Update-Eventlistener hinzu
+    submitButton.addEventListener('click', function updateContact(event) {
+      event.preventDefault();
+      
       let updatedContactData = {
         name: document.getElementById("name-input").value,
         email: document.getElementById("email-input").value,
@@ -29,55 +31,81 @@ function openModal(isEditMode = false, contact = null) {
         emblem: generateEmblem(document.getElementById("name-input").value)
       };
 
-      await updateContactInFirebase(contact.id, updatedContactData);
-      closeModal();
-      await loadContacts();
-      displayContacts();
-    };
+      updateContactInFirebase(contact.id, updatedContactData).then(() => {
+        closeModal();
+        loadContacts().then(displayContacts);
+      });
+    });
   } else {
-    // Add Mode: Clear the input fields for adding a new contact
+    // Hinzufügen-Modus: Felder leeren
     document.getElementById("name-input").value = "";
     document.getElementById("email-input").value = "";
     document.getElementById("phone-input").value = "";
 
-    // Show/Hide elements for add mode
-    document.getElementById('contactEdit').style.display = 'none';  // Hide "Edit contact"
-    document.getElementById('contactAdd').style.display = 'block';  // Show "Add contact"
-    document.getElementById('contactAddSmall').style.display = 'block'; // Show "Tasks are better with a team"
+    // Zeige den Hinzufügen-Modus
+    document.getElementById('contactEdit').style.display = 'none';
+    document.getElementById('contactAdd').style.display = 'block';
 
-    // Update submit button for create mode
-    const submitButton = document.getElementById("submit-button");
     submitButton.textContent = "Create contact";
 
-    // Clear previous event listeners
-    submitButton.onclick = null;
-
-    // Add the new event listener for creating contact
-    submitButton.onclick = submitContact;
+    // Füge den Eventlistener zum Erstellen eines Kontakts hinzu
+    submitButton.addEventListener('click', submitContact);
   }
 
-  // Show the modal
+  // Zeige das Modal an
   document.getElementById("contact-modal").style.display = "block";
+}
+
+
+async function updateContact(event) {
+  event.preventDefault();
+
+  let updatedContactData = {
+    name: document.getElementById("name-input").value,
+    email: document.getElementById("email-input").value,
+    phone: document.getElementById("phone-input").value,
+    color: contact.color || generateRandomColor(),
+    emblem: generateEmblem(document.getElementById("name-input").value)
+  };
+
+  await updateContactInFirebase(contact.id, updatedContactData);
+  closeModal();
+  await loadContacts();
+  displayContacts();
 }
 
 
 
 function openEditContactModal(contact) {
-  contactLogo(contact)
-  // Populate fields with the contact's data for editing
+  contactLogo(contact);
+
+  const submitButton = document.getElementById("submit-button");
+  
+  // Entferne vorherige Eventlistener
+  submitButton.removeEventListener('click', submitContact);
+  submitButton.removeEventListener('click', updateContact);
+
+  // Felder mit den Kontaktinformationen befüllen
   document.getElementById("name-input").value = contact.name;
   document.getElementById("email-input").value = contact.email;
   document.getElementById("phone-input").value = contact.phone;
 
-  document.getElementById('contactEdit').style.display = 'block';  // Show "Edit contact"
-  document.getElementById('contactAdd').style.display = 'none';    // Hide "Add contact"
-  document.getElementById('contactAddSmall').style.display = 'none'; // Hide "Tasks are better with a team"
-  
+  // Zeige den Bearbeitungsmodus
+  document.getElementById('contactEdit').style.display = 'block';
+  document.getElementById('contactAdd').style.display = 'none';
+  document.getElementById('contactAddSmall').style.display = 'none';
 
-  // Change the submit button text and functionality
-  const submitButton = document.getElementById("submit-button");
   submitButton.textContent = "Update contact";
-  submitButton.onclick = async function () {
+
+  // Eventlistener hinzufügen für das Aktualisieren
+  submitButton.addEventListener('click', async function(event) {
+    event.preventDefault(); // Verhindere das Standardverhalten
+
+    // Überprüfe die Validierung, bevor der Kontakt aktualisiert wird
+    if (!validateForm()) {
+      return; // Stoppe hier, wenn die Validierung fehlschlägt
+    }
+
     let updatedContactData = {
       name: document.getElementById("name-input").value,
       email: document.getElementById("email-input").value,
@@ -90,11 +118,45 @@ function openEditContactModal(contact) {
     closeModal();
     await loadContacts();
     displayContacts();
-  };
+  });
 
-  // Open the modal for editing
+  // Zeige das Modal an
   document.getElementById("contact-modal").style.display = "block";
 }
+
+function validateForm() {
+  let isValid = true;
+
+  const contactName = document.getElementById("name-input").value;
+  const contactEmail = document.getElementById("email-input").value;
+  const contactPhone = document.getElementById("phone-input").value;
+
+  // Entferne vorherige Fehlerklassen
+  document.getElementById("name-input").classList.remove("input-error");
+  document.getElementById("email-input").classList.remove("input-error");
+  document.getElementById("phone-input").classList.remove("input-error");
+
+  // Name validieren
+  if (!contactName) {
+    document.getElementById("name-input").classList.add("input-error");
+    isValid = false;
+  }
+
+  // E-Mail validieren
+  if (!contactEmail || !isValidEmail(contactEmail)) {
+    document.getElementById("email-input").classList.add("input-error");
+    isValid = false;
+  }
+
+  // Telefonnummer validieren
+  if (!contactPhone || !isValidPhoneNumber(contactPhone)) {
+    document.getElementById("phone-input").classList.add("input-error");
+    isValid = false;
+  }
+
+  return isValid;  // Gibt true zurück, wenn alles gültig ist, ansonsten false
+}
+
 
 
 function closeModal() {
@@ -102,59 +164,66 @@ function closeModal() {
   window.location.href = '/html/contacts.html';
 }
 
-// Validate email with specific rules for .de or .com
-function isValidEmail(email) {
-  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(de|com)$/;
-  return emailPattern.test(email);
-}
-
-// Validate phone number (e.g., allow digits, spaces, +, -, or parentheses)
 function isValidPhoneNumber(phone) {
-  const phonePattern = /^[0-9+\s-()]+$/;  // Allow digits, +, spaces, hyphens, and parentheses
+  const phonePattern = /^[0-9+\s-()]+$/;
   return phonePattern.test(phone);
 }
 
-async function submitContact() {
+async function submitContact(event) {
+  event.preventDefault();  // Verhindere das Standard-Formularverhalten
+
   let contactName = document.getElementById("name-input").value;
   let contactEmail = document.getElementById("email-input").value;
   let contactPhone = document.getElementById("phone-input").value;
 
-  // Check if all required fields are filled
-  if (!contactName || !contactEmail || !contactPhone) {
-      alert("Please fill out all required fields.");
-      return; // Stop the function if any required field is missing
+  // Entferne vorherige Fehlerklassen
+  document.getElementById("name-input").classList.remove("input-error");
+  document.getElementById("email-input").classList.remove("input-error");
+  document.getElementById("phone-input").classList.remove("input-error");
+
+  let isValid = true;
+
+  // Name validieren
+  if (!contactName) {
+    document.getElementById("name-input").classList.add("input-error");
+    isValid = false;
   }
 
-  // Check for a valid email format (.de or .com)
-  if (!isValidEmail(contactEmail)) {
-      alert("Please enter a valid email address ending with .de or .com.");
-      return; // Stop the function if the email is not valid
+  // E-Mail validieren
+  if (!contactEmail || !isValidEmail(contactEmail)) {
+    document.getElementById("email-input").classList.add("input-error");
+    isValid = false;
   }
 
-  // Check for a valid phone number format (example: allow only digits and +, space, hyphen)
-  if (!isValidPhoneNumber(contactPhone)) {
-      alert("Please enter a valid phone number.");
-      return; // Stop the function if the phone number is not valid
+  // Telefonnummer validieren
+  if (!contactPhone || !isValidPhoneNumber(contactPhone)) {
+    document.getElementById("phone-input").classList.add("input-error");
+    isValid = false;
   }
 
-  // If all validations pass, create the contact data
+  // Wenn die Validierung fehlschlägt, breche die Funktion ab und lasse das Modal offen
+  if (!isValid) {
+    return;
+  }
+
+  // Wenn die Validierung erfolgreich ist, erstelle die Kontaktdaten
   let contactData = {
-      name: contactName,
-      email: contactEmail,
-      phone: contactPhone,
-      color: generateRandomColor(),
-      emblem: generateEmblem(contactName)
+    name: contactName,
+    email: contactEmail,
+    phone: contactPhone,
+    color: generateRandomColor(),
+    emblem: generateEmblem(contactName)
   };
 
-  // Add contact data to Firebase
+  // Daten an Firebase senden
   await addContactToFirebase(contactData);
 
-  // Clear the input fields
+  // Felder leeren
   document.getElementById("name-input").value = "";
   document.getElementById("email-input").value = "";
   document.getElementById("phone-input").value = "";
 
-  // Close the modal and reload contacts
+  // Modal schließen und Kontakte neu laden
   closeModal();
   await loadContacts();
   displayContacts();
@@ -163,9 +232,12 @@ async function submitContact() {
 
 
 
+
+
+
+
 async function addContactToFirebase(contactData) {
-  let BASE_URL =
-    "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
+  let BASE_URL = "https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/";
   try {
     let response = await fetch(BASE_URL + "contacts.json", {
       method: "POST",
@@ -175,15 +247,15 @@ async function addContactToFirebase(contactData) {
       body: JSON.stringify(contactData),
     });
     if (!response.ok) {
-      console.error("Failed to set data to Firebase:", response.statusText);
-      return {};
+      throw new Error("Failed to set data to Firebase: " + response.statusText);
     }
     return await response.json();
   } catch (error) {
     console.error("Error setting data:", error);
-    return {};
+    throw error;
   }
 }
+
 
 function makeContactsClickable() {
   contacts.forEach((contact) => {
@@ -285,15 +357,19 @@ document.getElementById("back-button").addEventListener('click', showContactList
 
 document.getElementById("submit-button").addEventListener("click", function (event) {
   const contactEmail = document.getElementById("email-input").value;
+  
+  // Entferne vorherige Fehleranzeige
+  document.getElementById("email-input").classList.remove("input-error");
 
   if (!isValidEmail(contactEmail)) {
-      alert("Please enter a valid email address ending with .de or .com.");
-      event.preventDefault(); // Prevent form submission
+      document.getElementById("email-input").classList.add("input-error");
+      event.preventDefault(); // Verhindere das Absenden
       return;
   }
 
-  // Continue with form submission if email is valid
+  // Wenn die E-Mail gültig ist, lasse das Formular abschicken
 });
+
 
 function isValidEmail(email) {
   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(de|com)$/;
@@ -303,19 +379,23 @@ function isValidEmail(email) {
 
 function openAddContactModal() {
   CreateSvg();
+
   // Clear the input fields for adding a new contact
   document.getElementById("name-input").value = "";
   document.getElementById("email-input").value = "";
   document.getElementById("phone-input").value = "";
 
-  // Change the submit button text and functionality
+  // Passe den Submit-Button für den Hinzufügen-Modus an
   const submitButton = document.getElementById("submit-button");
   submitButton.textContent = "Create contact";
-  submitButton.onclick = submitContact;
+
+  // Füge den Eventlistener hinzu, wenn das Formular abgeschickt wird
+  submitButton.addEventListener('click', submitContact);
 
   // Open the modal for adding a new contact
   document.getElementById("contact-modal").style.display = "block";
 }
+
 
 
 async function updateContactInFirebase(contactId, updatedContactData) {
@@ -345,7 +425,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 document.getElementById("add-contact-button").onclick = openModal;
 document.getElementById("cancel-button").onclick = closeModal;
-document.getElementById("submit-button").onclick = submitContact;
 document.getElementById("close-modal-button").onclick = closeModal;
 
 async function deleteContactFromFirebase(contactId) {
