@@ -11,7 +11,6 @@ function createTaskElement(task, index) {
     const subtasks = subtask ? subtask.split(',').filter(st => st.trim() !== '') : [];
     const subtaskCount = subtasks.length;
     const priorityImage = getPriorityImage(priority);
-
     const taskElement = createTaskDiv(index);
     taskElement.innerHTML = HtmlTaskElement(
         getHeaderColor(userStoryText),
@@ -121,7 +120,8 @@ async function loadBoard() {
         "3": "content-done"
     };
 
-    tasks.forEach((task, index) => {
+    for (let index = 0; index < tasks.length; index++) {
+        const task = tasks[index];
         const taskElement = createTaskElement(task, index);
         const columnId = findColumnForTask(task.id, tasksPositions);
 
@@ -138,17 +138,12 @@ async function loadBoard() {
             console.error(`No mapping found for column ID: ${columnId}`);
         }
 
-        // Update the progress bar and the checkbox UI after loading each task
-        updateProgress(task.id);
-    });
+        await updateProgressBarFromFirebase(task.id);  // Update progress bar and subtask count
+    }
 
-    // Call the existing saveTasks function to update Firebase with task positions
+    // Save tasks to Firebase
     saveTasks();
 }
-
-
-
-
 
 async function fetchTasksPositions() {
     const response = await fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/.json');
@@ -342,22 +337,34 @@ async function saveSubtaskProgress(taskId) {
 
 
 async function loadSubtaskProgress(taskId) {
-    const savedStatuses = await getSavedStatusesFromFirebase(taskId); // Load saved statuses (true/false) from Firebase
-    const subtaskImages = getSubtaskImages(taskId); // Get the subtask images (checkboxes)
+    // Fetch saved statuses from Firebase
+    const savedStatuses = await getSavedStatusesFromFirebase(taskId);
 
-    if (subtaskImages.length > 0) {
-        applySavedStatuses(subtaskImages, savedStatuses); // Update the checkboxes based on saved statuses
-        updateProgressBarFromFirebase(taskId); // Update the progress bar based on the saved statuses
+    // Get subtask images (checkboxes) for the task
+    const subtaskImages = getSubtaskImages(taskId);
+
+    // If no statuses exist in Firebase, initialize all to false
+    if (!savedStatuses || savedStatuses.length === 0) {
+        console.log(`Initializing subtasks for task ${taskId}...`);
+
+        // Initialize all subtasks to false (unchecked)
+        const initialStatuses = Array(subtaskImages.length).fill(false);
+
+        // Save the initial statuses to Firebase
+        await saveSubtaskProgress(taskId, initialStatuses);
+
+        // Apply the initialized statuses to the UI
+        applySavedStatuses(subtaskImages, initialStatuses);
     } else {
-        document.addEventListener('DOMContentLoaded', () => {
-            const subtaskImages = getSubtaskImages(taskId);
-            if (subtaskImages.length > 0) {
-                applySavedStatuses(subtaskImages, savedStatuses);
-                updateProgressBarFromFirebase(taskId);
-            }
-        });
+        // Apply the saved statuses to the UI
+        applySavedStatuses(subtaskImages, savedStatuses);
     }
+
+    // Update the progress bar and subtask counter based on the loaded or initialized statuses
+    updateProgressBarFromFirebase(taskId);
 }
+
+
 
 
 async function getSavedStatusesFromFirebase(taskId) {
@@ -610,7 +617,11 @@ function addSubtasks(taskId) {
     const index = appendSubtaskToList(taskId, subtaskText);
     clearSubtaskInput();
     updateSubtasksInFirebase(taskId);
+
+    // Update the subtask progress immediately after adding a new subtask
+    updateProgress(taskId);  // This will update the progress bar and count right away
 }
+
 
 function getSubtaskInputValue() {
     const input = document.getElementById('subtask-input');
@@ -716,22 +727,19 @@ function putOnFb(taskId) {
     const newSubtasks = collectNewSubtasks();
     const subtaskStatuses = newSubtasks.map(() => false);  // Initialize all subtasks as unchecked (false)
 
-    mergeAndSaveSubtasks(taskId, newSubtasks, taskData)
+    // Add subtasks and statuses to the taskData
+    taskData.subtask = newSubtasks.join(',');
+    taskData.subtaskStatuses = subtaskStatuses;
+
+    // Save the task and subtasks to Firebase
+    saveTaskToFb(taskId, taskData)
         .then(() => {
-            // Send the subtask statuses to Firebase
-            return fetch(BASE_URL + `tasks/task${taskId}/subtaskStatuses.json`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(subtaskStatuses)
-            });
-        })
-        .then(() => {
-            // After subtasks are saved, add task to column0
+            // After task is saved, add it to column0
             addToColumn0(taskId);
         })
         .catch(console.error);
+
+    window.location.href = "/html/board.html";
 }
 
 
@@ -772,10 +780,10 @@ function collectTaskData() {
         description: document.getElementById('description-input').value,
         date: document.getElementById('date').value,
         category: document.getElementById('category').value,
-        priority: document.querySelector('.prio-button.clicked')?.alt || 'low'
+        priority: document.querySelector('.prio-button.clicked')?.alt || '', // Ensure priority is saved or left blank
+        assigned: getSelectedContacts()  // Collect assigned people
     };
 }
-
 function validateTaskData({ title, date, category }) {
     return title && date && category;
 }

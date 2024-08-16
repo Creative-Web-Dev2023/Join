@@ -37,14 +37,21 @@ function init(taskId) {
 
 function putOnFB(taskId) {
   const selectedContacts = getSelectedContacts();
+
+  // Initialize subtask statuses to false for each subtask
+  const subtaskStatuses = listtask.map(() => false); // Array of false, one for each subtask
+
+  // Send task data to Firebase
   putData(`tasks/task${taskId}/title`, `${text.value}`);
   putData(`tasks/task${taskId}/description`, `${description.value}`);
   putData(`tasks/task${taskId}/assigned`, selectedContacts);
   putData(`tasks/task${taskId}/date`, `${date.value}`);
   putData(`tasks/task${taskId}/category`, `${category.value}`);
   putData(`tasks/task${taskId}/priority`, `${priority}`);
-  putData(`tasks/task${taskId}/subtask`, `${listtask}`);
+  putData(`tasks/task${taskId}/subtask`, listtask.join(','));  // Save subtasks as a comma-separated string
+  putData(`tasks/task${taskId}/subtaskStatuses`, subtaskStatuses);  // Save the subtask statuses
 }
+
 
 function getButtonData() {
   document.querySelectorAll('.prio-button').forEach(function (button) {
