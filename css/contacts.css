@@ -13,32 +13,34 @@ body {
 }
 
 .edit-p-contact {
-font-size: 61px;
-font-weight: 700;
-line-height: 73.2px;
-text-align: left;
-color: white;
+  font-size: 61px;
+  font-weight: 700;
+  line-height: 73.2px;
+  text-align: left;
+  color: white;
 }
 
 .add-p-contact {
-font-size: 61px;
-font-weight: 700;
-line-height: 73.2px;
-text-align: left;
-color: white;
+  font-size: 61px;
+  font-weight: 700;
+  line-height: 73.2px;
+  text-align: left;
+  color: white;
 }
 
 .border-p-contact {
   border: 3px solid #29ABE2;
   width: 30%;
 }
+
 .create-p-contact {
-font-size: 27px;
-font-weight: 400;
-line-height: 32.4px;
-text-align: left;
-color: white;
+  font-size: 27px;
+  font-weight: 400;
+  line-height: 32.4px;
+  text-align: left;
+  color: white;
 }
+
 main {
   padding-left: 232px !important;
   padding-top: 116px !important;
@@ -667,21 +669,27 @@ main h2 {
     padding-left: 230px;
     padding-top: 130px;
   }
-.contact-logo {
-  position: absolute;
-  z-index: 9999;
-  top: 34vh;
-}
-  .modal-content {
-    width: 50vh;
-    height: 80%;
+
+  .button-left {
+    display: none;
   }
 
-.add-contact-left-section-container-logo {
-  display: none;
-}
- 
-.add-contact-container {
+  .contact-logo {
+    position: absolute;
+    z-index: 9999;
+    top: 34vh;
+  }
+
+  .modal-content {
+    width: 50vh;
+    height: 85%;
+  }
+
+  .add-contact-left-section-container-logo {
+    display: none;
+  }
+
+  .add-contact-container {
     flex-direction: column;
     height: 100%;
   }
@@ -706,17 +714,23 @@ main h2 {
     display: flex;
     align-items: center;
   }
+
   .add-contact-right-section-2 {
     padding: 0px;
     padding-top: 80px;
+    width: 80%;
   }
+
   .close-button-container {
     display: none;
   }
+
   .contacts-frame {
     width: 355px;
   }
-
+.add-contact-buttons {
+  margin: 0;
+}
   .contacts-border {
     transform: rotate(-90deg);
     order: 1;
@@ -783,14 +797,33 @@ main h2 {
     .add-contact-right-section {
       padding: 32px;
     }
+
+    .contact-logo {
+      top: 31%;
+    }
   }
 
-  @media (max-width: 500px) {
+  @media (max-width: 800px) {
     .modal-content {
       width: 320px;
     }
+    .input-field {
+      margin-bottom: 5%;
+    }
     .add-contact-left-section-container {
       padding: 5px;
+    }
+
+    .create-p-contact {
+      font-size: 20px;
+    }
+    .edit-p-contact {
+      margin: 10px;
+      font-size: 40px;
+    }
+    .add-p-contact {
+      margin: 10px;
+      font-size: 40px;
     }
   }
 }
