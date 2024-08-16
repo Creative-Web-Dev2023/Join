@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
             updateNoTasksMessage(column);
         });
 
-        // Start observing the column for changes in its children
+        
         observer.observe(column.querySelector('.content'), { childList: true });
 
-        // Initial check to update the message on page load
+        
         updateNoTasksMessage(column);
     });
 });
@@ -31,8 +31,8 @@ function drop(event) {
     if (targetColumn) {
         const sourceColumn = task.closest('.kanban-column');
         targetColumn.querySelector('.content').appendChild(task);
-        updateNoTasksMessage(sourceColumn); // Update source column
-        updateNoTasksMessage(targetColumn); // Update target column
+        updateNoTasksMessage(sourceColumn); 
+        updateNoTasksMessage(targetColumn); 
         saveTasks();
     }
 }
@@ -46,7 +46,7 @@ function saveTasks() {
         tasksData[`column${index}`] = Array.from(tasks).map(task => task.id);
     });
 
-    // Daten über die REST API in Firebase speichern
+    
     fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions.json', {
         method: 'PUT',
         headers: {
@@ -121,7 +121,7 @@ function hidePopup() {
     document.body.style.overflowY = "scroll";
 }
 
-// Initialisiere die Event-Handler
+
 function initializePopupHandlers() {
     const closeButton = document.getElementById("closeButton");
     const overlay = document.getElementById("overlay");
@@ -147,7 +147,7 @@ function closeTaskEditPopup() {
 
 function checkWindowSize() {
     if (window.innerWidth <= 769) {
-      // Die Seite wird umgeleitet, wenn die Breite kleiner als 769px ist
+      
       window.location.href = "/html/add_task.html";
     } else {
         showPopup();

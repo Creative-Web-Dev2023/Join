@@ -31,27 +31,27 @@ function login() {
         return;
     }
 
-    // Daten von der Firebase-Datenbank abrufen
+    
     fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/contacts.json')
     .then(response => response.json())
     .then(data => {
         let userFound = false;
         
-        // Überprüfen, ob die Anmeldedaten mit einem Benutzer übereinstimmen
+        
         for (let key in data) {
             if (data[key].email === email && data[key].password === password) {
                 userFound = true;
-                // Speichere den Namen des Benutzers und setze isGuest auf false
+                
                 localStorage.setItem('fullName', data[key].name);
                 localStorage.setItem('isGuest', 'false');
 
-                handleLoginSuccess(data[key], rememberMe); // Erfolgreiche Anmeldung
+                handleLoginSuccess(data[key], rememberMe); 
                 break;
             }
         }
 
         if (!userFound) {
-            displayErrorMessage('email', 'Invalid email or password.'); // Fehlerhafte Anmeldung
+            displayErrorMessage('email', 'Invalid email or password.'); 
         }
     })
     .catch(error => {
@@ -88,7 +88,7 @@ function validatePassword(password) {
 }
 
 function handleLoginSuccess(user, rememberMe) {
-    const token = btoa(`${user.email}:${user.password}`); // Einfache Kodierung als Token (nur ein Beispiel)
+    const token = btoa(`${user.email}:${user.password}`); 
     
     if (rememberMe) {
         localStorage.setItem('authToken', token);
@@ -96,7 +96,7 @@ function handleLoginSuccess(user, rememberMe) {
         sessionStorage.setItem('authToken', token);
     }
 
-    // Leite den Benutzer zur Zusammenfassungsseite weiter
+    
     window.location.href = './html/summary.html';
 }
 

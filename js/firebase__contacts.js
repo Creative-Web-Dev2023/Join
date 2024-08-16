@@ -4,7 +4,7 @@ let contacts = [];
 
 async function init() {
     await loadContacts();
-    displayContacts(); // Kontakte anzeigen   
+    displayContacts();
 }
 
 async function loadContacts() {
@@ -81,7 +81,7 @@ function displayContacts() {
             contentElement.innerHTML += renderContactsHtml(contact);
         }
     });
-    makeContactsClickable(); // Event-Listener hinzufügen
+    makeContactsClickable();
 }
 
 
@@ -106,28 +106,28 @@ function renderContactsHtml(contact) {
 }
 
 async function deleteThis(contactId) {
-  
-    // Call the deleteContactFromFirebase function to remove the contact
+
+
     await deleteContactFromFirebase(contactId);
-  
-    // Reload contacts and update the UI
+
+
     await loadContacts();
     displayContacts();
-  }
-  
-  function editThis(contactId) {
-    // Find the contact to be edited by its ID
+}
+
+function editThis(contactId) {
+
     const contact = contacts.find(c => c.id === contactId);
-  
+
     if (!contact) {
-      console.error("Contact not found for editing.");
-      return;
+        console.error("Contact not found for editing.");
+        return;
     }
-  
-    // Open the modal in edit mode and pass the contact to be edited
+
+
     openEditContactModal(contact);
-  }
-  
+}
+
 async function getDataFromFirebase(path = '') {
     try {
         let response = await fetch(BASE_URL + path + '.json');

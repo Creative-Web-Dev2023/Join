@@ -124,7 +124,7 @@ async function loadBoard() {
         const taskElement = createTaskElement(task, index);
         const columnId = findColumnForTask(task.id, tasksPositions);
 
-        // Append the task to the correct column based on task positions
+        
         const columnContentId = columnMapping[columnId];
         if (columnContentId) {
             const columnContent = document.getElementById(columnContentId);
@@ -137,10 +137,10 @@ async function loadBoard() {
             console.error(`No mapping found for column ID: ${columnId}`);
         }
 
-        await updateProgressBarFromFirebase(task.id);  // Update progress bar and subtask count
+        await updateProgressBarFromFirebase(task.id);  
     }
 
-    // Save tasks to Firebase
+    
     saveTasks();
 }
 
@@ -150,21 +150,21 @@ async function fetchTasksPositions() {
 }
 
 function findColumnForTask(taskId, tasksPositions) {
-    // Überprüfen, ob tasksPositions vorhanden und gültig ist
+    
     if (!tasksPositions || Object.keys(tasksPositions).length === 0) {
         console.error(`No task positions found, defaulting task ${taskId} to column 0`);
-        return "0"; // Fallback auf Spalte 0 (To Do), wenn keine Positionen vorhanden sind
+        return "0"; 
     }
 
-    // Rest des Codes bleibt gleich
+    
     for (const [columnKey, taskIds] of Object.entries(tasksPositions)) {
         if (taskIds.includes(taskId)) {
-            return columnKey.replace('column', ''); // Gibt die entsprechende Spaltennummer zurück
+            return columnKey.replace('column', ''); 
         }
     }
 
     console.error(`Task ID: ${taskId} not found in any column, defaulting to column 0`);
-    return "0"; // Fallback auf Spalte 0 (To Do)
+    return "0"; 
 }
 
 async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
@@ -176,7 +176,7 @@ async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(isChecked) // Speichere den Zustand: true oder false
+            body: JSON.stringify(isChecked) 
         });
 
         if (!response.ok) {
@@ -185,7 +185,7 @@ async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
 
     } catch (error) {
         console.error('Fehler beim Speichern des Checkbox-Zustands in Firebase:', error);
-        throw error; // Fehler weiterwerfen, damit die obere Funktion den Fehler ebenfalls behandeln kann
+        throw error; 
     }
 }
 
@@ -193,14 +193,14 @@ async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
 async function processTaskWithSubtasks(task, index) {
     const taskElement = createTaskElement(task, index);
 
-    // Lade die Subtasks für diesen Task
+    
     const subtaskText = await subtaskFB(`tasks/task${task.id}/subtask`);
     if (subtaskText) {
         const subtasksContainer = document.createElement('div');
         taskElement.appendChild(subtasksContainer);
 
-        // Aktualisiere die Progress Bar und den Subtask-Zähler direkt nach dem Laden der Subtasks
-        await updateProgressBarFromFirebase(task.id); // Nutze die richtige Task-ID
+        
+        await updateProgressBarFromFirebase(task.id); 
     }
 
     return taskElement;
@@ -236,19 +236,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const observer = new MutationObserver(() => {
             const tasks = column.querySelectorAll('.task');
             tasks.forEach(task => {
-                const taskId = task.id.replace('task', ''); // Extrahiere die Task-ID
-                updateProgressBarFromFirebase(taskId); // Aktualisiere die Progress Bar
+                const taskId = task.id.replace('task', ''); 
+                updateProgressBarFromFirebase(taskId); 
             });
         });
 
-        // Überwache Änderungen in der Struktur der Kinder
+        
         observer.observe(column, { childList: true });
 
-        // Initiale Aktualisierung der Progress Bars
+        
         const tasks = column.querySelectorAll('.task');
         tasks.forEach(task => {
-            const taskId = task.id.replace('task', ''); // Extrahiere die Task-ID
-            updateProgressBarFromFirebase(taskId); // Aktualisiere die Progress Bar
+            const taskId = task.id.replace('task', ''); 
+            updateProgressBarFromFirebase(taskId); 
         });
     });
 });
@@ -308,13 +308,13 @@ async function saveSubtaskProgress(taskId) {
     const subtaskImages = document.querySelectorAll(`#popup-task${taskId} .subtask img`);
     const subtaskStatuses = Array.from(subtaskImages).map(img => img.src.includes('checkesbox.png'));
 
-    // Erstelle den Pfad zu Firebase für die Subtask-Statuse
+    
     const firebasePath = `tasks/task${taskId}/subtaskStatuses`;
 
-    // Speichere die Subtask-Statuse in Firebase
+    
     try {
         await fetch(BASE_URL + firebasePath + ".json", {
-            method: "PUT", // Oder "PATCH", wenn du die Daten nur aktualisieren möchtest
+            method: "PUT", 
             headers: {
                 "Content-Type": "application/json"
             },
@@ -328,29 +328,29 @@ async function saveSubtaskProgress(taskId) {
 
 
 async function loadSubtaskProgress(taskId) {
-    // Fetch saved statuses from Firebase
+    
     const savedStatuses = await getSavedStatusesFromFirebase(taskId);
 
-    // Get subtask images (checkboxes) for the task
+    
     const subtaskImages = getSubtaskImages(taskId);
 
-    // If no statuses exist in Firebase, initialize all to false
+    
     if (!savedStatuses || savedStatuses.length === 0) {
 
-        // Initialize all subtasks to false (unchecked)
+        
         const initialStatuses = Array(subtaskImages.length).fill(false);
 
-        // Save the initial statuses to Firebase
+        
         await saveSubtaskProgress(taskId, initialStatuses);
 
-        // Apply the initialized statuses to the UI
+        
         applySavedStatuses(subtaskImages, initialStatuses);
     } else {
-        // Apply the saved statuses to the UI
+        
         applySavedStatuses(subtaskImages, savedStatuses);
     }
 
-    // Update the progress bar and subtask counter based on the loaded or initialized statuses
+    
     updateProgressBarFromFirebase(taskId);
 }
 
@@ -360,7 +360,7 @@ async function loadSubtaskProgress(taskId) {
 async function getSavedStatusesFromFirebase(taskId) {
     const response = await fetch(BASE_URL + `tasks/task${taskId}/subtaskStatuses.json`);
     const savedStatuses = await response.json();
-    return savedStatuses || []; // Return an empty array if no statuses are found
+    return savedStatuses || []; 
 }
 
 function applySavedStatuses(subtaskImages, savedStatuses) {
@@ -373,16 +373,16 @@ async function fetchTasks() {
         const response = await fetch(BASE_URL + 'tasks.json');
         const data = await response.json();
 
-        // Check if tasks exist
+        
         if (!data) {
             console.error('No tasks data found');
             return [];
         }
 
-        // Create a dynamic list of tasks
+        
         const tasks = Object.keys(data).map(taskId => ({
-            id: taskId, // Use the dynamic task ID
-            ...data[taskId] // Spread the rest of the task data
+            id: taskId, 
+            ...data[taskId] 
         }));
 
         return tasks;
@@ -407,7 +407,7 @@ async function openPopup(taskId) {
 
     displayPopup(taskId, headerBackgroundColor, taskData, priorityImage, assignedHtml, subtasksHtml);
 
-    // Lade die Subtask-Progress-Daten aus der Datenbank und setze die Checkbox-Bilder
+    
     await loadSubtaskProgress(taskId);
 }
 
@@ -468,26 +468,26 @@ function generateAssignedHtml2(assignedPeople) {
 }
 
 
-let isSaving = false; // Flag zum Überprüfen, ob gerade gespeichert wird
+let isSaving = false; 
 
 async function toggleCheckbox(index, taskId) {
-    if (isSaving) return; // Wenn gerade gespeichert wird, keine weiteren Klicks zulassen
+    if (isSaving) return; 
 
-    isSaving = true; // Setze das Flag auf true, um anzuzeigen, dass jetzt gespeichert wird
+    isSaving = true; 
 
     const imgElement = document.getElementById(`popup-subtask-${index}`);
-    const isChecked = imgElement.src.includes('checkbox.png'); // Überprüfen, ob das aktuelle Bild die nicht markierte Checkbox ist
+    const isChecked = imgElement.src.includes('checkbox.png'); 
 
-    // Ändere das Bild der Checkbox basierend auf dem aktuellen Zustand
+    
     imgElement.src = isChecked ? '/assets/img/img_add_task/checkesbox.png' : '/assets/img/img_add_task/checkbox.png';
 
-    // Speichere den neuen Zustand der Checkbox in Firebase
+    
     await saveCheckboxState(taskId, index, !isChecked);
 
-    // Aktualisiere den Fortschritt erst nach der erfolgreichen Speicherung
+    
     updateProgress(taskId);
 
-    isSaving = false; // Setze das Flag zurück, nachdem das Speichern abgeschlossen ist
+    isSaving = false; 
 }
 
 
@@ -542,7 +542,7 @@ async function openEdit(taskId) {
 
 
 
-    // Reattach event listeners for prio buttons
+    
     document.querySelectorAll('.prio-button').forEach(function (button) {
         button.addEventListener('mouseover', handleMouseOver);
         button.addEventListener('mouseout', handleMouseOut);
@@ -602,8 +602,8 @@ function addSubtasks(taskId) {
     clearSubtaskInput();
     updateSubtasksInFirebase(taskId);
 
-    // Update the subtask progress immediately after adding a new subtask
-    updateProgress(taskId);  // This will update the progress bar and count right away
+    
+    updateProgress(taskId);  
 }
 
 
@@ -706,16 +706,16 @@ function putOnFb(taskId) {
     if (!validateTaskData(taskData)) return;
 
     const newSubtasks = collectNewSubtasks();
-    const subtaskStatuses = newSubtasks.map(() => false);  // Initialize all subtasks as unchecked (false)
+    const subtaskStatuses = newSubtasks.map(() => false);  
 
-    // Add subtasks and statuses to the taskData
+    
     taskData.subtask = newSubtasks.join(',');
     taskData.subtaskStatuses = subtaskStatuses;
 
-    // Save the task and subtasks to Firebase
+    
     saveTaskToFb(taskId, taskData)
         .then(() => {
-            // After task is saved, add it to column0
+            
             addToColumn0(taskId);
         })
 
@@ -724,19 +724,19 @@ function putOnFb(taskId) {
 
 
 function addToColumn0(taskId) {
-    // Hole die aktuellen Tasks in column0
+    
     fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json')
         .then(response => response.json())
         .then(column0Tasks => {
-            // Wenn keine Tasks vorhanden sind, erstelle ein leeres Array
+            
             if (!Array.isArray(column0Tasks)) {
                 column0Tasks = [];
             }
 
-            // Füge die neue Task-ID hinzu
+            
             column0Tasks.push(`task${taskId}`);
 
-            // Speichere die aktualisierte Liste in Firebase
+            
             return fetch('https://join-ec9c5-default-rtdb.europe-west1.firebasedatabase.app/tasksPositions/column0.json', {
                 method: 'PUT',
                 headers: {
@@ -758,8 +758,8 @@ function collectTaskData() {
         description: document.getElementById('description-input').value,
         date: document.getElementById('date').value,
         category: document.getElementById('category').value,
-        priority: document.querySelector('.prio-button.clicked')?.alt || '', // Ensure priority is saved or left blank
-        assigned: getSelectedContacts()  // Collect assigned people
+        priority: document.querySelector('.prio-button.clicked')?.alt || '', 
+        assigned: getSelectedContacts()  
     };
 }
 function validateTaskData({ title, date, category }) {
@@ -887,7 +887,7 @@ function move() {
 }
 async function deleteTask(taskId) {
     try {
-        // Step 1: Delete the task from Firebase
+        
         const taskPath = `${BASE_URL}tasks/task${taskId}.json`;
         const deleteResponse = await fetch(taskPath, {
             method: 'DELETE',
@@ -898,7 +898,7 @@ async function deleteTask(taskId) {
         }
 
 
-        // Step 2: Fetch all remaining tasks
+        
         const tasksResponse = await fetch(`${BASE_URL}tasks.json`);
         const tasksData = await tasksResponse.json();
 
@@ -907,7 +907,7 @@ async function deleteTask(taskId) {
             return;
         }
 
-        // Step 3: Create an array of remaining tasks
+        
         let remainingTasks = [];
         Object.keys(tasksData).forEach((key) => {
             remainingTasks.push({
@@ -916,26 +916,26 @@ async function deleteTask(taskId) {
             });
         });
 
-        // Step 4: Sort the tasks by their current task number (if not already sorted)
+        
         remainingTasks.sort((a, b) => {
             const taskANumber = parseInt(a.id.replace('task', ''), 10);
             const taskBNumber = parseInt(b.id.replace('task', ''), 10);
             return taskANumber - taskBNumber;
         });
 
-        // Step 5: Renumber the remaining tasks starting from task1
+        
         const renumberedTasks = {};
         remainingTasks.forEach((task, index) => {
             const newTaskId = `task${index + 1}`;
-            renumberedTasks[newTaskId] = task.data;  // Add the task data to the new task ID
+            renumberedTasks[newTaskId] = task.data;  
         });
 
-        // Step 6: Clear the tasks in Firebase (optional, to avoid conflicts)
+        
         await fetch(`${BASE_URL}tasks.json`, {
             method: 'DELETE',
         });
 
-        // Step 7: Save renumbered tasks back to Firebase
+        
         await fetch(`${BASE_URL}tasks.json`, {
             method: 'PUT',
             headers: {
@@ -955,16 +955,16 @@ async function deleteTask(taskId) {
 
 async function updateTaskPositionsAfterDeletion(taskId) {
     try {
-        // Fetch current task positions from Firebase
+        
         const response = await fetch(BASE_URL + 'tasksPositions.json');
         const tasksPositions = await response.json();
 
-        // Loop through all columns and remove the task ID
+        
         Object.keys(tasksPositions).forEach(columnKey => {
             tasksPositions[columnKey] = tasksPositions[columnKey].filter(id => id !== `task${taskId}`);
         });
 
-        // Update the tasksPositions in Firebase
+        
         await fetch(BASE_URL + 'tasksPositions.json', {
             method: 'PUT',
             headers: {

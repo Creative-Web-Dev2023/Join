@@ -36,18 +36,18 @@ function init(taskId) {
 function putOnFB(taskId) {
   const selectedContacts = getSelectedContacts();
 
-  // Initialize subtask statuses to false for each subtask
-  const subtaskStatuses = listtask.map(() => false); // Array of false, one for each subtask
+  
+  const subtaskStatuses = listtask.map(() => false); 
 
-  // Send task data to Firebase
+  
   putData(`tasks/task${taskId}/title`, `${text.value}`);
   putData(`tasks/task${taskId}/description`, `${description.value}`);
   putData(`tasks/task${taskId}/assigned`, selectedContacts);
   putData(`tasks/task${taskId}/date`, `${date.value}`);
   putData(`tasks/task${taskId}/category`, `${category.value}`);
   putData(`tasks/task${taskId}/priority`, `${priority}`);
-  putData(`tasks/task${taskId}/subtask`, listtask.join(','));  // Save subtasks as a comma-separated string
-  putData(`tasks/task${taskId}/subtaskStatuses`, subtaskStatuses);  // Save the subtask statuses
+  putData(`tasks/task${taskId}/subtask`, listtask.join(','));  
+  putData(`tasks/task${taskId}/subtaskStatuses`, subtaskStatuses);  
 }
 
 
@@ -169,7 +169,7 @@ function updateSelectedContactsDisplay(selectedContacts) {
     const circle = document.createElement('div');
     circle.className = 'contact-circle';
     circle.style.backgroundColor = contact.color;
-    circle.textContent = contact.name.split(' ').map(word => word[0]).join('').toUpperCase(); // Use initials
+    circle.textContent = contact.name.split(' ').map(word => word[0]).join('').toUpperCase(); 
     circle.title = contact.name;
     container.appendChild(circle);
   });
@@ -187,7 +187,7 @@ async function getInfo(path = "contacts") {
     const contactKeys = Object.keys(contacts);
 
     for (let key of contactKeys) {
-      // Get the name and color, but skip if any of them is null
+      
       let contactData = await getNameAndColor(`contacts/${key}`);
       if (contactData.name && contactData.color) {
         const nameElement = document.getElementById('dropdown-content');
@@ -210,24 +210,24 @@ async function getNameAndColor(path = "") {
     let emblemResponse = await fetch(BASE_URL + path + "/emblem.json");
     let emblemData = await emblemResponse.json();
 
-    // Return the data if it's valid (i.e., not null)
+    
     if (nameData && colorData) {
       return {
         name: nameData,
         color: colorData,
-        emblem: emblemData || ""  // Emblem may not always exist
+        emblem: emblemData || ""  
       };
     } else {
-      return {};  // Return an empty object if data is null
+      return {};  
     }
   } catch (error) {
     console.error("Error fetching name or color:", error);
-    return {};  // Return an empty object in case of error
+    return {};  
   }
 }
 
 function displayNameColor(name, color, emblem) {
-  // This function returns the HTML to be inserted into the dropdown
+  
   return `
       <div class="dropdown-item" data-selected="false" onclick="toggleSelection(this)">
           <div class="circle" style="background-color:${color};"></div>
@@ -279,11 +279,11 @@ function addSubtask(taskId) {
   const input = document.getElementById('subtask-input');
   const subtaskText = input.value.trim();
 
-  if (subtaskText === '') return; // Prevent empty subtasks
+  if (subtaskText === '') return; 
 
   const subtaskList = document.getElementById('subtask-list');
 
-  // Split the input text by new lines to handle multiple subtasks
+  
   const subtasks = subtaskText.split('\n').filter(subtask => subtask.trim() !== '');
 
   subtasks.forEach((subtask, index) => {
@@ -307,7 +307,7 @@ function addSubtask(taskId) {
     subtaskList.appendChild(subtaskItem);
   });
 
-  // Clear the input field after adding the subtasks
+  
   input.value = '';
 
   pushsubtasks();
@@ -356,24 +356,24 @@ function pushAndDisplaySubtask() {
   const input = document.getElementById('subtask-input');
   const subtaskText = input.value.trim();
 
-  if (subtaskText === '') return; // Verhindert leere Subtasks
+  if (subtaskText === '') return; 
 
-  // Fügt die neue Subtask in das Array ein
+  
   subtask.push(subtaskText);
 
-  // Aktualisiert listtask, um den aktuellen Subtasks zu entsprechen
+  
   listtask = [...subtask];
 
-  // Zeigt die aktualisierte Subtask-Liste an
+  
   displaySubtasks();
 
-  // Leert das Eingabefeld
+  
   input.value = '';
 }
 
 function displaySubtasks() {
   const subtaskList = document.getElementById('subtask-list');
-  subtaskList.innerHTML = ''; // Leert die Liste vor dem Rendern
+  subtaskList.innerHTML = ''; 
 
   subtask.forEach((task, index) => {
     const subtaskItem = document.createElement('li');

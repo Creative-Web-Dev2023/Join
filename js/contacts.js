@@ -3,23 +3,23 @@ function openModal(isEditMode = false, contact = null) {
 
   const submitButton = document.getElementById("submit-button");
 
-  // Entferne vorherige Eventlistener für den Button
+
   submitButton.removeEventListener('click', submitContact);
   submitButton.removeEventListener('click', updateContact);
 
   if (isEditMode && contact) {
-    // Bearbeitungsmodus: Felder mit den Kontaktinformationen befüllen
+
     document.getElementById("name-input").value = contact.name;
     document.getElementById("email-input").value = contact.email;
     document.getElementById("phone-input").value = contact.phone;
 
-    // Zeige den Bearbeitungsmodus
+
     document.getElementById('contactEdit').style.display = 'block';
     document.getElementById('contactAdd').style.display = 'none';
 
     submitButton.textContent = "Update contact";
 
-    // Füge den Update-Eventlistener hinzu
+
     submitButton.addEventListener('click', function updateContact(event) {
       event.preventDefault();
 
@@ -37,22 +37,22 @@ function openModal(isEditMode = false, contact = null) {
       });
     });
   } else {
-    // Hinzufügen-Modus: Felder leeren
+
     document.getElementById("name-input").value = "";
     document.getElementById("email-input").value = "";
     document.getElementById("phone-input").value = "";
 
-    // Zeige den Hinzufügen-Modus
+
     document.getElementById('contactEdit').style.display = 'none';
     document.getElementById('contactAdd').style.display = 'block';
 
     submitButton.textContent = "Create contact";
 
-    // Füge den Eventlistener zum Erstellen eines Kontakts hinzu
+
     submitButton.addEventListener('click', submitContact);
   }
 
-  // Zeige das Modal an
+
   document.getElementById("contact-modal").style.display = "block";
 }
 
@@ -81,29 +81,29 @@ function openEditContactModal(contact) {
 
   const submitButton = document.getElementById("submit-button");
 
-  // Entferne vorherige Eventlistener
+
   submitButton.removeEventListener('click', submitContact);
   submitButton.removeEventListener('click', updateContact);
 
-  // Felder mit den Kontaktinformationen befüllen
+
   document.getElementById("name-input").value = contact.name;
   document.getElementById("email-input").value = contact.email;
   document.getElementById("phone-input").value = contact.phone;
 
-  // Zeige den Bearbeitungsmodus
+
   document.getElementById('contactEdit').style.display = 'block';
   document.getElementById('contactAdd').style.display = 'none';
   document.getElementById('contactAddSmall').style.display = 'none';
 
   submitButton.textContent = "Update contact";
 
-  // Eventlistener hinzufügen für das Aktualisieren
-  submitButton.addEventListener('click', async function (event) {
-    event.preventDefault(); // Verhindere das Standardverhalten
 
-    // Überprüfe die Validierung, bevor der Kontakt aktualisiert wird
+  submitButton.addEventListener('click', async function (event) {
+    event.preventDefault();
+
+
     if (!validateForm()) {
-      return; // Stoppe hier, wenn die Validierung fehlschlägt
+      return;
     }
 
     let updatedContactData = {
@@ -120,7 +120,7 @@ function openEditContactModal(contact) {
     displayContacts();
   });
 
-  // Zeige das Modal an
+
   document.getElementById("contact-modal").style.display = "block";
 }
 
@@ -131,30 +131,30 @@ function validateForm() {
   const contactEmail = document.getElementById("email-input").value;
   const contactPhone = document.getElementById("phone-input").value;
 
-  // Entferne vorherige Fehlerklassen
+
   document.getElementById("name-input").classList.remove("input-error");
   document.getElementById("email-input").classList.remove("input-error");
   document.getElementById("phone-input").classList.remove("input-error");
 
-  // Name validieren
+
   if (!contactName) {
     document.getElementById("name-input").classList.add("input-error");
     isValid = false;
   }
 
-  // E-Mail validieren
+
   if (!contactEmail || !isValidEmail(contactEmail)) {
     document.getElementById("email-input").classList.add("input-error");
     isValid = false;
   }
 
-  // Telefonnummer validieren
+
   if (!contactPhone || !isValidPhoneNumber(contactPhone)) {
     document.getElementById("phone-input").classList.add("input-error");
     isValid = false;
   }
 
-  return isValid;  // Gibt true zurück, wenn alles gültig ist, ansonsten false
+  return isValid;
 }
 
 function closeModal2() {
@@ -172,43 +172,43 @@ function isValidPhoneNumber(phone) {
 }
 
 async function submitContact(event) {
-  event.preventDefault();  // Verhindere das Standard-Formularverhalten
+  event.preventDefault();
 
   let contactName = document.getElementById("name-input").value;
   let contactEmail = document.getElementById("email-input").value;
   let contactPhone = document.getElementById("phone-input").value;
 
-  // Entferne vorherige Fehlerklassen
+
   document.getElementById("name-input").classList.remove("input-error");
   document.getElementById("email-input").classList.remove("input-error");
   document.getElementById("phone-input").classList.remove("input-error");
 
   let isValid = true;
 
-  // Name validieren
+
   if (!contactName) {
     document.getElementById("name-input").classList.add("input-error");
     isValid = false;
   }
 
-  // E-Mail validieren
+
   if (!contactEmail || !isValidEmail(contactEmail)) {
     document.getElementById("email-input").classList.add("input-error");
     isValid = false;
   }
 
-  // Telefonnummer validieren
+
   if (!contactPhone || !isValidPhoneNumber(contactPhone)) {
     document.getElementById("phone-input").classList.add("input-error");
     isValid = false;
   }
 
-  // Wenn die Validierung fehlschlägt, breche die Funktion ab und lasse das Modal offen
+
   if (!isValid) {
     return;
   }
 
-  // Wenn die Validierung erfolgreich ist, erstelle die Kontaktdaten
+
   let contactData = {
     name: contactName,
     email: contactEmail,
@@ -217,15 +217,15 @@ async function submitContact(event) {
     emblem: generateEmblem(contactName)
   };
 
-  // Daten an Firebase senden
+
   await addContactToFirebase(contactData);
 
-  // Felder leeren
+
   document.getElementById("name-input").value = "";
   document.getElementById("email-input").value = "";
   document.getElementById("phone-input").value = "";
 
-  // Modal schließen und Kontakte neu laden
+
   closeModal();
   await loadContacts();
   displayContacts();
@@ -266,7 +266,7 @@ function makeContactsClickable() {
     if (contactElement) {
       contactElement.addEventListener("click", (event) => {
         event.preventDefault();
-        showContactDetails(contact); // Show details and switch to the contact page
+        showContactDetails(contact);
       });
     }
   });
@@ -295,7 +295,7 @@ function showContactDetails(contact) {
   const contactPageElement = document.getElementById("contactPage");
   const backButtonElement = document.getElementById("back-button");
 
-  // Escape quotes to prevent issues
+
   const contactJsonString = JSON.stringify(contact).replace(/"/g, '&quot;');
 
   contactDetailElement.innerHTML = `
@@ -342,7 +342,7 @@ function showContactDetails(contact) {
 
   `;
 
-  // Im mobilen Modus die Contact Page anzeigen
+
   if (window.innerWidth <= 800) {
     document.querySelector('.contacts-frame').style.display = 'none';
     contactPageElement.style.display = 'block';
@@ -350,7 +350,7 @@ function showContactDetails(contact) {
   }
 }
 
-// Funktion zum Zurückgehen zur Kontaktliste
+
 function showContactList() {
   const contactPageElement = document.getElementById("contactPage");
   const backButtonElement = document.getElementById("back-button");
@@ -362,31 +362,31 @@ function showContactList() {
 
 function toggleMiniReg(element) {
   const miniReg = document.getElementById(`miniReg`);
-  
+
   if (miniReg.style.display === "none" || miniReg.style.display === "") {
-      miniReg.style.display = "block";
+    miniReg.style.display = "block";
   } else {
-      miniReg.style.display = "none";
+    miniReg.style.display = "none";
   }
 }
 
 
-// Event-Listener für den Zurück-Button
+
 document.getElementById("back-button").addEventListener('click', showContactList);
 
 document.getElementById("submit-button").addEventListener("click", function (event) {
   const contactEmail = document.getElementById("email-input").value;
 
-  // Entferne vorherige Fehleranzeige
+
   document.getElementById("email-input").classList.remove("input-error");
 
   if (!isValidEmail(contactEmail)) {
     document.getElementById("email-input").classList.add("input-error");
-    event.preventDefault(); // Verhindere das Absenden
+    event.preventDefault();
     return;
   }
 
-  // Wenn die E-Mail gültig ist, lasse das Formular abschicken
+
 });
 
 
@@ -399,19 +399,19 @@ function isValidEmail(email) {
 function openAddContactModal() {
   CreateSvg();
 
-  // Clear the input fields for adding a new contact
+
   document.getElementById("name-input").value = "";
   document.getElementById("email-input").value = "";
   document.getElementById("phone-input").value = "";
 
-  // Passe den Submit-Button für den Hinzufügen-Modus an
+
   const submitButton = document.getElementById("submit-button");
   submitButton.textContent = "Create contact";
 
-  // Füge den Eventlistener hinzu, wenn das Formular abgeschickt wird
+
   submitButton.addEventListener('click', submitContact);
 
-  // Open the modal for adding a new contact
+
   document.getElementById("contact-modal").style.display = "block";
 }
 
@@ -471,18 +471,18 @@ function makeContactsClickable() {
       contactElement.addEventListener("click", (event) => {
         event.preventDefault();
 
-        // Wenn bereits ein Kontakt ausgewählt wurde, entferne die Markierung
+
         if (selectedContact) {
           selectedContact.classList.remove("selected");
         }
 
-        // Markiere das aktuell geklickte Element
+
         contactElement.classList.add("selected");
 
-        // Speichere das aktuell ausgewählte Element
+
         selectedContact = contactElement;
 
-        // Optionale Funktion zum Anzeigen der Kontaktdetails
+
         showContactDetails(contact);
       });
     }

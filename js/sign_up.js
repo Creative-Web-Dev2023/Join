@@ -1,95 +1,95 @@
 
 
-// Überprüft die Übereinstimmung der Passwörter und ob die Datenschutzrichtlinie akzeptiert wurde
+
 function validatePasswords() {
-    const password = document.getElementById('password').value; // Holt das Passwort vom Formular
-    const confirmPassword = document.getElementById('confirmPassword').value; // Holt das Bestätigungs-Passwort
-    const passwordError = document.getElementById('passwordError'); // Holt das Fehler-Element für Passwörter
-    const privacyPolicy = document.getElementById('privacyPolicy'); // Holt das Datenschutzrichtlinien-Checkbox-Element
-    resetError(passwordError); // Setzt die Fehlermeldung zurück
-    // Überprüft, ob die Passwörter übereinstimmen
+    const password = document.getElementById('password').value; 
+    const confirmPassword = document.getElementById('confirmPassword').value; 
+    const passwordError = document.getElementById('passwordError'); 
+    const privacyPolicy = document.getElementById('privacyPolicy'); 
+    resetError(passwordError); 
+    
     if (!arePasswordsMatching(password, confirmPassword, passwordError)) {
-        return false; // Gibt false zurück, wenn die Passwörter nicht übereinstimmen
+        return false; 
     }
-    // Überprüft, ob die Datenschutzrichtlinie akzeptiert wurde
+    
     if (!isPrivacyPolicyAccepted(privacyPolicy, passwordError)) {
-        return false; // Gibt false zurück, wenn die Datenschutzrichtlinie nicht akzeptiert wurde
+        return false; 
     }
-    return true; // Gibt true zurück, wenn alles gültig ist
+    return true; 
 }
 
-// Setzt die Fehlermeldung des übergebenen Elements zurück
+
 function resetError(errorElement) {
-    errorElement.style.display = 'none'; // Versteckt die Fehlermeldung
+    errorElement.style.display = 'none'; 
 }
 
-// Überprüft, ob die Passwörter übereinstimmen und zeigt ggf. eine Fehlermeldung an
+
 function arePasswordsMatching(password, confirmPassword, errorElement) {
     if (password === confirmPassword) {
-        return true; // Gibt true zurück, wenn die Passwörter übereinstimmen
+        return true; 
     }
-    showError(errorElement, 'Passwords do not match.'); // Zeigt eine Fehlermeldung an
-    return false; // Gibt false zurück, wenn die Passwörter nicht übereinstimmen
+    showError(errorElement, 'Passwords do not match.'); 
+    return false; 
 }
 
-// Überprüft, ob die Datenschutzrichtlinie akzeptiert wurde und zeigt ggf. eine Fehlermeldung an
+
 function isPrivacyPolicyAccepted(privacyPolicyCheckbox, errorElement) {
     if (privacyPolicyCheckbox.checked) {
-        return true; // Gibt true zurück, wenn die Datenschutzrichtlinie akzeptiert wurde
+        return true; 
     }
-    showError(errorElement, 'Please accept the privacy policy.'); // Zeigt eine Fehlermeldung an
-    return false; // Gibt false zurück, wenn die Datenschutzrichtlinie nicht akzeptiert wurde
+    showError(errorElement, 'Please accept the privacy policy.'); 
+    return false; 
 }
 
-// Zeigt eine Fehlermeldung im übergebenen Fehler-Element an
+
 function showError(errorElement, message) {
-    errorElement.textContent = message; // Setzt den Fehlermeldungstext
-    errorElement.style.display = 'block'; // Zeigt die Fehlermeldung an
+    errorElement.textContent = message; 
+    errorElement.style.display = 'block'; 
 }
 
-// Zeigt ein Erfolgspopup an und leitet nach 1,5 Sekunden zur Zusammenfassungsseite weiter
+
 function showSuccessPopup() {
-    const successPopup = document.getElementById('successPopup'); // Holt das Erfolgspopup-Element
-    successPopup.style.display = 'block'; // Zeigt das Erfolgspopup an
+    const successPopup = document.getElementById('successPopup'); 
+    successPopup.style.display = 'block'; 
     setTimeout(() => {
-        successPopup.style.bottom = '50%'; // Positioniert das Popup in der Mitte des Bildschirms
+        successPopup.style.bottom = '50%'; 
     }, 0);
     setTimeout(() => {
-        successPopup.style.display = 'none'; // Versteckt das Erfolgspopup nach 1,5 Sekunden
-        window.location.href = '/html/summary.html'; // Leitet zur Zusammenfassungsseite weiter
+        successPopup.style.display = 'none'; 
+        window.location.href = '/html/summary.html'; 
     }, 1500);
 }
 
-// Wechselt zwischen Passwort- und Klartextmodus für ein Eingabefeld
+
 function togglePasswordVisibility(id) {
-    const input = document.getElementById(id); // Holt das Eingabefeld-Element
+    const input = document.getElementById(id); 
     if (input.type === 'password') {
-        input.type = 'text'; // Wechselt zu Klartextmodus
+        input.type = 'text'; 
     } else {
-        input.type = 'password'; // Wechselt zurück zu Passwortmodus
+        input.type = 'password'; 
     }
 }
 
-// Überprüft beim Laden der Seite, ob alle erforderlichen Eingabefelder ausgefüllt sind und die Datenschutzrichtlinie akzeptiert wurde
+
 document.addEventListener('DOMContentLoaded', function () {
-    const signUpButton = document.getElementById('signUpButton'); // Holt den Anmelde-Button
-    const inputs = document.querySelectorAll('#signupForm input[required]'); // Holt alle erforderlichen Eingabefelder
-    const privacyPolicy = document.getElementById('privacyPolicy'); // Holt das Datenschutzrichtlinien-Checkbox-Element
-    // Überprüft, ob alle Eingabefelder ausgefüllt sind und die Datenschutzrichtlinie akzeptiert wurde
+    const signUpButton = document.getElementById('signUpButton'); 
+    const inputs = document.querySelectorAll('#signupForm input[required]'); 
+    const privacyPolicy = document.getElementById('privacyPolicy'); 
+    
     function checkInputs() {
-        const allFilled = areInputsFilled(inputs); // Überprüft, ob alle Eingabefelder ausgefüllt sind
-        signUpButton.disabled = !(allFilled && privacyPolicy.checked); // Setzt den Zustand des Anmelde-Buttons
+        const allFilled = areInputsFilled(inputs); 
+        signUpButton.disabled = !(allFilled && privacyPolicy.checked); 
     }
-    // Fügt Event-Listener für Eingaben in erforderlichen Feldern hinzu
+    
     inputs.forEach(input => input.addEventListener('input', checkInputs));
-    // Fügt Event-Listener für Änderungen an der Datenschutzrichtlinie hinzu
+    
     privacyPolicy.addEventListener('change', checkInputs);
-    checkInputs(); // Initiale Überprüfung, um den Zustand des Buttons beim Laden der Seite festzulegen
+    checkInputs(); 
 });
 
-// Überprüft, ob alle Eingabefelder ausgefüllt sind
+
 function areInputsFilled(inputs) {
-    return Array.from(inputs).every(input => input.value.trim() !== ''); // Gibt true zurück, wenn alle Felder ausgefüllt sind
+    return Array.from(inputs).every(input => input.value.trim() !== ''); 
 }
 
 function validateEmail(email) {
@@ -98,15 +98,14 @@ function validateEmail(email) {
 }
 
 document.getElementById('signupForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevents the default form submission behavior
+    event.preventDefault(); 
 
-    // Call the submitContactFB function
+    
     submitContactFB(event);
 });
 
 async function submitContactFB(event) {
-    // Prevents the default form submission behavior (redundant if already called in the event listener)
-    event.preventDefault(); 
+    
 
     let contactName = document.getElementById("fullName").value;
     let contactEmail = document.getElementById("email").value;
@@ -115,13 +114,13 @@ async function submitContactFB(event) {
     const emailError = document.getElementById('emailError');
     const passwordError = document.getElementById('passwordError');
     
-    // Reset error messages visibility
+    
     emailError.style.display = 'none';
     passwordError.style.display = 'none';
 
     let isValid = true;
 
-    // Validate Passwords
+    
     if (!validatePasswords()) {
         isValid = false;
     }
