@@ -15,6 +15,7 @@ body {
     padding-left: 15%;
     padding-left: 23%;
     padding-top: 200px;
+    overflow-y: auto;
 
     h1 {
         margin-top: 0px;
@@ -225,10 +226,11 @@ select {
     width: 100vw;
     right: 0;
     display: flex;
+    bottom: 0;
     justify-content: space-evenly;
-    bottom: 81px;
     position: absolute;
     background: #F6F7F8;
+    height: 106px;
 }
 
 .buttons {

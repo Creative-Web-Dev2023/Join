@@ -403,7 +403,8 @@ body {
 
 .close-button {
     position: absolute;
-    right: 78px;
+    right: 10px;
+    top: 10px;
     font-size: 30px;
     cursor: pointer;
     border-radius: 50%;

@@ -2,6 +2,9 @@
     .main-section {
         padding-left: 0px;
     }
+    .bottom-section {
+        bottom: 45px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -276,7 +279,11 @@ span {
 }
 
 .subtask {
-    width: 100%;
+    width: auto;
+    cursor: pointer;
+    padding-bottom: 10px;
+    align-items: start;
+    height: auto;
 }
 
 .subtask:hover {

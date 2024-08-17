@@ -215,18 +215,28 @@ function updateSelectedContactsDisplay(selectedContacts) {
   const container = document.getElementById("selected-contacts-container");
   container.innerHTML = "";
 
-  selectedContacts.forEach((contact) => {
+  const maxContactsToShow = 3;
+
+selectedContacts.slice(0, maxContactsToShow).forEach((contact) => {
     const circle = document.createElement("div");
     circle.className = "contact-circle";
     circle.style.backgroundColor = contact.color;
     circle.textContent = contact.name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase();
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase();
     circle.title = contact.name;
     container.appendChild(circle);
-  });
+});
+
+if (selectedContacts.length > maxContactsToShow) {
+    const extraContactsCount = selectedContacts.length - maxContactsToShow;
+    const extraContactsElement = document.createElement("div");
+    extraContactsElement.className = "contact-circle extra";
+    extraContactsElement.innerText = `+${extraContactsCount}`;
+    container.appendChild(extraContactsElement);
+}
 }
 
 /**

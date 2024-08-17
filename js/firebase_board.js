@@ -265,19 +265,33 @@ function getHeaderColor(userStoryText) {
  * @return {string} - The HTML string representing the assigned people.
  */
 function generateAssignedHtml(assignedPeople) {
-  return assignedPeople
-    .map((person) => {
-      const initials = person.name
-        .split(" ")
-        .map((name) => name[0])
-        .join("");
-      return `
-              <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
-                  ${initials}
-              </span>
-          `;
-    })
-    .join("");
+  const maxPeopleToShow = 3;
+  let html = "";
+
+  // Generate HTML for the first three or fewer people
+  assignedPeople.slice(0, maxPeopleToShow).forEach((person) => {
+    const initials = person.name
+      .split(" ")
+      .map((name) => name[0])
+      .join("");
+    html += `
+      <span class="assignee" style="background-color: ${person.color}; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
+        ${initials}
+      </span>
+    `;
+  });
+
+  // If there are more than maxPeopleToShow, add the "+x" indicator
+  if (assignedPeople.length > maxPeopleToShow) {
+    const extraPeopleCount = assignedPeople.length - maxPeopleToShow;
+    html += `
+      <span class="assignee" style="background-color: #007bff; border-radius: 50%; display: inline-block; width: 30px; height: 30px; line-height: 30px; text-align: center; color: #fff;">
+        +${extraPeopleCount}
+      </span>
+    `;
+  }
+
+  return html;
 }
 
 /**
@@ -416,225 +430,224 @@ async function saveCheckboxState(taskId, subtaskIndex, isChecked) {
  * @return {string} - The Firebase path for the subtask status.
  */
 function generateFirebasePath(taskId, subtaskIndex) {
-    return `tasks/task${taskId}/subtaskStatuses/${subtaskIndex}.json`;
+  return `tasks/task${taskId}/subtaskStatuses/${subtaskIndex}.json`;
+}
+
+/**
+ * Sends the subtask checkbox state to Firebase.
+ *
+ * @async
+ * @param {string} firebasePath - The Firebase path for the subtask status.
+ * @param {boolean} isChecked - The checkbox state (true for checked, false for unchecked).
+ * @return {Promise<Response>} - The fetch API response.
+ */
+async function sendCheckboxStateToFirebase(firebasePath, isChecked) {
+  return await fetch(BASE_URL + firebasePath, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(isChecked),
+  });
+}
+
+/**
+ * Handles the response from Firebase and throws an error if the response is not ok.
+ *
+ * @param {Response} response - The fetch response from Firebase.
+ * @throws Will throw an error if the response status is not ok.
+ */
+function handleResponseStatus(response) {
+  if (!response.ok) {
+    throw new Error("Fehler beim Speichern des Zustands in Firebase");
   }
-  
-  /**
-   * Sends the subtask checkbox state to Firebase.
-   *
-   * @async
-   * @param {string} firebasePath - The Firebase path for the subtask status.
-   * @param {boolean} isChecked - The checkbox state (true for checked, false for unchecked).
-   * @return {Promise<Response>} - The fetch API response.
-   */
-  async function sendCheckboxStateToFirebase(firebasePath, isChecked) {
-    return await fetch(BASE_URL + firebasePath, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(isChecked),
-    });
+}
+
+/**
+ * Logs an error message when saving checkbox state to Firebase fails.
+ *
+ * @param {Error} error - The error object.
+ */
+function handleError(error) {
+  console.error(
+    "Fehler beim Speichern des Checkbox-Zustands in Firebase:",
+    error
+  );
+}
+
+/**
+ * Processes a task with subtasks by fetching subtask data and updating the progress bar.
+ *
+ * @async
+ * @param {Object} task - The task data object.
+ * @param {number} index - The index of the task.
+ * @return {Promise<HTMLElement>} - The task element with subtasks processed.
+ */
+async function processTaskWithSubtasks(task, index) {
+  const taskElement = createTaskElement(task, index);
+
+  const subtaskText = await subtaskFB(`tasks/task${task.id}/subtask`);
+  if (subtaskText) {
+    const subtasksContainer = document.createElement("div");
+    taskElement.appendChild(subtasksContainer);
+
+    await updateProgressBarFromFirebase(task.id);
   }
-  
-  /**
-   * Handles the response from Firebase and throws an error if the response is not ok.
-   *
-   * @param {Response} response - The fetch response from Firebase.
-   * @throws Will throw an error if the response status is not ok.
-   */
-  function handleResponseStatus(response) {
-    if (!response.ok) {
-      throw new Error("Fehler beim Speichern des Zustands in Firebase");
-    }
+
+  return taskElement;
+}
+
+/**
+ * Updates the progress bar for a task by fetching subtask statuses from Firebase.
+ *
+ * @async
+ * @param {number} taskId - The ID of the task to update the progress bar for.
+ */
+async function updateProgressBarFromFirebase(taskId) {
+  const savedStatuses = await getSavedStatusesFromFirebase(taskId);
+
+  const totalSubtasks = savedStatuses.length;
+  const completedCount = savedStatuses.filter(
+    (status) => status === true
+  ).length;
+
+  updateProgressBarUI(taskId, completedCount, totalSubtasks);
+  updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
+}
+
+/**
+ * Displays a message indicating that no tasks are available.
+ *
+ * @param {HTMLElement} container - The container to display the message in.
+ */
+function showNoTasksMessage(container) {
+  container.innerHTML = "<p>No tasks available.</p>";
+}
+
+/**
+ * Processes a task by creating its element, adding it to the container, and updating its progress bar.
+ *
+ * @param {Object} task - The task data object.
+ * @param {number} index - The index of the task.
+ * @param {HTMLElement} container - The container to append the task element to.
+ */
+function processTask(task, index, container) {
+  const taskElement = createTaskElement(task, index);
+  container.appendChild(taskElement);
+  loadSubtaskProgress(index + 1);
+  updateProgressBarFromFirebase(index + 1);
+}
+
+/**
+ * Calculates the number of completed and total subtasks from the subtask statuses.
+ *
+ * @param {Array<boolean>} statuses - An array of subtask statuses (true for completed, false for not completed).
+ * @return {Object} - An object containing the completed count and total subtasks.
+ */
+function calculateSubtaskCounts(statuses) {
+  const completedCount = statuses.filter((status) => status).length;
+  return { completedCount, totalSubtasks: statuses.length };
+}
+
+/**
+ * Updates the subtask count element for a task.
+ *
+ * @param {number} taskId - The ID of the task.
+ * @param {number} completedCount - The number of completed subtasks.
+ * @param {number} totalSubtasks - The total number of subtasks.
+ */
+function updateSubtaskCountElement(taskId, completedCount, totalSubtasks) {
+  const subtaskCountElement = document.getElementById(
+    `subtask-count-${taskId}`
+  );
+  if (subtaskCountElement) {
+    subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
   }
-  
-  /**
-   * Logs an error message when saving checkbox state to Firebase fails.
-   *
-   * @param {Error} error - The error object.
-   */
-  function handleError(error) {
-    console.error(
-      "Fehler beim Speichern des Checkbox-Zustands in Firebase:",
-      error
-    );
+}
+
+/**
+ * Updates the progress bar for a task based on the subtask completion.
+ *
+ * @param {number} taskId - The ID of the task.
+ */
+function updateProgress(taskId) {
+  const subtaskImages = getSubtaskImages(taskId);
+  const { completedCount, totalSubtasks } =
+    calculateSubtaskCompletion(subtaskImages);
+
+  updateProgressBarUI(taskId, completedCount, totalSubtasks);
+  updateSubtaskCountUI(taskId, completedCount, totalSubtasks);
+
+  saveSubtaskProgress(taskId, subtaskImages);
+}
+
+/**
+ * Retrieves the subtask images for a task.
+ *
+ * @param {number} taskId - The ID of the task.
+ * @return {NodeList} - A NodeList of subtask images.
+ */
+function getSubtaskImages(taskId) {
+  return document.querySelectorAll(`#popup-task${taskId} .subtask img`);
+}
+
+/**
+ * Calculates the number of completed subtasks from the subtask images.
+ *
+ * @param {NodeList} subtaskImages - A NodeList of subtask images.
+ * @return {Object} - An object containing the completed count and total subtasks.
+ */
+function calculateSubtaskCompletion(subtaskImages) {
+  const completedCount = Array.from(subtaskImages).filter((img) =>
+    img.src.includes("checkesbox.png")
+  ).length;
+  return { completedCount, totalSubtasks: subtaskImages.length };
+}
+
+/**
+ * Updates the progress bar UI for a task based on the number of completed and total subtasks.
+ *
+ * @param {number} taskId - The ID of the task.
+ * @param {number} completedCount - The number of completed subtasks.
+ * @param {number} totalSubtasks - The total number of subtasks.
+ */
+function updateProgressBarUI(taskId, completedCount, totalSubtasks) {
+  const progressBar = document.getElementById(`progress-bar-${taskId}`);
+  if (progressBar) {
+    const progressPercentage = (completedCount / totalSubtasks) * 100;
+    progressBar.style.width = `${progressPercentage}%`;
   }
-  
-  /**
-   * Processes a task with subtasks by fetching subtask data and updating the progress bar.
-   *
-   * @async
-   * @param {Object} task - The task data object.
-   * @param {number} index - The index of the task.
-   * @return {Promise<HTMLElement>} - The task element with subtasks processed.
-   */
-  async function processTaskWithSubtasks(task, index) {
-    const taskElement = createTaskElement(task, index);
-  
-    const subtaskText = await subtaskFB(`tasks/task${task.id}/subtask`);
-    if (subtaskText) {
-      const subtasksContainer = document.createElement("div");
-      taskElement.appendChild(subtasksContainer);
-  
-      await updateProgressBarFromFirebase(task.id);
-    }
-  
-    return taskElement;
+}
+
+/**
+ * Updates the subtask count UI for a task based on the number of completed and total subtasks.
+ *
+ * @param {number} taskId - The ID of the task.
+ * @param {number} completedCount - The number of completed subtasks.
+ * @param {number} totalSubtasks - The total number of subtasks.
+ */
+function updateSubtaskCountUI(taskId, completedCount, totalSubtasks) {
+  const subtaskCountElement = document.getElementById(
+    `subtask-count-${taskId}`
+  );
+  if (subtaskCountElement) {
+    subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
   }
-  
-  /**
-   * Updates the progress bar for a task by fetching subtask statuses from Firebase.
-   *
-   * @async
-   * @param {number} taskId - The ID of the task to update the progress bar for.
-   */
-  async function updateProgressBarFromFirebase(taskId) {
-    const savedStatuses = await getSavedStatusesFromFirebase(taskId);
-  
-    const totalSubtasks = savedStatuses.length;
-    const completedCount = savedStatuses.filter(
-      (status) => status === true
-    ).length;
-  
-    updateProgressBarUI(taskId, completedCount, totalSubtasks);
-    updateSubtaskCountElement(taskId, completedCount, totalSubtasks);
+}
+
+/**
+ * Saves the subtask progress to Firebase.
+ *
+ * @async
+ * @param {number} taskId - The ID of the task.
+ */
+async function saveSubtaskProgress(taskId) {
+  const subtaskStatuses = getSubtaskStatuses(taskId);
+  const firebasePath = generateFirebaseSubtaskPath(taskId);
+
+  try {
+    await sendSubtaskStatusesToFirebase(firebasePath, subtaskStatuses);
+  } catch (error) {
+    handleSaveError(error);
   }
-  
-  /**
-   * Displays a message indicating that no tasks are available.
-   *
-   * @param {HTMLElement} container - The container to display the message in.
-   */
-  function showNoTasksMessage(container) {
-    container.innerHTML = "<p>No tasks available.</p>";
-  }
-  
-  /**
-   * Processes a task by creating its element, adding it to the container, and updating its progress bar.
-   *
-   * @param {Object} task - The task data object.
-   * @param {number} index - The index of the task.
-   * @param {HTMLElement} container - The container to append the task element to.
-   */
-  function processTask(task, index, container) {
-    const taskElement = createTaskElement(task, index);
-    container.appendChild(taskElement);
-    loadSubtaskProgress(index + 1);
-    updateProgressBarFromFirebase(index + 1);
-  }
-  
-  /**
-   * Calculates the number of completed and total subtasks from the subtask statuses.
-   *
-   * @param {Array<boolean>} statuses - An array of subtask statuses (true for completed, false for not completed).
-   * @return {Object} - An object containing the completed count and total subtasks.
-   */
-  function calculateSubtaskCounts(statuses) {
-    const completedCount = statuses.filter((status) => status).length;
-    return { completedCount, totalSubtasks: statuses.length };
-  }
-  
-  /**
-   * Updates the subtask count element for a task.
-   *
-   * @param {number} taskId - The ID of the task.
-   * @param {number} completedCount - The number of completed subtasks.
-   * @param {number} totalSubtasks - The total number of subtasks.
-   */
-  function updateSubtaskCountElement(taskId, completedCount, totalSubtasks) {
-    const subtaskCountElement = document.getElementById(
-      `subtask-count-${taskId}`
-    );
-    if (subtaskCountElement) {
-      subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
-    }
-  }
-  
-  /**
-   * Updates the progress bar for a task based on the subtask completion.
-   *
-   * @param {number} taskId - The ID of the task.
-   */
-  function updateProgress(taskId) {
-    const subtaskImages = getSubtaskImages(taskId);
-    const { completedCount, totalSubtasks } =
-      calculateSubtaskCompletion(subtaskImages);
-  
-    updateProgressBarUI(taskId, completedCount, totalSubtasks);
-    updateSubtaskCountUI(taskId, completedCount, totalSubtasks);
-  
-    saveSubtaskProgress(taskId, subtaskImages);
-  }
-  
-  /**
-   * Retrieves the subtask images for a task.
-   *
-   * @param {number} taskId - The ID of the task.
-   * @return {NodeList} - A NodeList of subtask images.
-   */
-  function getSubtaskImages(taskId) {
-    return document.querySelectorAll(`#popup-task${taskId} .subtask img`);
-  }
-  
-  /**
-   * Calculates the number of completed subtasks from the subtask images.
-   *
-   * @param {NodeList} subtaskImages - A NodeList of subtask images.
-   * @return {Object} - An object containing the completed count and total subtasks.
-   */
-  function calculateSubtaskCompletion(subtaskImages) {
-    const completedCount = Array.from(subtaskImages).filter((img) =>
-      img.src.includes("checkesbox.png")
-    ).length;
-    return { completedCount, totalSubtasks: subtaskImages.length };
-  }
-  
-  /**
-   * Updates the progress bar UI for a task based on the number of completed and total subtasks.
-   *
-   * @param {number} taskId - The ID of the task.
-   * @param {number} completedCount - The number of completed subtasks.
-   * @param {number} totalSubtasks - The total number of subtasks.
-   */
-  function updateProgressBarUI(taskId, completedCount, totalSubtasks) {
-    const progressBar = document.getElementById(`progress-bar-${taskId}`);
-    if (progressBar) {
-      const progressPercentage = (completedCount / totalSubtasks) * 100;
-      progressBar.style.width = `${progressPercentage}%`;
-    }
-  }
-  
-  /**
-   * Updates the subtask count UI for a task based on the number of completed and total subtasks.
-   *
-   * @param {number} taskId - The ID of the task.
-   * @param {number} completedCount - The number of completed subtasks.
-   * @param {number} totalSubtasks - The total number of subtasks.
-   */
-  function updateSubtaskCountUI(taskId, completedCount, totalSubtasks) {
-    const subtaskCountElement = document.getElementById(
-      `subtask-count-${taskId}`
-    );
-    if (subtaskCountElement) {
-      subtaskCountElement.textContent = `${completedCount}/${totalSubtasks} Subtasks`;
-    }
-  }
-  
-  /**
-   * Saves the subtask progress to Firebase.
-   *
-   * @async
-   * @param {number} taskId - The ID of the task.
-   */
-  async function saveSubtaskProgress(taskId) {
-    const subtaskStatuses = getSubtaskStatuses(taskId);
-    const firebasePath = generateFirebaseSubtaskPath(taskId);
-  
-    try {
-      await sendSubtaskStatusesToFirebase(firebasePath, subtaskStatuses);
-    } catch (error) {
-      handleSaveError(error);
-    }
-  }
-  
+}
