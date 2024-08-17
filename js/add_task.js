@@ -143,8 +143,10 @@ items.forEach(item => {
 
 document.querySelectorAll(".prio-button").forEach(function (btn) {
   btn.classList.remove("clicked");
+  let med = document.getElementById('medium')
   if (btn.src.includes("_clicked")) {
     btn.src = btn.src.replace("_clicked", "_standart");
   }
+  med.src = med.src.replace("_standart", "_clicked");
 });
 }

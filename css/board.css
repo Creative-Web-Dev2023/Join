@@ -231,7 +231,7 @@ body {
 
 #popup {
     max-width: 1116px;
-    height: 791px;
+    height: 80vh;
     background-color: #fff;
     z-index: 902;
     border-radius: 31px;
