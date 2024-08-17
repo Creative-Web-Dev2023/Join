@@ -547,7 +547,7 @@ async function toggleCheckbox(index, taskId) {
     const taskData = await fetchTaskDataFromFirebase(path);
     if (!isValidTaskData(taskData)) return;
   
-    const updatedSubtasks = removeSubtask(taskData.subtask, subtaskToDelete);
+    const updatedSubtasks = removeSubtask2(taskData.subtask, subtaskToDelete);
     if (updatedSubtasks === taskData.subtask) return;
   
     return await updateSubtasksInFirebase2(path, updatedSubtasks);
@@ -581,7 +581,7 @@ async function toggleCheckbox(index, taskId) {
    * @param {string} subtaskToDelete - The subtask to remove.
    * @returns {string} - The updated subtask string.
    */
-  function removeSubtask(subtasksString, subtaskToDelete) {
+  function removeSubtask2(subtasksString, subtaskToDelete) {
     const subtasks = subtasksString.split(",");
     return subtasks
       .filter((subtask) => subtask.trim() !== subtaskToDelete.trim())

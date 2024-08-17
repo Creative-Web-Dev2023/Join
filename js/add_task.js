@@ -128,7 +128,8 @@ document.getElementById('date').value = "";
 document.getElementById('category').value = "";
 document.getElementById('category').value = "";
 document.getElementById('subtask-input').value = "";
-
+document.getElementById('subtask-list').innerHTML = "";
+let subtask = [];
 
 const items = document.querySelectorAll('.dropdown-item');
 items.forEach(item => {
