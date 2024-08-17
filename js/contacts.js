@@ -299,16 +299,22 @@ function clearInputErrors() {
  */
 function validateContactData(contactData) {
   let isValid = true;
+  let dataError1 = document.getElementById('error-when-edit1');
+  let dataError2 = document.getElementById('error-when-edit2');
+  let dataError3 = document.getElementById('error-when-edit3');
   if (!contactData.name) {
     document.getElementById("name-input").classList.add("input-error");
+    dataError1.style.display = "block";
     isValid = false;
   }
   if (!contactData.email || !isValidEmail(contactData.email)) {
     document.getElementById("email-input").classList.add("input-error");
+    dataError2.style.display = "block";
     isValid = false;
   }
   if (!contactData.phone || !isValidPhoneNumber(contactData.phone)) {
     document.getElementById("phone-input").classList.add("input-error");
+    dataError3.style.display = "block";
     isValid = false;
   }
   return isValid;

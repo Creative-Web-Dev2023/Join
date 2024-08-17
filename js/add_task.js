@@ -120,5 +120,30 @@ function clearError(field) {
  * Resets the form input by redirecting the user to the 'add task' page.
  */
 function resetInput() {
-  window.location.href = "/html/add_task.html";
+document.getElementById('title-input').value = "";
+document.getElementById('description-input').value = "";
+document.getElementById('dropdown-content').value = "";
+document.getElementById('selected-contacts-container').innerHTML = "";
+document.getElementById('date').value = "";
+document.getElementById('category').value = "";
+document.getElementById('category').value = "";
+document.getElementById('subtask-input').value = "";
+
+
+const items = document.querySelectorAll('.dropdown-item');
+items.forEach(item => {
+  item.setAttribute("data-selected", "false");
+  item.style.backgroundColor = ""; // Reset background color to default
+  item.style.color = ""; // Reset text color to default
+  const img = item.querySelector(".toggle-image");
+  img.src = "/assets/img/img_add_task/checkbox.png"; // Reset image to unchecked state
+  img.alt = "Unselected";
+});
+
+document.querySelectorAll(".prio-button").forEach(function (btn) {
+  btn.classList.remove("clicked");
+  if (btn.src.includes("_clicked")) {
+    btn.src = btn.src.replace("_clicked", "_standart");
+  }
+});
 }
