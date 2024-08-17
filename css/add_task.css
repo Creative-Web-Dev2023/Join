@@ -211,12 +211,11 @@ select {
     gap: 16px;
     display: flex;
     justify-content: space-between;
-    transition: 0.3s ease, 0.3s ease;
     background-size: cover;
 
     img {
-        width: 30%;
-        height: auto;
+        width: 136px;
+        height: 56px;
         gap: 8px;
     }
 }

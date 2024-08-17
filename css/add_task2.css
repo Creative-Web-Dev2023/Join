@@ -1,7 +1,38 @@
+
+
+@media (max-width: 1330px) {
+    .prio-buttons {
+        gap: 5px;
+        justify-content: center;
+
+        img {
+            width: 105px;
+            height: 56px;
+            gap: 8px;
+        }
+    }
+}
+
 @media (max-width: 1060px) {
     .main-section {
         padding-left: 0px;
     }
+
+    .line {
+        display: none;
+    }
+
+    .prio-buttons {
+        gap: 5px;
+        justify-content: center;
+
+        img {
+            width: 33%;
+            height: 56px;
+            gap: 8px;
+        }
+    }
+
     .bottom-section {
         bottom: 45px;
     }
@@ -114,6 +145,26 @@
 
     .clear {
         display: none;
+    }
+
+    .prio-buttons {
+        gap: 5px;
+        justify-content: space-evenly;
+
+        img {
+            width: 180px;
+            height: 75px;
+            gap: 8px;
+        }
+    }
+}
+@media (max-width: 550px) {
+    .prio-buttons {
+
+        img {
+            width: 102px;
+            height: 47px;
+        }
     }
 }
 
